@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">E Commerce</string>
+    <string name="username">UserName</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="email">Email</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="password">Password</string>
+    <string name="signupButton">SignUp</string>
+    <string name="you_have_already_account">you have Already Account?</string>
+    <string name="login_now">login now</string>
+
+</resources>
