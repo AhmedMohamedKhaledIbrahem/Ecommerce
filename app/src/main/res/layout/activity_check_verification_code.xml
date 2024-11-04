@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    tools:context=".features.authentication.presentation.screens.CheckVerificationCodeActivity">
+
+    <TextView
+        android:id="@+id/forgetPasswordTextView"
+        style="@style/headLine1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="58dp"
+        android:text="@string/otp_verification"
+        android:textColor="?attr/colorSecondary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/otpVerificationParagraphTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/forgetPasswordTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        style="@style/paragraphStyle"
+        android:textColor="?attr/colorOnSecondary"
+        android:text="@string/please_check_your_email_to_see_n_nthe_verification_code"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+
+        android:text="@string/otp_code"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="?attr/colorSecondary"
+        app:layout_constraintBottom_toTopOf="@id/otpDigital1TextInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+
+        app:layout_constraintTop_toBottomOf="@id/otpVerificationParagraphTextView"
+        app:layout_constraintVertical_bias="0.9" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/otpDigital1TextInputLayout"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:hintTextAppearance="@style/CustomHintTextAppearance"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/otpDigital2TextInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/otpDigital1TextInputEditText"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:inputType="number"
+            android:maxLines="1"
+            android:gravity="center"
+            android:textSize="14sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/otpDigital2TextInputLayout"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:hintTextAppearance="@style/CustomHintTextAppearance"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/otpDigital3TextInputLayout"
+        app:layout_constraintStart_toEndOf="@id/otpDigital1TextInputLayout"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/otpDigital2TextInputEditText"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:inputType="number"
+            android:maxLines="1"
+            android:gravity="center"
+            android:textSize="14sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/otpDigital3TextInputLayout"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:hintTextAppearance="@style/CustomHintTextAppearance"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/otpDigital4TextInputLayout"
+        app:layout_constraintStart_toEndOf="@id/otpDigital2TextInputLayout"
+        app:layout_constraintTop_toTopOf="parent"
+
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/otpDigital3TextInputEditText"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:inputType="number"
+            android:maxLines="1"
+            android:gravity="center"
+            android:textSize="14sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/otpDigital4TextInputLayout"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:hintTextAppearance="@style/CustomHintTextAppearance"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/otpDigital5TextInputLayout"
+        app:layout_constraintStart_toEndOf="@id/otpDigital3TextInputLayout"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/otpDigital4TextInputEditText"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:inputType="number"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="14sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/otpDigital5TextInputLayout"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:hintTextAppearance="@style/CustomHintTextAppearance"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/otpDigital6TextInputLayout"
+        app:layout_constraintStart_toEndOf="@id/otpDigital4TextInputLayout"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/otpDigital5TextInputEditText"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:inputType="number"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="14sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/otpDigital6TextInputLayout"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:hintTextAppearance="@style/CustomHintTextAppearance"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/otpDigital5TextInputLayout"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/otpDigital6TextInputEditText"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLines="1"
+            android:textSize="14sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/verifyCodeButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/otpDigital1TextInputLayout">
+
+
+        <TextView
+            android:layout_marginStart="18dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/didnt_get_the_code"
+            android:textColor="?attr/colorOnSecondary"
+            />
+        <TextView
+            android:id="@+id/resendCodeTextView"
+            android:layout_marginStart="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/clickToResend"
+            android:clickable="true"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/verifyCodeButton"
+        style="@style/customButtonStyle"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="150dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:text="@string/verifyCode"
+        android:textColor="?attr/colorOnPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.58000004"
+        />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

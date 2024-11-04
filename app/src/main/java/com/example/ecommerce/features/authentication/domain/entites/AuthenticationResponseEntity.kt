@@ -11,5 +11,6 @@ data class AuthenticationResponseEntity(
     val lastName: String,
     val displayName: String,
     val roles: List<String>,
+    val verificationStatues :Boolean,
     val expiredToken: Int
 )

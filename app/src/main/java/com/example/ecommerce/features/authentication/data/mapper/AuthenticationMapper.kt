@@ -14,6 +14,7 @@ object AuthenticationMapper {
             firstName = model.firstName,
             lastName = model.lastName,
             userId = model.userId,
+            verificationStatues = model.verificationStatues,
             expiredToken = model.expiredToken
         )
     }

@@ -19,6 +19,8 @@ data class AuthenticationResponseModel(
     val lastName :String,
     @SerializedName("roles")
     val roles : List<String>,
+    @SerializedName("email_verification_status")
+    val verificationStatues :Boolean,
     @SerializedName("exp")
     val expiredToken :Int
 )

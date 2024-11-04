@@ -3,6 +3,7 @@ package com.example.ecommerce.features.authentication.domain.usecases
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationResponseEntity
 import com.example.ecommerce.features.authentication.domain.repositories.AuthenticationRepository
+import com.example.ecommerce.features.authentication.domain.usecases.login.LoginUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -38,6 +39,7 @@ class LoginUseCaseTest {
             lastName = "pero",
             displayName = "jino pero" ,
             roles = arrayListOf("customer"),
+            verificationStatues = false,
             expiredToken = 123456
         )
         `when`(repository.login(loginParams = tLoginParams)).thenReturn(tLoginResponse)
