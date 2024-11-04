@@ -1,0 +1,14 @@
+{
+  "token": "token",
+  "user_email": "test@gmail.com",
+  "user_nicename": "test",
+  "user_display_name": "jino pero",
+  "roles": [
+    "customer"
+  ],
+  "user_id": 1,
+  "first_name": "jino",
+  "last_name": "pero",
+  "email_verification_status": false,
+  "exp": 1
+}

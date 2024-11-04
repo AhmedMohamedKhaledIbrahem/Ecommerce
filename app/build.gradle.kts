@@ -36,6 +36,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+
+
 }
 
 dependencies {
@@ -50,6 +53,8 @@ dependencies {
 
     //dagger hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.junit.ktx)
+    testImplementation(libs.hilt.android.testing)
     kapt(libs.hilt.android.compiler)
     implementation (libs.androidx.room.ktx)
     implementation (libs.androidx.room.runtime)
@@ -60,11 +65,20 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation (libs.kotlinx.coroutines.core)
     testImplementation (libs.kotlinx.coroutines.test)
     testImplementation (libs.mockito.core)
     testImplementation (libs.mockito.inline)
+    testImplementation (libs.mockito.kotlin)
     testImplementation (libs.kotlin.test)
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation (libs.androidx.core.testing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation (libs.androidx.runner)
+    testImplementation (libs.json)
+
+
+
 }

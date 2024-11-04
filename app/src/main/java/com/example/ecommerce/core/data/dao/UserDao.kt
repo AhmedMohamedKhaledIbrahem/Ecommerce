@@ -13,9 +13,12 @@ interface UserDao {
     suspend fun insertUser(userEntity:UserEntity)
     @Query("select * from user")
     suspend fun getUser():UserEntity
-
+    @Query("select * from user where userId =:userId Limit 1")
+    suspend fun checkUserEntityById(userId:Int):UserEntity?
     @Query("delete from user")
     suspend fun delete()
+    @Query("Update user SET verificationStatues = :verificationStatus where userEmail =:email")
+    suspend fun updateVerificationStatusByEmail(email:String,verificationStatus:Boolean)
 }
 
 

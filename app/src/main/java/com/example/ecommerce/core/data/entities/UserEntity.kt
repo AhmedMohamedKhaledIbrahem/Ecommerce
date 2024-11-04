@@ -11,6 +11,11 @@ data class UserEntity(
     val userName: String,
     val firstName: String,
     val lastName: String,
+    val roles:String,
+    val verificationStatues:Boolean,
     val displayName: String,
     val expiredToken: Int
-)
+
+){
+
+}

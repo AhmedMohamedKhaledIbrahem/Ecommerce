@@ -1,6 +1,8 @@
 package com.example.ecommerce.features.authentication.domain.entites
 
+import com.google.gson.annotations.SerializedName
+
 data class AuthenticationRequestEntity(
-    val userName:String ,
-    val password:String
+  @SerializedName("username")  val userName:String ,
+  @SerializedName("password")  val password:String
 )

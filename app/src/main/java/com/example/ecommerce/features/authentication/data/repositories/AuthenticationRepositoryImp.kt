@@ -11,6 +11,8 @@ import com.example.ecommerce.features.authentication.data.mapper.AuthenticationM
 import com.example.ecommerce.features.authentication.data.mapper.MessageResponseMapper
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationResponseEntity
+import com.example.ecommerce.features.authentication.domain.entites.CheckVerificationRequestEntity
+import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.MessageResponseEntity
 import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
 import com.example.ecommerce.features.authentication.domain.repositories.AuthenticationRepository
@@ -27,9 +29,12 @@ class AuthenticationRepositoryImp @Inject constructor(
             if (networkInfo.hasConnection()) {
                 val login = remoteDataSource.login(loginParams)
                 try {
-                    preferences.saveToken(login.token)
-                    val mapper = UserMapper.mapToEntity(login)
-                    localDataSource.insertUser(mapper)
+                    val existingUser = localDataSource.checkUserEntityById(login.userId)
+                    if (existingUser == null) {
+                        preferences.saveToken(login.token)
+                        val mapper = UserMapper.mapToEntity(login)
+                        localDataSource.insertUser(mapper)
+                    }
                 } catch (e: FailureException) {
                     throw Failures.CacheFailure(e.message ?: "UnKnown Cache error")
                 }
@@ -46,6 +51,7 @@ class AuthenticationRepositoryImp @Inject constructor(
         return try {
             if (networkInfo.hasConnection()) {
                 val signUp = remoteDataSource.signUp(singUpParams)
+
                 MessageResponseMapper.mapToEntity(signUp)
             } else {
                 throw Failures.ConnectionFailure("No Internet Connection")
@@ -55,11 +61,50 @@ class AuthenticationRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun resetPassword(email: String): MessageResponseEntity {
+    override suspend fun resetPassword(resetPasswordParams: EmailRequestEntity): MessageResponseEntity {
         return try {
             if (networkInfo.hasConnection()) {
-                val resetPassword = remoteDataSource.resetPassword(email)
+                val resetPassword = remoteDataSource.resetPassword(resetPasswordParams)
                 MessageResponseMapper.mapToEntity(resetPassword)
+            } else {
+                throw Failures.ConnectionFailure("No Internet Connection")
+            }
+        } catch (e: FailureException) {
+            throw Failures.ServerFailure(e.message ?: "Unknown server error")
+        }
+    }
+
+    override suspend fun sendVerificationCode(
+        sendVerificationCodeParams: EmailRequestEntity
+    ): MessageResponseEntity {
+        return try {
+            if (networkInfo.hasConnection()) {
+                val sendVerificationCode =
+                    remoteDataSource.sendVerificationCode(
+                        sendVerificationCodeParams = sendVerificationCodeParams
+                    )
+                MessageResponseMapper.mapToEntity(sendVerificationCode)
+            } else {
+                throw Failures.ConnectionFailure("No Internet Connection")
+            }
+        } catch (e: FailureException) {
+            throw Failures.ServerFailure(e.message ?: "Unknown server error")
+        }
+    }
+
+    override suspend fun checkVerificationCode(
+        checkVerificationCodeParams: CheckVerificationRequestEntity
+    ): MessageResponseEntity {
+        return try {
+            if (networkInfo.hasConnection()) {
+                val checkVerificationCode = remoteDataSource.checkVerificationCode(
+                    checkVerificationCodeParams = checkVerificationCodeParams
+                )
+                localDataSource.updateVerificationStatusByEmail(
+                    checkVerificationCodeParams.email,
+                    true
+                )
+                MessageResponseMapper.mapToEntity(model = checkVerificationCode)
             } else {
                 throw Failures.ConnectionFailure("No Internet Connection")
             }
@@ -71,7 +116,7 @@ class AuthenticationRepositoryImp @Inject constructor(
     override suspend fun logout() {
         return try {
             if (networkInfo.hasConnection()) {
-             preferences.clearToken()
+                preferences.clearToken()
             } else {
                 throw Failures.ConnectionFailure("No Internet Connection")
             }

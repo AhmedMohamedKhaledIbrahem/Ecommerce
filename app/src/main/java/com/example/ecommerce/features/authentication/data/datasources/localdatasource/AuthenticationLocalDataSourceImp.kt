@@ -16,4 +16,23 @@ class AuthenticationLocalDataSourceImp @Inject constructor(
         }
 
     }
+
+    override suspend fun updateVerificationStatusByEmail(
+        email: String,
+        verificationStatus: Boolean
+    ) {
+        try {
+            dao.updateVerificationStatusByEmail(email, verificationStatus)
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
+        }
+    }
+
+    override suspend fun checkUserEntityById(userId: Int): UserEntity? {
+        return try {
+            dao.checkUserEntityById(userId = userId)
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
+        }
+    }
 }

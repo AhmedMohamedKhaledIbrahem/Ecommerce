@@ -1,6 +1,7 @@
 package com.example.ecommerce.features.authentication.domain.usecases
 
 import com.example.ecommerce.features.authentication.domain.repositories.AuthenticationRepository
+import com.example.ecommerce.features.authentication.domain.usecases.logout.LogoutUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -15,7 +16,7 @@ import org.mockito.MockitoAnnotations
 class LogoutUseCaseTest {
     @Mock
     private lateinit var repository: AuthenticationRepository
-    private lateinit var logoutUseCase:LogoutUseCase
+    private lateinit var logoutUseCase: LogoutUseCase
 
     @Before
     fun setUp(){
