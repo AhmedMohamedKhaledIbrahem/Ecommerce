@@ -4,9 +4,9 @@ import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.userprofile.data.datasources.UserProfileApi
 import com.example.ecommerce.features.userprofile.data.models.CheckUserNameDetailsResponseModel
 import com.example.ecommerce.features.userprofile.data.models.GetImageProfileResponseModel
+import com.example.ecommerce.features.userprofile.data.models.UpdateUserNameDetailsRequestModel
 import com.example.ecommerce.features.userprofile.data.models.UpdateUserNameDetailsResponseModel
 import com.example.ecommerce.features.userprofile.data.models.UploadImageProfileResponseModel
-import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -62,9 +62,10 @@ class UserProfileRemoteDataSourceImp @Inject constructor(
     override suspend fun uploadImageProfile(image: File): UploadImageProfileResponseModel {
         return withContext(Dispatchers.IO) {
             try {
-                val requestFile = image.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                val body = MultipartBody.Part.createFormData("image", image.name, requestFile)
-                val response = api.uploadImageProfile(image = body)
+                val requestFile = image.asRequestBody("image/*".toMediaTypeOrNull())
+                val body =
+                    MultipartBody.Part.createFormData("profileImage", image.name, requestFile)
+                val response = api.uploadImageProfile(profileImage = body)
                 if (response.isSuccessful) {
                     response.body() ?: throw FailureException("Empty Response Body")
                 } else {
@@ -81,12 +82,12 @@ class UserProfileRemoteDataSourceImp @Inject constructor(
     }
 
     override suspend fun updateUserNameDetails(
-        updateUserNameDetailsRequestEntity: UpdateUserNameDetailsRequestEntity
+        updateUserNameDetailsParams: UpdateUserNameDetailsRequestModel
     ): UpdateUserNameDetailsResponseModel {
         return withContext(Dispatchers.IO) {
             try {
                 val response = api.updateUserNameDetails(
-                    updateUserNameDetailsRequestEntity = updateUserNameDetailsRequestEntity
+                    updateUserNameDetailsParams = updateUserNameDetailsParams
                 )
                 if (response.isSuccessful) {
                     response.body() ?: throw FailureException("Empty Response Body")

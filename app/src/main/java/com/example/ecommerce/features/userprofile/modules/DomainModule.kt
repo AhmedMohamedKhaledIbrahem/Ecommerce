@@ -5,8 +5,8 @@ import com.example.ecommerce.features.userprofile.domain.usecases.getimageprofil
 import com.example.ecommerce.features.userprofile.domain.usecases.getimageprofilebyid.IGetImageProfileByIdUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.getusernamedetails.GetUserNameDetailsUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.getusernamedetails.IGetUserNameDetailsUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.GetUserProfileByIdUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.IGetUserProfileByIdUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.GetUserProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.IGetUserProfileUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.updateusernamedetails.IUpdateUserNameDetailsUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.updateusernamedetails.UpdateUserNameDetailsUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.uploadimageprofile.IUploadImageProfileUseCase
@@ -30,8 +30,8 @@ object DomainModule {
     @Provides
     @Singleton
     fun provideGetUserProfileByIdUseCase(repository: UserProfileRepository)
-            : IGetUserProfileByIdUseCase {
-        return GetUserProfileByIdUseCase(repository = repository)
+            : IGetUserProfileUseCase {
+        return GetUserProfileUseCase(repository = repository)
     }
 
     @Provides
