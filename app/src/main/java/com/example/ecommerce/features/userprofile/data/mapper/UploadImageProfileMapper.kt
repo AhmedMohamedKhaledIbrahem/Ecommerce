@@ -6,7 +6,9 @@ import com.example.ecommerce.features.userprofile.domain.entites.UploadImageProf
 object UploadImageProfileMapper {
     fun mapToEntity(model: UploadImageProfileResponseModel): UploadImageProfileResponseEntity {
         return UploadImageProfileResponseEntity(
-            message = model.message
+            message = model.message,
+            imageLink = model.imageLink,
+            userid = model.userid
         )
     }
 }

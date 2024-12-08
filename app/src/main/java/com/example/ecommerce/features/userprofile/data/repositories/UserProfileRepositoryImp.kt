@@ -13,7 +13,6 @@ import com.example.ecommerce.features.userprofile.domain.entites.GetImageProfile
 import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
 import com.example.ecommerce.features.userprofile.domain.entites.UploadImageProfileResponseEntity
 import com.example.ecommerce.features.userprofile.domain.repositories.UserProfileRepository
-import kotlinx.coroutines.delay
 import java.io.File
 import javax.inject.Inject
 
@@ -26,6 +25,10 @@ class UserProfileRepositoryImp @Inject constructor(
         return try {
             if (internetConnectionChecker.hasConnection()) {
                 val uploadImage = remoteDataSource.uploadImageProfile(image = image)
+                localDataSource.updateImageUserProfile(
+                    uploadImage.imageLink,
+                    userId = uploadImage.userid
+                )
                 UploadImageProfileMapper.mapToEntity(uploadImage)
             } else {
                 throw Failures.ConnectionFailure("No Internet Connection")
@@ -39,6 +42,10 @@ class UserProfileRepositoryImp @Inject constructor(
         return try {
             if (internetConnectionChecker.hasConnection()) {
                 val getImage = remoteDataSource.getImageProfileById(userId = userId)
+                localDataSource.updateImageUserProfile(
+                    image = getImage.profileImage,
+                    userId = getImage.userId
+                )
                 GetImageProfileMapper.mapToEntity(getImage)
             } else {
                 throw Failures.ConnectionFailure("No Internet Connection")
@@ -61,12 +68,15 @@ class UserProfileRepositoryImp @Inject constructor(
     ) {
         try {
             if (internetConnectionChecker.hasConnection()) {
-                remoteDataSource.updateUserNameDetails(
-                    updateUserNameDetailsRequestEntity = updateUserNameDetailsParams
+                val updateUserNameRequestModel = UpdateUserNameDetailsMapper.mapToModel(
+                    entity = updateUserNameDetailsParams
+                )
+                val updateUserNameDetailsRemote = remoteDataSource.updateUserNameDetails(
+                    updateUserNameDetailsParams = updateUserNameRequestModel
                 )
                 try {
                     localDataSource.updateUserNameDetails(
-                        updateUserNameDetailsRequestEntity = updateUserNameDetailsParams
+                        updateUserNameDetailsParams = updateUserNameDetailsRemote
                     )
                 } catch (e: FailureException) {
                     throw Failures.CacheFailure(e.message ?: "Unknown Error")
@@ -85,12 +95,10 @@ class UserProfileRepositoryImp @Inject constructor(
                 val isUpdate = remoteDataSource.checkUserNameDetailsUpdate()
                 if (isUpdate.update) {
                     val getUserNameDetailsRemote = remoteDataSource.getUserNameDetails()
-                    val updateUserNameDetailsEntity = UpdateUserNameDetailsMapper.mapToEntity(
-                        model = getUserNameDetailsRemote
-                    )
+
                     try {
                         localDataSource.updateUserNameDetails(
-                        updateUserNameDetailsRequestEntity = updateUserNameDetailsEntity
+                            updateUserNameDetailsParams = getUserNameDetailsRemote
                         )
                     } catch (e: FailureException) {
                         throw Failures.CacheFailure(e.message ?: " Unknown Error")

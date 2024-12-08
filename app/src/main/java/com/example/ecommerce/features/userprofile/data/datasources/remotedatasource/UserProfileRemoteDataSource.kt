@@ -2,6 +2,7 @@ package com.example.ecommerce.features.userprofile.data.datasources.remotedataso
 
 import com.example.ecommerce.features.userprofile.data.models.CheckUserNameDetailsResponseModel
 import com.example.ecommerce.features.userprofile.data.models.GetImageProfileResponseModel
+import com.example.ecommerce.features.userprofile.data.models.UpdateUserNameDetailsRequestModel
 import com.example.ecommerce.features.userprofile.data.models.UpdateUserNameDetailsResponseModel
 import com.example.ecommerce.features.userprofile.data.models.UploadImageProfileResponseModel
 import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
@@ -12,7 +13,7 @@ interface UserProfileRemoteDataSource {
     suspend fun getUserNameDetails():UpdateUserNameDetailsResponseModel
     suspend fun uploadImageProfile(image: File): UploadImageProfileResponseModel
     suspend fun updateUserNameDetails(
-        updateUserNameDetailsRequestEntity: UpdateUserNameDetailsRequestEntity
+        updateUserNameDetailsParams: UpdateUserNameDetailsRequestModel
     ): UpdateUserNameDetailsResponseModel
     suspend fun checkUserNameDetailsUpdate():CheckUserNameDetailsResponseModel
 }
