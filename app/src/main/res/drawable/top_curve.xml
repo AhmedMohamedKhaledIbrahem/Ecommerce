@@ -1,4 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="340"
+    android:viewportHeight="300">
 
-</shape>
+    <!-- Rectangle with a small semi-circle at the bottom center -->
+    <path
+        android:pathData="M0,0 L360,0 L360,240 Q180,1 0,240 Z"
+        android:fillColor="#FF8A80" />
+</vector>

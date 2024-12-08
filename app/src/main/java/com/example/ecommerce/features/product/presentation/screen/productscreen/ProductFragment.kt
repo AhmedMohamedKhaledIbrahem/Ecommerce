@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.product.presentation.screen
+package com.example.ecommerce.features.product.presentation.screen.productscreen
 
 import android.os.Bundle
 import android.util.Log

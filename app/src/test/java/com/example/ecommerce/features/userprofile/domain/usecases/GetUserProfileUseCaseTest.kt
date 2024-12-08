@@ -2,7 +2,7 @@ package com.example.ecommerce.features.userprofile.domain.usecases
 
 import com.example.ecommerce.core.data.entities.UserEntity
 import com.example.ecommerce.features.userprofile.domain.repositories.UserProfileRepository
-import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.GetUserProfileByIdUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.GetUserProfileUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -15,15 +15,15 @@ import org.mockito.kotlin.verify
 import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
-class GetUserProfileByIdUseCaseTest {
+class GetUserProfileUseCaseTest {
     @Mock
     private lateinit var repository: UserProfileRepository
-    private lateinit var getUserProfileByIdUseCase: GetUserProfileByIdUseCase
+    private lateinit var getUserProfileUseCase: GetUserProfileUseCase
 
     @Before
     fun setUp(){
         MockitoAnnotations.openMocks(this)
-        getUserProfileByIdUseCase = GetUserProfileByIdUseCase(repository = repository)
+        getUserProfileUseCase = GetUserProfileUseCase(repository = repository)
     }
     @Test
     fun `invoke should return UserProfile from the repository`(): Unit = runTest {
@@ -41,11 +41,10 @@ class GetUserProfileByIdUseCaseTest {
                 id = 1,
                 roles = "customer"
             )
-        val tUserId = 1
         `when`(repository.getUserProfile()).thenReturn(
             tGetUserProfileResponseEntity
         )
-        val result = getUserProfileByIdUseCase.invoke()
+        val result = getUserProfileUseCase.invoke()
         assertEquals(tGetUserProfileResponseEntity,result)
         verify(repository).getUserProfile()
         verifyNoMoreInteractions(repository)

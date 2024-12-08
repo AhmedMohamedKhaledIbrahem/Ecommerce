@@ -16,7 +16,6 @@ object UserMapper {
             verificationStatues = model.verificationStatues,
             displayName = model.userDisplayName,
             expiredToken = model.expiredToken ,
-
         )
     }
 }

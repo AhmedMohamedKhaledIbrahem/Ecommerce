@@ -7,8 +7,8 @@ import com.example.ecommerce.features.authentication.domain.usecases.login.ILogi
 import com.example.ecommerce.features.authentication.domain.usecases.login.LoginUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.logout.ILogoutUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.logout.LogoutUseCase
-import com.example.ecommerce.features.authentication.domain.usecases.reestpassword.IResetPasswordUseCase
-import com.example.ecommerce.features.authentication.domain.usecases.reestpassword.ResetPasswordUseCase
+import com.example.ecommerce.features.authentication.domain.usecases.restpassword.IResetPasswordUseCase
+import com.example.ecommerce.features.authentication.domain.usecases.restpassword.ResetPasswordUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.sendverificationcode.ISendVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.sendverificationcode.SendVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.signup.ISignUpUseCase

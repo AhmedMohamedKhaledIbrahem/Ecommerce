@@ -2,25 +2,31 @@ package com.example.ecommerce.features.authentication.data.datasources.localdata
 
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.tokenmanager.TokenManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AuthenticationSharedPreferencesDataSourceImp @Inject constructor(
-  private  val tokenManager: TokenManager
-) :AuthenticationSharedPreferencesDataSource{
+    private val tokenManager: TokenManager
+) : AuthenticationSharedPreferencesDataSource {
     override suspend fun saveToken(token: String) {
-        try {
-            tokenManager.saveToken(token = token)
-        }catch (e:Exception){
-            throw FailureException("${e.message}")
+        withContext(Dispatchers.IO) {
+            try {
+                tokenManager.saveToken(token = token)
+            } catch (e: Exception) {
+                throw FailureException("${e.message}")
+            }
         }
 
     }
 
     override suspend fun clearToken() {
-        try {
-            tokenManager.clearToken()
-        }catch (e:Exception){
-            throw FailureException("${e.message}")
+        withContext(Dispatchers.IO) {
+            try {
+                tokenManager.clearToken()
+            } catch (e: Exception) {
+                throw FailureException("${e.message}")
+            }
         }
     }
 }

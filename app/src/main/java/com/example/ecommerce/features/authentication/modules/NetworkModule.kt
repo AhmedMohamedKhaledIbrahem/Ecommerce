@@ -12,14 +12,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-
     @Provides
     @Singleton
     fun provideAuthenticationApi(retrofit: Retrofit): AuthenticationApi {
         return retrofit.create(AuthenticationApi::class.java)
     }
-
-
-
-
 }

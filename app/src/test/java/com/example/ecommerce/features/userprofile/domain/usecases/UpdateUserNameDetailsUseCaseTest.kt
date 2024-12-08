@@ -1,7 +1,8 @@
 package com.example.ecommerce.features.userprofile.domain.usecases
 
+import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
 import com.example.ecommerce.features.userprofile.domain.repositories.UserProfileRepository
-import com.example.ecommerce.features.userprofile.domain.usecases.updateuserprofile.UpdateUserProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.updateusernamedetails.UpdateUserNameDetailsUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -14,26 +15,39 @@ import org.mockito.kotlin.verify
 import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
-class UpdateUserProfileUseCaseTest {
+class UpdateUserNameDetailsUseCaseTest {
     @Mock
     private lateinit var repository: UserProfileRepository
-    private lateinit var updateUserProfileUseCase: UpdateUserProfileUseCase
+    private lateinit var updateUserNameDetailsUseCase: UpdateUserNameDetailsUseCase
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        updateUserProfileUseCase = UpdateUserProfileUseCase(repository = repository)
+        updateUserNameDetailsUseCase = UpdateUserNameDetailsUseCase(repository = repository)
     }
+
+    private val tUserNameDetailsRequestEntity = UpdateUserNameDetailsRequestEntity(
+        id = 1,
+        firstName = "test",
+        lastName = "test",
+        displayName = "test test"
+    )
 
     @Test
     fun `invoke should UpdateUserProfile  from the repository`(): Unit = runTest {
-        /*val tUserId = 1
-        `when`(repository.updateUserNameDetails(userId = tUserId)).thenReturn(Unit)
-        val result = updateUserProfileUseCase.invoke(userId = tUserId)
-        assertEquals(Unit, result)
-        verify(repository).updateUserNameDetails(userId = tUserId)
-
-        */verifyNoMoreInteractions(repository)
+        `when`(
+            repository.updateUserNameDetails(
+                updateUserNameDetailsParams = tUserNameDetailsRequestEntity
+            )
+        ).thenReturn(Unit)
+        val result = updateUserNameDetailsUseCase.invoke(
+            updateUserNameDetailsParams = tUserNameDetailsRequestEntity
+        )
+        assertEquals(Unit,result)
+        verify(repository).updateUserNameDetails(
+            updateUserNameDetailsParams = tUserNameDetailsRequestEntity
+        )
+        verifyNoMoreInteractions(repository)
     }
 
 }

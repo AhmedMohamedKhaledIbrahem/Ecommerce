@@ -1,3 +1,7 @@
 package com.example.ecommerce.features.authentication.data.models
 
-data class EmailRequesModel()
+import com.google.gson.annotations.SerializedName
+
+data class EmailRequestModel(
+    @SerializedName("email") val email :String
+)

@@ -5,6 +5,94 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".features.userprofile.presentation.screens.SettingActivity">
+    tools:context=".features.userprofile.presentation.screens.settingscreen.SettingFragment">
+
+    <View
+        android:id="@+id/topCurveView"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:background="@drawable/top_curve"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+
+        />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/userSettingCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topCurveView"
+        app:cardElevation="10dp"
+        android:backgroundTint="?attr/colorBackgroundFloating"
+        >
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/userImageView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginHorizontal="10dp"
+            android:clickable="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/profile_circle"
+            app:shapeAppearanceOverlay="@style/roundedCornerStyle"/>
+
+        <LinearLayout
+            android:id="@+id/userTextLinearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="88dp"
+            android:layout_marginVertical="14dp"
+            >
+            <TextView
+                android:id="@+id/userNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="18sp"
+                android:fontFamily="@font/raleway_bold"
+                android:textColor="?attr/colorSecondary"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:lines="1"
+                android:scrollHorizontally="false"
+                />
+            <TextView
+                android:id="@+id/userEmailTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="?attr/colorOnSecondary"
+                android:fontFamily="@font/raleway_bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:lines="1"
+                android:scrollHorizontally="false"
+                />
+
+        </LinearLayout>
+
+
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/settingRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/userSettingCardView"
+        app:layout_constraintVertical_bias="1.0">
+
+
+    </androidx.recyclerview.widget.RecyclerView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

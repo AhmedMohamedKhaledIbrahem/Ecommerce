@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.room.Room
 import com.example.ecommerce.core.appdatabase.AppDatabase
+import com.example.ecommerce.core.data.dao.AddressDao
 import com.example.ecommerce.core.data.dao.UserDao
 import com.example.ecommerce.core.tokenmanager.TokenManager
 import com.example.ecommerce.core.tokenmanager.TokenManagerImp
@@ -31,6 +32,12 @@ object DataCoreModule {
     @Singleton
     fun provideUserDao(database: AppDatabase): UserDao {
         return database.userDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAddressDao(database: AppDatabase): AddressDao {
+        return database.addressDao()
     }
 
     @Provides

@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.address.presentation.screen
+package com.example.ecommerce.features.address.presentation.screen.address
 
 import android.os.Bundle
 import android.util.Log
@@ -22,8 +22,8 @@ import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.AddressUtil
 import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
-import com.example.ecommerce.features.address.presentation.screen.addressrecyclerview.AddressAdapter
-import com.example.ecommerce.features.address.presentation.screen.addressrecyclerview.AddressItem
+import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressAdapter
+import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressItem
 import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
 import com.facebook.shimmer.ShimmerFrameLayout
@@ -50,6 +50,7 @@ class AddressFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d("onCreateView", "yes: ")
         val view = inflater.inflate(R.layout.fragment_address, container, false)
         initView(view)
 
@@ -62,6 +63,12 @@ class AddressFragment : Fragment() {
         addressState()
         getAddressById(AddressUtil.addressId)
         onSwipeRefreshListener()
+        Log.d("onViewCreated", "yes: ")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("onResume", "yes: ")
     }
 
     private fun initView(view: View) {
@@ -136,6 +143,7 @@ class AddressFragment : Fragment() {
             "getAddressById" -> {
                 shimmerStopWhenDataSuccess()
                 val addressData = state.data as CustomerAddressEntity
+                AddressUtil.addressEntity = addressData
                 initRecyclerView(addressData)
             }
 

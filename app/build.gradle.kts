@@ -4,6 +4,7 @@ plugins {
     id ("kotlin-kapt") // Add this
     // id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id ("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -42,23 +43,33 @@ android {
 }
 
 dependencies {
-
+    implementation (libs.androidx.navigation.fragment.ktx)
+    implementation (libs.androidx.navigation.ui.ktx)
     // ViewModel (Lifecycle)
     implementation (libs.androidx.lifecycle.viewmodel.ktx)
     implementation (libs.androidx.lifecycle.livedata.ktx)
     implementation (libs.androidx.lifecycle.runtime.ktx)
+    implementation (libs.androidx.lifecycle.runtime.ktx.v241)
+
     // Retrofit and Gson Converter
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
+    implementation (libs.okhttp)
+    implementation( libs.logging.interceptor)
 
     //dagger hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.swiperefreshlayout)
     testImplementation(libs.hilt.android.testing)
     kapt(libs.hilt.android.compiler)
     implementation (libs.androidx.room.ktx)
     implementation (libs.androidx.room.runtime)
     kapt(libs.androidx.room.compiler)
+
+    implementation (libs.coil)
+    implementation (libs.facebook.shimmer)
+    implementation (libs.play.services.location)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

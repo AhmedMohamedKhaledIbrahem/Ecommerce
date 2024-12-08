@@ -2,5 +2,5 @@ package com.example.ecommerce.core.network.checknetwork
 
 data class AddressCheckOption(
     val url: String,
-    val timeout: Int = 2000
+    val timeout: Int = 500
 )

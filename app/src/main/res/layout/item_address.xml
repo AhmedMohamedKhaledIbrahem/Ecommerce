@@ -1,6 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/addressCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="10dp"
+        android:backgroundTint="?attr/colorBackgroundFloating"
+        android:clickable="true"
+        android:visibility="visible"
+        app:cardElevation="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.00999999">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="10dp">
+
+            <TextView
+                android:id="@+id/fullNameAddressTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textColor="?attr/colorOnSecondary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/emailAddressTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textColor="?attr/colorOnSecondary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/phoneNumberTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textColor="?attr/colorOnSecondary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/streetAddressTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textColor="?attr/colorOnSecondary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/countryTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textColor="?attr/colorOnSecondary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/cityTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textColor="?attr/colorOnSecondary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/stateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textColor="?attr/colorOnSecondary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/postCodeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textColor="?attr/colorOnSecondary"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

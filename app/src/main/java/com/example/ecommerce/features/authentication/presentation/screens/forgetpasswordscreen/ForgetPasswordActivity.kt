@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.authentication.presentation.screens
+package com.example.ecommerce.features.authentication.presentation.screens.forgetpasswordscreen
 
 import android.content.Intent
 import android.os.Bundle
@@ -20,9 +20,10 @@ import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
 import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
+import com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginActivity
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.IAuthenticationViewModel
-import com.example.ecommerce.features.authentication.presentation.viewmodel.state.UiState
+import com.example.ecommerce.core.state.UiState
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint

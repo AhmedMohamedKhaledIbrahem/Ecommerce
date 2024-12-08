@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="customButtonStyle" parent="Widget.MaterialComponents.Button">
-        <item name="shapeAppearance" >@style/CustomShapeAppearance</item>
+        <item name="shapeAppearance">@style/CustomShapeAppearance</item>
     </style>
+
     <style name="CustomShapeAppearance" parent="ShapeAppearance.MaterialComponents.SmallComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">10dp</item>
@@ -31,5 +33,22 @@
         <item name="android:textStyle">normal</item>
     </style>
 
+    <style name="roundedCornerStyle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="CustomBottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
+        <!-- Remove the default ripple effect -->
+        <item name="itemBackground">@android:color/transparent</item> <!-- Set transparent background -->
+        <item name="itemIconSize">24dp</item> <!-- Optional: Adjust icon size -->
+        <item name="itemActiveIndicatorStyle">@style/CustomActiveIndicator</item> <!-- Optional: Active indicator customization -->
+    </style>
+
+    <!-- Optional: Customize the active indicator style -->
+    <style name="CustomActiveIndicator">
+        <item name="android:color">@android:color/transparent</item> <!-- Change active item color -->
+        <!-- Optional: Set the active indicator shape -->
+    </style>
 
 </resources>

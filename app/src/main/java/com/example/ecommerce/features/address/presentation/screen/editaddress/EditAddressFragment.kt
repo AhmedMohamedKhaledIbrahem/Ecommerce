@@ -1,6 +1,16 @@
-package com.example.ecommerce.features.address.presentation.screen
+package com.example.ecommerce.features.address.presentation.screen.editaddress
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
+import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -11,6 +21,9 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -23,6 +36,7 @@ import com.example.ecommerce.core.constants.regionCodeMap
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
 import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.utils.AddressUtil
 import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
@@ -30,12 +44,17 @@ import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestE
 import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequestEntity
 import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 @AndroidEntryPoint
 class EditAddressFragment : Fragment() {
@@ -57,12 +76,26 @@ class EditAddressFragment : Fragment() {
     private lateinit var buttonLocation: MaterialButton
     private lateinit var spinnerCountry: Spinner
     private lateinit var spinnerState: Spinner
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val addressViewModel: IAddressViewModel by viewModels<AddressViewModel>()
     private val loadingDialog by lazy {
         LoadingDialogFragment().getInstance()
     }
     private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
     private lateinit var root: View
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher().launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            requestPermissionLauncher().launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
 
 
     override fun onCreateView(
@@ -83,6 +116,11 @@ class EditAddressFragment : Fragment() {
         textWatchers()
         saveButtonOnClickedListener()
         addressState()
+        showInitAddress()
+        if (isLocationPermissionGranted()) {
+            locationButtonOnClickedListener()
+        }
+        //checkLocationIsEnableOrNot()
 
 
     }
@@ -282,7 +320,7 @@ class EditAddressFragment : Fragment() {
 
     private fun cityValidateInput(): Boolean {
         var isValid = true
-        val cityPattern = Regex("^[a-zA-Z][a-zA-Z0-9_]*$")
+        val cityPattern = Regex("^[a-zA-Z][a-zA-Z0-9_ ]*$")
         val city = cityAddressEditText.text.toString()
         if (city.isBlank()) {
             cityAddressTextFieldInputLayout.error = getString(R.string.city_is_required)
@@ -450,4 +488,180 @@ class EditAddressFragment : Fragment() {
             }
         }
     }
+
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation() {
+        if (isLocationPermissionGranted()) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val latitude = location.latitude
+                    val longitude = location.longitude
+                    getAddressFromLatLng(latitude, longitude)
+                } else {
+                    Toast.makeText(requireContext(), "Unable to get location", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }.addOnFailureListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to get location: ${it.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } else {
+            // Request permission if not granted
+            requestPermissionLauncher().launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+
+    private fun getAddressFromLatLngLegacy(latitude: Double, longitude: Double) {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        try {
+            val addresses: List<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val address = addresses[0]
+                getAddress(address)
+
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+
+        }
+    }
+
+    private fun getAddress(address: Address) {
+
+        val street = extractStreetAddress(address.getAddressLine(0))
+        val city = address.locality
+        val state = address.adminArea.replace("Governorate", "").trim()
+        val country = address.countryName
+        val postalCode = address.postalCode
+        val addressList = listOf(street, city, state, country, postalCode)
+        /*val stringAddress = """
+                        Address: ${extractStreetAddress(address.getAddressLine(0))}
+                        City: ${address.locality}
+                        State: ${address.adminArea}
+                        Country: ${address.countryName}
+                        postCode: ${address.postalCode}
+                    """.trimIndent()*/
+        lifecycleScope.launch {
+            withContext(Dispatchers.Main) {
+                streetAddressEditText.setText(street)
+                cityAddressEditText.setText(city)
+                postCodeAddressEditText.setText(postalCode)
+                spinnerState.setSelection(countryStateMap[country]?.indexOf(state) ?: 0)
+                spinnerCountry.setSelection(countryStateMap.keys.indexOf(country))
+            }
+        }
+    }
+
+
+    private fun getAddressFromLatLng(lat: Double, lng: Double) {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            geocoder.getFromLocation(
+                lat, lng, 1
+            ) { addresses ->
+                if (addresses.isNotEmpty()) {
+                    val address = addresses[0]
+                    getAddress(address)
+
+                } else {
+                    Toast.makeText(requireContext(), "No address found", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            getAddressFromLatLngLegacy(lat, lng)
+
+        }
+    }
+
+    private fun showInitAddress() {
+        val address = AddressUtil.addressEntity
+        address?.let {
+            firstNameAddressEditText.setText(it.firstName)
+            lastNameAddressEditText.setText(it.lastName)
+            emailNameAddressEditText.setText(it.email)
+            phoneNumberAddressEditText.setText(it.phone)
+            cityAddressEditText.setText(it.city)
+            postCodeAddressEditText.setText(it.zipCode)
+            streetAddressEditText.setText(it.address)
+            spinnerCountry.setSelection(countryStateMap.keys.indexOf(it.country))
+            spinnerState.setSelection(countryStateMap[it.country]?.indexOf(it.state) ?: 0)
+
+        }
+
+    }
+
+
+    private fun extractStreetAddress(fullAddress: String): String {
+        val addressParts = fullAddress.split("،", ",")
+        val streetKeyword = "شارع"
+        val numberRegex = Regex("\\d+")
+        val matchResult = numberRegex.find(fullAddress)
+        for (part in addressParts) {
+            if (part.contains(streetKeyword) && matchResult != null) {
+                val streetWithNumber = "${matchResult.value.trim()} ${part.trim()}"
+                Log.e(streetWithNumber, "$streetWithNumber: ")
+                return streetWithNumber
+            }
+        }
+        return "Street name not found"
+    }
+
+    private fun locationButtonOnClickedListener() {
+        buttonLocation.setOnClickListener {
+            if (isLocationEnabled(requireContext())) {
+                loadingDialog.showLoading(parentFragmentManager)
+                lifecycleScope.launch {
+                    delay(500L)
+                    getLastLocation()
+                    loadingDialog.dismissLoading()
+                }
+            } else {
+                openLocationSettings()
+            }
+        }
+    }
+
+    private fun requestPermissionLauncher(): ActivityResultLauncher<String> {
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (!isGranted) {
+                Toast.makeText(requireContext(), "Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        return requestPermissionLauncher
+    }
+
+    private fun isLocationPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+    }
+
+    private fun isLocationEnabled(context: Context): Boolean {
+        val locationManger = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val isLocationEnable = locationManger.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManger.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        return isLocationEnable
+    }
+
+
+    private fun openLocationSettings() {
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.please_turn_on_your_location), Toast.LENGTH_SHORT
+        ).show()
+        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+        lifecycleScope.launch {
+            delay(500L)
+            startActivity(intent)
+        }
+    }
+
 }

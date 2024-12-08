@@ -1,7 +1,8 @@
 package com.example.ecommerce.features.authentication.presentation.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import com.example.ecommerce.features.authentication.data.mapper.AuthenticationMapper
 import com.example.ecommerce.features.authentication.data.mapper.MessageResponseMapper
 import com.example.ecommerce.features.authentication.data.models.AuthenticationResponseModel
@@ -9,13 +10,18 @@ import com.example.ecommerce.features.authentication.data.models.MessageResponse
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
+import com.example.ecommerce.features.authentication.domain.usecases.checkverificationcode.ICheckVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.login.ILoginUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.logout.ILogoutUseCase
-import com.example.ecommerce.features.authentication.domain.usecases.reestpassword.IResetPasswordUseCase
+import com.example.ecommerce.features.authentication.domain.usecases.restpassword.IResetPasswordUseCase
+import com.example.ecommerce.features.authentication.domain.usecases.sendverificationcode.ISendVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.signup.ISignUpUseCase
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
-import com.example.ecommerce.features.authentication.presentation.viewmodel.state.UiState
+import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.features.await
+import com.example.ecommerce.features.observerViewModelErrorState
+import com.example.ecommerce.features.observerViewModelSuccessState
+import com.example.ecommerce.features.removeObserverFromLiveData
 import com.example.ecommerce.resources.fixture
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -34,8 +40,8 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
-import kotlin.test.assertEquals
 
 @RunWith(JUnit4::class)
 @ExperimentalCoroutinesApi
@@ -54,6 +60,12 @@ class AuthenticateViewModelTest {
     private lateinit var resetPasswordUseCase: IResetPasswordUseCase
 
     @Mock
+    lateinit var checkVerificationCodeUseCase: ICheckVerificationCodeUseCase
+
+    @Mock
+    lateinit var sendVerificationCodeUseCase: ISendVerificationCodeUseCase
+
+    @Mock
     private lateinit var logoutUseCase: ILogoutUseCase
     private val mainDispatcher = UnconfinedTestDispatcher()
 
@@ -65,7 +77,9 @@ class AuthenticateViewModelTest {
             loginUseCase,
             signUpUseCase,
             resetPasswordUseCase,
-            logoutUseCase
+            logoutUseCase,
+            sendVerificationCodeUseCase,
+            checkVerificationCodeUseCase,
         )
 
     }
@@ -75,43 +89,10 @@ class AuthenticateViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun observerAuthenticationViewModelSuccessState(
-        latch: CountDownLatch,
-        expected: Any
-    ): Observer<UiState<Any>> {
-        val observer = Observer<UiState<Any>> { state ->
-            if (state is UiState.Success) {
-                assertEquals(
-                    expected,
-                    state.data
-                )
-                latch.countDown()
-            }
-        }
-        viewModel.authenticationState.observeForever(observer)
-        return observer
+    private fun authenticationStateAsLiveData(): LiveData<UiState<Any>> {
+        return viewModel.authenticationState.asLiveData()
     }
 
-    private fun observerAuthenticationViewModelErrorState(
-        latch: CountDownLatch,
-        expectedException: String
-    ): Observer<UiState<Any>> {
-        val observer = Observer<UiState<Any>> { state ->
-            if (state is UiState.Error) {
-                assertEquals(
-                    expectedException,
-                    state.message
-                )
-                latch.countDown()
-            }
-        }
-        viewModel.authenticationState.observeForever(observer)
-        return observer
-    }
-
-    private fun removeObserverAuthenticationViewModel(observer: Observer<UiState<Any>>) {
-        viewModel.authenticationState.observeForever(observer)
-    }
 
     private val tLoginParams = AuthenticationRequestEntity(userName = "test", password = "123456")
     private val loginResponse = fixture("login.json").run {
@@ -138,11 +119,17 @@ class AuthenticateViewModelTest {
             `when`(loginUseCase.invoke(loginParams = any())).thenReturn(
                 tAuthenticationResponseEntity
             )
-            val observer =
-                observerAuthenticationViewModelSuccessState(latch, tAuthenticationResponseEntity)
             viewModel.login(loginParams = tLoginParams)
+            val observer =
+                observerViewModelSuccessState(
+                    latch,
+                    tAuthenticationResponseEntity,
+                    authenticationStateAsLiveData()
+                )
+            verify(loginUseCase).invoke(loginParams = tLoginParams)
+
             await(latch = latch)
-            removeObserverAuthenticationViewModel(observer)
+            removeObserverFromLiveData(authenticationStateAsLiveData(), observer)
         }
 
 
@@ -152,10 +139,16 @@ class AuthenticateViewModelTest {
             val latch = CountDownLatch(1)
             val expectedError = RuntimeException("Login failed")
             `when`(loginUseCase.invoke(loginParams = any())).thenThrow(expectedError)
-            val observer = observerAuthenticationViewModelErrorState(latch, "Login failed")
             viewModel.login(loginParams = tLoginParams)
+            val observer =
+                observerViewModelErrorState(
+                    latch,
+                    "Login failed",
+                    authenticationStateAsLiveData()
+                )
+            verify(loginUseCase).invoke(loginParams = tLoginParams)
             await(latch = latch)
-            removeObserverAuthenticationViewModel(observer)
+            removeObserverFromLiveData(authenticationStateAsLiveData(), observer)
 
         }
 
@@ -164,11 +157,16 @@ class AuthenticateViewModelTest {
         runTest {
             val latch = CountDownLatch(1)
             `when`(signUpUseCase.invoke(signUpParams = any())).thenReturn(tMessageResponseEntity)
-            val observer =
-                observerAuthenticationViewModelSuccessState(latch, tMessageResponseEntity.message)
             viewModel.signUp(signUpParams = tSignUpParams)
+            val observer =
+                observerViewModelSuccessState(
+                    latch,
+                    tMessageResponseEntity.message,
+                    authenticationStateAsLiveData()
+                )
+            verify(signUpUseCase).invoke(signUpParams = tSignUpParams)
             await(latch = latch)
-            removeObserverAuthenticationViewModel(observer)
+            removeObserverFromLiveData(authenticationStateAsLiveData(), observer)
         }
 
     @Test
@@ -176,13 +174,16 @@ class AuthenticateViewModelTest {
         runTest {
             val latch = CountDownLatch(1)
             val expectedError = RuntimeException("signUp failed")
-            `when`(loginUseCase.invoke(loginParams = any())).thenThrow(expectedError)
-            val observer = observerAuthenticationViewModelErrorState(latch, "signUp failed")
-
-            viewModel.login(loginParams = tLoginParams)
+            `when`(signUpUseCase.invoke(signUpParams = any())).thenThrow(expectedError)
+            viewModel.signUp(signUpParams = tSignUpParams)
+            val observer = observerViewModelErrorState(
+                latch,
+                "signUp failed",
+                authenticationStateAsLiveData()
+            )
+            verify(signUpUseCase).invoke(signUpParams = tSignUpParams)
             await(latch = latch)
-            removeObserverAuthenticationViewModel(observer)
-
+            removeObserverFromLiveData(authenticationStateAsLiveData(), observer)
         }
 
     @Test
@@ -192,11 +193,16 @@ class AuthenticateViewModelTest {
             `when`(resetPasswordUseCase.invoke(resetPasswordParams = any())).thenReturn(
                 tMessageResponseEntity
             )
-            val observer =
-                observerAuthenticationViewModelSuccessState(latch, tMessageResponseEntity.message)
             viewModel.resetPassword(resetPasswordParams = tResetPasswordParams)
+            val observer =
+                observerViewModelSuccessState(
+                    latch,
+                    tMessageResponseEntity.message,
+                    authenticationStateAsLiveData()
+                )
+            verify(resetPasswordUseCase).invoke(resetPasswordParams = tResetPasswordParams)
             await(latch = latch)
-            removeObserverAuthenticationViewModel(observer)
+            removeObserverFromLiveData(authenticationStateAsLiveData(), observer)
         }
 
     @Test
@@ -205,11 +211,15 @@ class AuthenticateViewModelTest {
             val latch = CountDownLatch(1)
             val expectedError = RuntimeException("resetPassword failed")
             `when`(resetPasswordUseCase.invoke(resetPasswordParams = any())).thenThrow(expectedError)
-            val observer = observerAuthenticationViewModelErrorState(latch, "resetPassword failed")
-
             viewModel.resetPassword(resetPasswordParams = tResetPasswordParams)
+            val observer = observerViewModelErrorState(
+                latch,
+                "resetPassword failed",
+                authenticationStateAsLiveData()
+            )
+            verify(resetPasswordUseCase).invoke(resetPasswordParams = tResetPasswordParams)
             await(latch = latch)
-            removeObserverAuthenticationViewModel(observer)
+            removeObserverFromLiveData(authenticationStateAsLiveData(), observer)
 
         }
 
@@ -218,11 +228,12 @@ class AuthenticateViewModelTest {
         runTest {
             val latch = CountDownLatch(1)
             `when`(logoutUseCase.invoke()).thenReturn(Unit)
-            val observer =
-                observerAuthenticationViewModelSuccessState(latch, Unit)
             viewModel.logout()
+            val observer =
+                observerViewModelSuccessState(latch, Unit, authenticationStateAsLiveData())
+            verify(logoutUseCase).invoke()
             await(latch = latch)
-            removeObserverAuthenticationViewModel(observer)
+            removeObserverFromLiveData(authenticationStateAsLiveData(), observer)
         }
 
     @Test
@@ -231,11 +242,15 @@ class AuthenticateViewModelTest {
             val latch = CountDownLatch(1)
             val expectedError = RuntimeException("logout failed")
             `when`(logoutUseCase.invoke()).thenThrow(expectedError)
-            val observer = observerAuthenticationViewModelErrorState(latch, "logout failed")
-
             viewModel.logout()
+            val observer = observerViewModelErrorState(
+                latch,
+                "logout failed",
+                authenticationStateAsLiveData()
+            )
+            verify(logoutUseCase).invoke()
             await(latch = latch)
-            removeObserverAuthenticationViewModel(observer)
+            removeObserverFromLiveData(authenticationStateAsLiveData(), observer)
 
         }
 

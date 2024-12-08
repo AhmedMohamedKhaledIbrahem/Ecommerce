@@ -2,12 +2,12 @@ package com.example.ecommerce.features.authentication.data.datasources.remotedat
 
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.authentication.data.datasources.AuthenticationApi
+import com.example.ecommerce.features.authentication.data.models.AuthenticationRequestModel
 import com.example.ecommerce.features.authentication.data.models.AuthenticationResponseModel
+import com.example.ecommerce.features.authentication.data.models.CheckVerificationRequestModel
+import com.example.ecommerce.features.authentication.data.models.EmailRequestModel
 import com.example.ecommerce.features.authentication.data.models.MessageResponseModel
-import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
-import com.example.ecommerce.features.authentication.domain.entites.CheckVerificationRequestEntity
-import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
-import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
+import com.example.ecommerce.features.authentication.data.models.SignUpRequestModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -17,7 +17,7 @@ class AuthenticationRemoteDataSourceImp @Inject constructor(
     private val api: AuthenticationApi
 ) : AuthenticationRemoteDataSource {
 
-    override suspend fun login(loginParams: AuthenticationRequestEntity): AuthenticationResponseModel {
+    override suspend fun login(loginParams: AuthenticationRequestModel): AuthenticationResponseModel {
         return withContext(Dispatchers.IO) {
             try {
                 val response = api.loginRequest(request = loginParams)
@@ -45,7 +45,7 @@ class AuthenticationRemoteDataSourceImp @Inject constructor(
         }
     }
 
-    override suspend fun signUp(signUpParams: SignUpRequestEntity): MessageResponseModel {
+    override suspend fun signUp(signUpParams: SignUpRequestModel): MessageResponseModel {
         return withContext(Dispatchers.IO) {
             try {
                 val response = api.signUpRequest(request = signUpParams)
@@ -64,7 +64,7 @@ class AuthenticationRemoteDataSourceImp @Inject constructor(
         }
     }
 
-    override suspend fun resetPassword(resetPasswordParams: EmailRequestEntity): MessageResponseModel {
+    override suspend fun resetPassword(resetPasswordParams: EmailRequestModel): MessageResponseModel {
         return withContext(Dispatchers.IO) {
             try {
                 val response = api.resetPasswordRequest(request = resetPasswordParams)
@@ -83,7 +83,7 @@ class AuthenticationRemoteDataSourceImp @Inject constructor(
         }
     }
 
-    override suspend fun sendVerificationCode(sendVerificationCodeParams: EmailRequestEntity)
+    override suspend fun sendVerificationCode(sendVerificationCodeParams: EmailRequestModel)
             : MessageResponseModel {
         return withContext(Dispatchers.IO) {
             try {
@@ -104,7 +104,7 @@ class AuthenticationRemoteDataSourceImp @Inject constructor(
     }
 
     override suspend fun checkVerificationCode(
-        checkVerificationCodeParams: CheckVerificationRequestEntity
+        checkVerificationCodeParams: CheckVerificationRequestModel
     ): MessageResponseModel {
         return withContext(Dispatchers.IO) {
             try {

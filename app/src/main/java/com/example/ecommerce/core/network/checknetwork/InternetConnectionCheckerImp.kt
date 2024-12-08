@@ -20,7 +20,7 @@ import javax.inject.Inject
 class InternetConnectionCheckerImp @Inject constructor(
     private val context: Context,
 ):InternetConnectionChecker {
-    private val checkInterval: Long = 5000L
+    private val checkInterval: Long = 1000L
     private val checkOptions: List<AddressCheckOption> = defaultCheckOptions
     companion object {
         private val defaultCheckOptions = listOf(
@@ -30,8 +30,8 @@ class InternetConnectionCheckerImp @Inject constructor(
             AddressCheckOption("https://reqres.in/api/users/1")
         )
     }
-    private  val _statusFlow = MutableStateFlow<ConnectivityStatus?>(null)
-    override val  statusFlow : StateFlow<ConnectivityStatus?> get() = _statusFlow.asStateFlow()
+    private  val _statusFlow = MutableStateFlow<ConnectivityStatus?>(ConnectivityStatus.CONNECTED)
+    override val statusFlow: StateFlow<ConnectivityStatus?> get() = _statusFlow.asStateFlow()
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
@@ -80,11 +80,12 @@ class InternetConnectionCheckerImp @Inject constructor(
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork
         val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
-        return networkCapabilities != null && (
+        val hasTransport = networkCapabilities != null && (
                 networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
                         networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
                         networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
-                ) || checkUrls()
+                )
+        return hasTransport && checkUrls()
 
     }
 

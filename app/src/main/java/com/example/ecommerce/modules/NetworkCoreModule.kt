@@ -25,7 +25,7 @@ object NetworkCoreModule {
             .build()
     }
 
-    //api
+
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
@@ -41,4 +41,6 @@ object NetworkCoreModule {
     fun provideInternetConnectionChecker(context: Context): InternetConnectionChecker {
         return InternetConnectionCheckerImp(context)
     }
+
+
 }

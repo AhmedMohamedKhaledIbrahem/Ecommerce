@@ -1,4 +1,9 @@
 package com.example.ecommerce.features.authentication.data.models
 
-object AuthenticationRequestModel {
+import com.google.gson.annotations.SerializedName
+
+data class AuthenticationRequestModel(
+    @SerializedName("username")  val userName:String,
+    @SerializedName("password")  val password:String
+) {
 }

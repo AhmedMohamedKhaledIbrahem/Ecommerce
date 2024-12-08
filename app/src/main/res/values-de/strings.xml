@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">E Commerce</string>
+
     <string name="username">UserName</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
@@ -42,4 +42,46 @@
     <string name="helloAgain">Hello Again</string>
     <string name="loginParagraph">Fill Your Details or Continue\n\nWith social Media</string>
     <string name="RegisterAccount">Register Account</string>
+    <string name="title_home">home</string>
+    <string name="title_setting">Setiing</string>
+    <string name="account">Account</string>
+    <string name="supportAndAbout"><![CDATA[Support&About]]></string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="back">back</string>
+    <string name="permissionDenied">permissionDenied</string>
+    <string name="profile">Profile</string>
+    <string name="setting_item_image">Setting Item Image</string>
+    <string name="changePassword">Change Password</string>
+    <string name="myorders">My Orders</string>
+    <string name="address">Addresses</string>
+    <string name="accountDetails">Account Details</string>
+    <string name="darkMode">Dark Mode</string>
+    <string name="language">Language</string>
+    <string name="policePrivacy">Terms and Policies</string>
+    <string name="logout">Log out</string>
+    <string name="imageNotSelected">Image Not Selected</string>
+    <string name="edit">Edit</string>
+    <string name="cancel">cancel</string>
+    <string name="edit_name">Edit Name</string>
+    <string name="change_password">Change Password</string>
+    <string name="new_password">New Password</string>
+    <string name="change">Change</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="city">City</string>
+    <string name="post_code">Post Code</string>
+    <string name="save">Save</string>
+    <string name="location">Location\n</string>
+    <string name="select_the_country">select the country</string>
+    <string name="phone_number_is_required">phone number is required</string>
+    <string name="invalid_phone_number_format">invalid phone number format</string>
+    <string name="post_code_is_required">post code is required</string>
+    <string name="invalid_post_code_format">invalid post code format</string>
+    <string name="city_is_required">city is required</string>
+    <string name="invalid_city_format">invalid city format</string>
+    <string name="address_updated_successfully">Address Updated Successfully</string>
+    <string name="street_address">Street Address</string>
+    <string name="street_address_is_required">street address is required</string>
+    <string name="invalid_street_address_format">invalid street address format</string>
+    <string name="please_select_country_and_state">Please select country and state</string>
+    <string name="please_turn_on_your_location">Please turn on your location</string>
 </resources>

@@ -1,10 +1,8 @@
 package com.example.ecommerce.features.address.domain.entites
 
-data class AddressEntityRequest(
-    val firstName: String? = null ?: "",
-    val lastName: String? = null ?: "",
-    val email: String? = null ?: "",
-    val userName: String? = null ?: "",
-    val billing: BillingInfoEntityRequest? = null ?: BillingInfoEntityRequest(),
-    val shipping: ShippingInfoEntityRequest? = null ?: ShippingInfoEntityRequest()
+import com.google.gson.annotations.SerializedName
+
+data class AddressRequestEntity(
+    @SerializedName("billing") val billing: BillingInfoRequestEntity? = null ?: BillingInfoRequestEntity(),
+    @SerializedName("shipping") val shipping: ShippingInfoRequestEntity? = null ?: ShippingInfoRequestEntity()
 )

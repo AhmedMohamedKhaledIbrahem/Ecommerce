@@ -5,6 +5,13 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".features.product.presentation.screen.ProductActivity">
+    tools:context=".features.product.presentation.screen.productscreen.ProductFragment">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="hello fragment"
+        android:gravity="center"
+        android:textSize="30sp"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

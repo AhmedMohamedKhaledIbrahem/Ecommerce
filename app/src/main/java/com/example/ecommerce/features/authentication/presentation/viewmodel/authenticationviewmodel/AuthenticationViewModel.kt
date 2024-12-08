@@ -1,11 +1,10 @@
 package com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
+import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.CheckVerificationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
@@ -13,12 +12,14 @@ import com.example.ecommerce.features.authentication.domain.entites.SignUpReques
 import com.example.ecommerce.features.authentication.domain.usecases.checkverificationcode.ICheckVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.login.ILoginUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.logout.ILogoutUseCase
-import com.example.ecommerce.features.authentication.domain.usecases.reestpassword.IResetPasswordUseCase
+import com.example.ecommerce.features.authentication.domain.usecases.restpassword.IResetPasswordUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.sendverificationcode.ISendVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.signup.ISignUpUseCase
-import com.example.ecommerce.features.authentication.presentation.viewmodel.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -32,88 +33,96 @@ class AuthenticationViewModel @Inject constructor(
     private val sendVerificationCodeUseCase: ISendVerificationCodeUseCase,
     private val checkVerificationCodeUseCase: ICheckVerificationCodeUseCase
 ) : ViewModel(), IAuthenticationViewModel {
-    private val _authenticationState = MutableLiveData<UiState<Any>>()
-    override val authenticationState: LiveData<UiState<Any>> get() = _authenticationState
+    private val _authenticationState = MutableStateFlow<UiState<Any>>(UiState.Ideal)
+    override val authenticationState: StateFlow<UiState<Any>> get() = _authenticationState.asStateFlow()
 
 
     override fun login(loginParams: AuthenticationRequestEntity) {
-        authenticate(
+        authenticateUiState(
             operation = { loginUseCase(loginParams = loginParams) },
             onSuccess = { result ->
-                _authenticationState.value = UiState.Success(result)
-            }
+                _authenticationState.emit(UiState.Success(result, "login"))
+
+            },
+            source = "login"
         )
     }
 
     override fun signUp(signUpParams: SignUpRequestEntity) {
-        authenticate(
+        authenticateUiState(
             operation = { signUpUseCase(signUpParams = signUpParams) },
             onSuccess = { result ->
-
-                _authenticationState.value = UiState.Success(result.message)
-            }
+                _authenticationState.emit(UiState.Success(result.message, "signUp"))
+            },
+            source = "signUp"
         )
     }
 
     override fun resetPassword(resetPasswordParams: EmailRequestEntity) {
-        authenticate(
+        authenticateUiState(
             operation = { resetPasswordUseCase(resetPasswordParams = resetPasswordParams) },
             onSuccess = { result ->
-                _authenticationState.value = UiState.Success(result.message)
-            }
+                _authenticationState.emit(UiState.Success(result.message, "resetPassword"))
+            },
+            source = "resetPassword"
         )
     }
 
     override fun sendVerificationCode(sendVerificationCodeParams: EmailRequestEntity) {
-        authenticate(
+        authenticateUiState(
             operation = {
                 sendVerificationCodeUseCase(
                     sendVerificationCodeParams = sendVerificationCodeParams
                 )
             },
             onSuccess = { result ->
-                _authenticationState.value = UiState.Success(result.message)
-            }
+                _authenticationState.emit(UiState.Success(result.message, "sendVerificationCode"))
+            },
+            source = "sendVerificationCode"
         )
     }
 
     override fun checkVerificationCode(checkVerificationCodeParams: CheckVerificationRequestEntity) {
-        authenticate(
+        authenticateUiState(
             operation = {
                 checkVerificationCodeUseCase(
                     checkVerificationCodeParams = checkVerificationCodeParams
                 )
             },
             onSuccess = { result ->
-                _authenticationState.value = UiState.Success(result.message)
-            }
+                _authenticationState.emit(UiState.Success(result.message, "checkVerificationCode"))
+
+            },
+            source = "checkVerificationCode"
         )
     }
 
     override fun logout() {
-        authenticate(
+        authenticateUiState(
             operation = { logoutUseCase() },
             onSuccess = { result ->
-                _authenticationState.value = UiState.Success(result)
-            }
+                _authenticationState.emit(UiState.Success(result, "logout"))
+            },
+            source = "logout"
         )
     }
 
-    override fun <T> authenticate(
+    override fun <T> authenticateUiState(
         operation: suspend () -> T,
-        onSuccess: (T) -> Unit
+        onSuccess: suspend (T) -> Unit,
+        source: String
     ) {
         viewModelScope.launch {
-            _authenticationState.value = UiState.Loading
+            _authenticationState.emit(UiState.Loading(source))
             try {
                 val result = withContext(Dispatchers.IO) { operation() }
                 onSuccess(result)
             } catch (failure: Failures) {
-                _authenticationState.value =
-                    UiState.Error(mapFailureMessage(failure))
+                _authenticationState.emit(UiState.Error(mapFailureMessage(failure), source))
             } catch (e: Exception) {
-                _authenticationState.value =
-                    UiState.Error(e.message ?: "Unknown Error")
+                _authenticationState.emit(
+                    UiState.Error(e.message ?: "Unknown Error", source)
+                )
             }
 
         }

@@ -8,4 +8,7 @@
     <color name="dimGray">#6A6A6A </color>
     <color name="charcoal">#2B2B2B </color>
     <color name="vermilion">#FF4C24</color>
+    <color name="purple">#FF8A80</color>
+    <color name="ripple_color">#FF6200EE</color>
+    <color name="shimmer_color">#C2C2C2</color>
 </resources>

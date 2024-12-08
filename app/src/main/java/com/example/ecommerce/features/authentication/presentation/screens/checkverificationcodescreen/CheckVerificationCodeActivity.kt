@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.authentication.presentation.screens
+package com.example.ecommerce.features.authentication.presentation.screens.checkverificationcodescreen
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -21,14 +21,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.ecommerce.R
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
+import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.authentication.domain.entites.CheckVerificationRequestEntity
+import com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginActivity
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.IAuthenticationViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.resendcodetimerviewmodel.IResendCodeTimerViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.resendcodetimerviewmodel.ResendCodeTimerViewModel
-import com.example.ecommerce.features.authentication.presentation.viewmodel.state.UiState
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -68,7 +69,8 @@ class CheckVerificationCodeActivity : AppCompatActivity() {
 
     private fun initIntents() {
 
-        email = intent.getStringExtra("emailFromSignUp") ?: intent.getStringExtra("emailFromLogin")
+        email = intent.getStringExtra("emailFromSignUp")
+            ?: intent.getStringExtra("emailFromLogin")
     }
 
     private fun initView() {
@@ -130,6 +132,7 @@ class CheckVerificationCodeActivity : AppCompatActivity() {
                             Log.e("state1", "$state")
                             loadingDialog.showLoading(fragmentManager = supportFragmentManager)
                         }
+
                         is UiState.Success -> {
                             loadingDialog.dismissLoading()
                             Log.e("state2", "$state")
@@ -149,6 +152,7 @@ class CheckVerificationCodeActivity : AppCompatActivity() {
                             }
 
                         }
+
                         is UiState.Error -> {
                             Log.e("state3", "$state")
                             loadingDialog.dismissLoading()

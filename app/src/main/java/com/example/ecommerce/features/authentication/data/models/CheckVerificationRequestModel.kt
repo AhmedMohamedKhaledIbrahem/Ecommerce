@@ -1,3 +1,12 @@
 package com.example.ecommerce.features.authentication.data.models
 
-data class CheckVerificationRequestModel()
+import com.google.gson.annotations.SerializedName
+
+data class CheckVerificationRequestModel(
+    @SerializedName("email")
+    val email: String,
+    // @SerializedName("userName")
+    // val userName: String,
+    @SerializedName("code")
+    val code: String,
+)

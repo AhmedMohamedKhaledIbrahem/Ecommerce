@@ -8,7 +8,10 @@ import com.example.ecommerce.features.authentication.data.datasources.localdatas
 import com.example.ecommerce.features.authentication.data.datasources.localdatasource.AuthenticationSharedPreferencesDataSource
 import com.example.ecommerce.features.authentication.data.datasources.remotedatasource.AuthenticationRemoteDataSource
 import com.example.ecommerce.features.authentication.data.mapper.AuthenticationMapper
+import com.example.ecommerce.features.authentication.data.mapper.CheckVerificationRequestMapper
+import com.example.ecommerce.features.authentication.data.mapper.EmailRequestMapper
 import com.example.ecommerce.features.authentication.data.mapper.MessageResponseMapper
+import com.example.ecommerce.features.authentication.data.mapper.SignUpRequestMapper
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationResponseEntity
 import com.example.ecommerce.features.authentication.domain.entites.CheckVerificationRequestEntity
@@ -27,7 +30,8 @@ class AuthenticationRepositoryImp @Inject constructor(
     override suspend fun login(loginParams: AuthenticationRequestEntity): AuthenticationResponseEntity {
         return try {
             if (networkInfo.hasConnection()) {
-                val login = remoteDataSource.login(loginParams)
+                val loginRequestModel = AuthenticationMapper.mapToModel(entity = loginParams)
+                val login = remoteDataSource.login(loginParams = loginRequestModel)
                 try {
                     val existingUser = localDataSource.checkUserEntityById(login.userId)
                     if (existingUser == null) {
@@ -50,7 +54,10 @@ class AuthenticationRepositoryImp @Inject constructor(
     override suspend fun signUp(singUpParams: SignUpRequestEntity): MessageResponseEntity {
         return try {
             if (networkInfo.hasConnection()) {
-                val signUp = remoteDataSource.signUp(singUpParams)
+                val signUpRequestModel = SignUpRequestMapper.mapToModel(
+                    entity = singUpParams
+                )
+                val signUp = remoteDataSource.signUp(signUpRequestModel)
 
                 MessageResponseMapper.mapToEntity(signUp)
             } else {
@@ -64,7 +71,9 @@ class AuthenticationRepositoryImp @Inject constructor(
     override suspend fun resetPassword(resetPasswordParams: EmailRequestEntity): MessageResponseEntity {
         return try {
             if (networkInfo.hasConnection()) {
-                val resetPassword = remoteDataSource.resetPassword(resetPasswordParams)
+                val emailRequestModel = EmailRequestMapper.mapToModel(entity = resetPasswordParams)
+                val resetPassword =
+                    remoteDataSource.resetPassword(resetPasswordParams = emailRequestModel)
                 MessageResponseMapper.mapToEntity(resetPassword)
             } else {
                 throw Failures.ConnectionFailure("No Internet Connection")
@@ -79,9 +88,11 @@ class AuthenticationRepositoryImp @Inject constructor(
     ): MessageResponseEntity {
         return try {
             if (networkInfo.hasConnection()) {
+                val emailRequestModel =
+                    EmailRequestMapper.mapToModel(entity = sendVerificationCodeParams)
                 val sendVerificationCode =
                     remoteDataSource.sendVerificationCode(
-                        sendVerificationCodeParams = sendVerificationCodeParams
+                        sendVerificationCodeParams = emailRequestModel
                     )
                 MessageResponseMapper.mapToEntity(sendVerificationCode)
             } else {
@@ -97,8 +108,11 @@ class AuthenticationRepositoryImp @Inject constructor(
     ): MessageResponseEntity {
         return try {
             if (networkInfo.hasConnection()) {
+                val checkVerificationRequestModel = CheckVerificationRequestMapper.mapToModel(
+                    entity = checkVerificationCodeParams
+                )
                 val checkVerificationCode = remoteDataSource.checkVerificationCode(
-                    checkVerificationCodeParams = checkVerificationCodeParams
+                    checkVerificationCodeParams = checkVerificationRequestModel
                 )
                 localDataSource.updateVerificationStatusByEmail(
                     checkVerificationCodeParams.email,

@@ -14,7 +14,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
-    tools:context=".features.authentication.presentation.screens.SignUpActivity">
+    tools:context=".features.authentication.presentation.screens.signupscreen.SignUpActivity">
 
     <TextView
         android:id="@+id/signUpHeadTextView"

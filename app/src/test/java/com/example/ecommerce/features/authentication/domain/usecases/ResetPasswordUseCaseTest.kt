@@ -3,7 +3,7 @@ package com.example.ecommerce.features.authentication.domain.usecases
 import com.example.ecommerce.features.authentication.domain.entites.MessageResponseEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.domain.repositories.AuthenticationRepository
-import com.example.ecommerce.features.authentication.domain.usecases.reestpassword.ResetPasswordUseCase
+import com.example.ecommerce.features.authentication.domain.usecases.restpassword.ResetPasswordUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test

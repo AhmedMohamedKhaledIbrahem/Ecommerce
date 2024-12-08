@@ -3,17 +3,17 @@ package com.example.ecommerce.core.data.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "address")
-data class AddressEntity(
+@Entity(tableName = "customerAddress")
+data class CustomerAddressEntity(
     @PrimaryKey(autoGenerate = true) val id: Int,
     val userId: Int,
-    val firstName: String? = null ?: "",
-    val lastName: String? = null ?: "",
-    val email: String? = null ?: "",
-    val phone: String? = null ?: "",
-    val address: String? = null ?: "",
-    val country: String? = null ?: "",
-    val city: String? = null ?: "",
-    val state: String? = null ?: "",
-    val zipCode: String? = null ?: "",
+    var firstName: String? = null ?: "",
+    var lastName: String? = null ?: "",
+    var email: String? = null ?: "",
+    var phone: String? = null ?: "",
+    var address: String? = null ?: "",
+    var country: String? = null ?: "",
+    var city: String? = null ?: "",
+    var state: String? = null ?: "",
+    var zipCode: String? = null ?: "",
 )

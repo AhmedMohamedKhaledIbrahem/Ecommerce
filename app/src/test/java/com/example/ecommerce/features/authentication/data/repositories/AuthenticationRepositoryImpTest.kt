@@ -8,7 +8,9 @@ import com.example.ecommerce.features.authentication.data.datasources.localdatas
 import com.example.ecommerce.features.authentication.data.datasources.localdatasource.AuthenticationSharedPreferencesDataSource
 import com.example.ecommerce.features.authentication.data.datasources.remotedatasource.AuthenticationRemoteDataSource
 import com.example.ecommerce.features.authentication.data.mapper.AuthenticationMapper
+import com.example.ecommerce.features.authentication.data.mapper.EmailRequestMapper
 import com.example.ecommerce.features.authentication.data.mapper.MessageResponseMapper
+import com.example.ecommerce.features.authentication.data.mapper.SignUpRequestMapper
 import com.example.ecommerce.features.authentication.data.models.AuthenticationResponseModel
 import com.example.ecommerce.features.authentication.data.models.MessageResponseModel
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
@@ -51,18 +53,23 @@ class AuthenticationRepositoryImpTest {
         )
     }
 
-    private val tLoginParams = AuthenticationRequestEntity(userName = "test", password = "123456")
+    private val authenticationRequestEntity =
+        AuthenticationRequestEntity(userName = "test", password = "123456")
+    private val tLoginParams = AuthenticationMapper.mapToModel(entity = authenticationRequestEntity)
     private val loginResponse = fixture("login.json").run {
         Gson().fromJson(this, AuthenticationResponseModel::class.java)
     }
-    private val tSignUpParams = SignUpRequestEntity(
+    private val signUpRequestEntity = SignUpRequestEntity(
         username = "test",
         email = "test@gmail.com",
         firstName = "jino",
         lastName = "pero",
         password = "123456",
     )
-    private val tEmail = "test@gmail.com"
+    private val tSignUpParams = SignUpRequestMapper.mapToModel(entity = signUpRequestEntity)
+
+    private val tEmailRequestEntity = EmailRequestEntity(email = "test@gmail.com")
+    private val tEmailParams = EmailRequestMapper.mapToModel(entity = tEmailRequestEntity)
     private val messageResponse = fixture("message.json").run {
         Gson().fromJson(this, MessageResponseModel::class.java)
     }
@@ -71,7 +78,7 @@ class AuthenticationRepositoryImpTest {
         AuthenticationMapper.mapToEntity(model = loginResponse)
     private val tMessageResponseEntity = MessageResponseMapper.mapToEntity(model = messageResponse)
     private val token = loginResponse.token
-    private val tEmailRequestEntity = EmailRequestEntity(email = "test@gmail.com")
+
 
     @Test
     fun `login should return Response of user when the internet is online `(): Unit = runTest {
@@ -80,7 +87,7 @@ class AuthenticationRepositoryImpTest {
         `when`(remoteDataSource.login(loginParams = tLoginParams)).thenReturn(loginResponse)
         `when`(localDataSource.insertUser(userEntity = tUserEntity)).thenReturn(Unit)
         `when`(sharedPreferences.saveToken(token = token)).thenReturn(Unit)
-        val result = repository.login(loginParams = tLoginParams)
+        val result = repository.login(loginParams = authenticationRequestEntity)
         assertEquals(tAuthenticationResponseEntity, result)
         verify(networkInfo).hasConnection()
         verify(remoteDataSource).login(loginParams = tLoginParams)
@@ -92,7 +99,7 @@ class AuthenticationRepositoryImpTest {
     fun `login should throw ConnectionFailure when the internet is offline`(): Unit = runTest {
         `when`(networkInfo.hasConnection()).thenReturn(false)
         val result = assertFailsWith<Failures.ConnectionFailure> {
-            repository.login(loginParams = tLoginParams)
+            repository.login(loginParams = authenticationRequestEntity)
         }
         assertEquals("No Internet Connection", result.message)
     }
@@ -109,7 +116,7 @@ class AuthenticationRepositoryImpTest {
             )
             `when`(sharedPreferences.saveToken(token = token)).thenThrow(FailureException("Cache error"))
             val result = assertFailsWith<Failures.CacheFailure> {
-                repository.login(loginParams = tLoginParams)
+                repository.login(loginParams = authenticationRequestEntity)
             }
             assertEquals("Cache error", result.message)
         }
@@ -119,7 +126,7 @@ class AuthenticationRepositoryImpTest {
         `when`(networkInfo.hasConnection()).thenReturn(true)
         `when`(remoteDataSource.login(loginParams = tLoginParams)).thenThrow(FailureException("server error"))
         val result = assertFailsWith<Failures.ServerFailure> {
-            repository.login(loginParams = tLoginParams)
+            repository.login(loginParams = authenticationRequestEntity)
         }
         assertEquals("server error", result.message)
     }
@@ -128,7 +135,7 @@ class AuthenticationRepositoryImpTest {
     fun `signUp should return Response of message when the internet is online `(): Unit = runTest {
         `when`(networkInfo.hasConnection()).thenReturn(true)
         `when`(remoteDataSource.signUp(signUpParams = tSignUpParams)).thenReturn(messageResponse)
-        val result = repository.signUp(tSignUpParams)
+        val result = repository.signUp(signUpRequestEntity)
         assertEquals(tMessageResponseEntity, result)
         verify(networkInfo).hasConnection()
         verify(remoteDataSource).signUp(signUpParams = tSignUpParams)
@@ -138,7 +145,7 @@ class AuthenticationRepositoryImpTest {
     fun `signUp should throw ConnectionFailure when the internet is offline`(): Unit = runTest {
         `when`(networkInfo.hasConnection()).thenReturn(false)
         val result = assertFailsWith<Failures.ConnectionFailure> {
-            repository.signUp(singUpParams = tSignUpParams)
+            repository.signUp(singUpParams = signUpRequestEntity)
         }
         assertEquals("No Internet Connection", result.message)
     }
@@ -148,7 +155,7 @@ class AuthenticationRepositoryImpTest {
         `when`(networkInfo.hasConnection()).thenReturn(true)
         `when`(remoteDataSource.signUp(signUpParams = tSignUpParams)).thenThrow(FailureException("server error"))
         val result = assertFailsWith<Failures.ServerFailure> {
-            repository.signUp(singUpParams = tSignUpParams)
+            repository.signUp(singUpParams = signUpRequestEntity)
         }
         assertEquals("server error", result.message)
     }
@@ -157,11 +164,13 @@ class AuthenticationRepositoryImpTest {
     fun `resetPassword should return Response of message when the internet is online `(): Unit =
         runTest {
             `when`(networkInfo.hasConnection()).thenReturn(true)
-            `when`(remoteDataSource.resetPassword(resetPasswordParams = tEmailRequestEntity)).thenReturn(messageResponse)
+            `when`(remoteDataSource.resetPassword(resetPasswordParams = tEmailParams)).thenReturn(
+                messageResponse
+            )
             val result = repository.resetPassword(tEmailRequestEntity)
             assertEquals(tMessageResponseEntity, result)
             verify(networkInfo).hasConnection()
-            verify(remoteDataSource).resetPassword(resetPasswordParams = tEmailRequestEntity)
+            verify(remoteDataSource).resetPassword(resetPasswordParams = tEmailParams)
         }
 
     @Test
@@ -178,7 +187,9 @@ class AuthenticationRepositoryImpTest {
     fun `resetPassword should throw ServerFailure when the resetPassword is fails`(): Unit =
         runTest {
             `when`(networkInfo.hasConnection()).thenReturn(true)
-            `when`(remoteDataSource.resetPassword(resetPasswordParams = tEmailRequestEntity)).thenThrow(FailureException("server error"))
+            `when`(remoteDataSource.resetPassword(resetPasswordParams = tEmailParams)).thenThrow(
+                FailureException("server error")
+            )
             val result = assertFailsWith<Failures.ServerFailure> {
                 repository.resetPassword(tEmailRequestEntity)
             }

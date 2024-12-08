@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.authentication.presentation.screens
+package com.example.ecommerce.features.authentication.presentation.screens.signupscreen
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,20 +13,20 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.ecommerce.R
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.fragment.SnackBarFragment
 import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
 import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
+import com.example.ecommerce.features.authentication.presentation.screens.checkverificationcodescreen.CheckVerificationCodeActivity
+import com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginActivity
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.IAuthenticationViewModel
-import com.example.ecommerce.features.authentication.presentation.viewmodel.state.UiState
+import com.example.ecommerce.core.state.UiState
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint

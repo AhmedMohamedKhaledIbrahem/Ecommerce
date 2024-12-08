@@ -1,6 +1,9 @@
-package com.example.ecommerce.features.address.domain.entites
+package com.example.ecommerce.features.address.data.models
 
-data class CheckUpdateAddressResponseEntity(
-    val id:Int,
-    val isUpdate:Boolean,
+import com.google.gson.annotations.SerializedName
+
+data class CheckUpdateAddressResponseModel(
+
+    @SerializedName("userId") val id:Int,
+    @SerializedName("updated") val isUpdate:Boolean,
 )

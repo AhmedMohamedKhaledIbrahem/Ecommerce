@@ -1,180 +1,204 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".features.address.presentation.screen.CustomerAddressFragment"
-
-    >
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/firstNameAddressTextFieldInputLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="5dp"
-        android:hint="@string/first_name"
-        android:textColorHint="?attr/colorOnSecondary"
-        app:errorEnabled="true"
-        app:hintTextAppearance="@style/CustomHintTextAppearance">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/firstNameAddressEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textSize="14sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/lastNameAddressTextFieldInputLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="5dp"
-        android:hint="@string/last_name"
-        android:textColorHint="?attr/colorOnSecondary"
-        app:errorEnabled="true"
-        app:hintTextAppearance="@style/CustomHintTextAppearance">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/lastNameAddressEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textSize="14sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/emailAddressTextFieldInputLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="5dp"
-        android:hint="@string/email"
-        android:textColorHint="?attr/colorOnSecondary"
-        app:errorEnabled="true"
-        app:hintTextAppearance="@style/CustomHintTextAppearance">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/emailNameAddressEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textSize="14sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/phoneNumberAddressTextFieldInputLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="5dp"
-        android:hint="@string/phone_number"
-        android:textColorHint="?attr/colorOnSecondary"
-        app:errorEnabled="true"
-        app:hintTextAppearance="@style/CustomHintTextAppearance">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/phoneNumberAddressEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textSize="14sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Spinner
-        android:id="@+id/spinnerCountry"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginBottom="15dp"
-        android:foreground="@drawable/custom_border_spinner"
-        android:paddingHorizontal="5dp"
-        android:spinnerMode="dropdown" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/cityAddressTextFieldInputLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="5dp"
-        android:hint="@string/city"
-        android:textColorHint="?attr/colorOnSecondary"
-        app:errorEnabled="true"
-        app:hintTextAppearance="@style/CustomHintTextAppearance">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cityAddressEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textSize="14sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/postCodeAddressTextFieldInputLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="5dp"
-        android:hint="@string/post_code"
-        android:textColorHint="?attr/colorOnSecondary"
-        app:errorEnabled="true"
-        app:hintTextAppearance="@style/CustomHintTextAppearance">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/postCodeAddressEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textSize="14sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Spinner
-        android:id="@+id/spinnerState"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginBottom="15dp"
-        android:foreground="@drawable/custom_border_spinner"
-        android:paddingHorizontal="5dp"
-        android:spinnerMode="dropdown" />
+    android:layout_height="wrap_content"
+    tools:context=".features.address.presentation.screen.editaddress.EditAddressFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginHorizontal="5dp"
-        >
+        android:orientation="vertical">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonSave"
-            style="@style/customButtonStyle"
-            android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/firstNameAddressTextFieldInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="2dp"
+            android:hint="@string/first_name"
+            android:textColorHint="?attr/colorOnSecondary"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/firstNameAddressEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/lastNameAddressTextFieldInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="5dp"
+            android:hint="@string/last_name"
+            android:textColorHint="?attr/colorOnSecondary"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/lastNameAddressEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/emailAddressTextFieldInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="2dp"
+            android:hint="@string/email"
+            android:textColorHint="?attr/colorOnSecondary"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/emailNameAddressEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/phoneNumberAddressTextFieldInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="2dp"
+            android:hint="@string/phone_number"
+            android:textColorHint="?attr/colorOnSecondary"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/phoneNumberAddressEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Spinner
+            android:id="@+id/spinnerCountry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginBottom="15dp"
+            android:foreground="@drawable/custom_border_spinner"
+            android:paddingHorizontal="5dp"
+            android:spinnerMode="dropdown" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/streetAddressTextFieldInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="2dp"
+            android:hint="@string/street_address"
+            android:textColorHint="?attr/colorOnSecondary"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/streetAddressEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/cityAddressTextFieldInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="2dp"
+            android:hint="@string/city"
+            android:textColorHint="?attr/colorOnSecondary"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/cityAddressEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/postCodeAddressTextFieldInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="2dp"
+            android:hint="@string/post_code"
+            android:textColorHint="?attr/colorOnSecondary"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/postCodeAddressEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Spinner
+            android:id="@+id/spinnerState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="10dp"
+            android:foreground="@drawable/custom_border_spinner"
+            android:paddingHorizontal="5dp"
+            android:spinnerMode="dropdown" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="5dp"
-            android:layout_weight="2"
-            android:backgroundTint="?attr/colorPrimary"
-            android:text="@string/save"
-            android:textColor="?attr/colorOnPrimary" />
+            android:orientation="horizontal"
+            android:layout_gravity="bottom"
+            >
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonLocation"
-            style="@style/customButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
-            android:layout_weight="1"
-            android:backgroundTint="?attr/colorPrimary"
-            android:text="@string/location"
-            android:textColor="?attr/colorOnPrimary"
-            app:icon="@drawable/outline_my_location_24"
-            />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonSave"
+                style="@style/customButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="2"
+                android:backgroundTint="?attr/colorPrimary"
+                android:text="@string/save"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="13sp" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonLocation"
+                style="@style/customButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1.1"
+                android:backgroundTint="?attr/colorPrimary"
+                android:text="@string/location"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="13sp"
+                app:icon="@drawable/outline_my_location_24" />
+
+        </LinearLayout>
     </LinearLayout>
 
-
-</LinearLayout>
+</ScrollView>

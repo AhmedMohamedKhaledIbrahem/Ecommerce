@@ -6,14 +6,15 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "user")
 data class UserEntity(
     @PrimaryKey(autoGenerate = true) val id :Int,
-    val userId: Int,
+    var userId: Int,
     val userEmail: String,
     val userName: String,
-    val firstName: String,
-    val lastName: String,
+    var firstName: String,
+    var lastName: String,
     val roles:String,
     val verificationStatues:Boolean,
-    val displayName: String,
+    var displayName: String,
+    var imagePath:String? = null ?:"",
     val expiredToken: Int
 
 ){

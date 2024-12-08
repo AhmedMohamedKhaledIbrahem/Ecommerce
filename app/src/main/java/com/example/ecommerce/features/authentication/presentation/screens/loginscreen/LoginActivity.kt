@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.authentication.presentation.screens
+package com.example.ecommerce.features.authentication.presentation.screens.loginscreen
 
 import android.content.Intent
 import android.os.Bundle
@@ -25,9 +25,12 @@ import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationResponseEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
+import com.example.ecommerce.features.authentication.presentation.screens.signupscreen.SignUpActivity
+import com.example.ecommerce.features.authentication.presentation.screens.checkverificationcodescreen.CheckVerificationCodeActivity
+import com.example.ecommerce.features.authentication.presentation.screens.forgetpasswordscreen.ForgetPasswordActivity
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.IAuthenticationViewModel
-import com.example.ecommerce.features.authentication.presentation.viewmodel.state.UiState
+import com.example.ecommerce.core.state.UiState
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
@@ -122,7 +125,6 @@ class LoginActivity : AppCompatActivity() {
                             Log.e("state1", "$state")
                             loadingDialog.showLoading(fragmentManager = supportFragmentManager)
                         }
-
                         is UiState.Success -> {
                             loadingDialog.dismissLoading()
                             val response = state.data as AuthenticationResponseEntity
