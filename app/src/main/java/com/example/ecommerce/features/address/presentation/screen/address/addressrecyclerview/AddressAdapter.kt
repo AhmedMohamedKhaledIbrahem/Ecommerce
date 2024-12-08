@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.address.presentation.screen.addressrecyclerview
+package com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

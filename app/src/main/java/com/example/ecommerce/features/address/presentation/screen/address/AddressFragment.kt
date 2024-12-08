@@ -22,8 +22,8 @@ import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.AddressUtil
 import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
-import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressAdapter
 import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressItem
+import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressAdapter
 import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
 import com.facebook.shimmer.ShimmerFrameLayout
