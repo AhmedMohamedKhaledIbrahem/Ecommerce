@@ -4,6 +4,7 @@ data class SettingItem(
     val imageResId:Int,
     val title:String,
     val enableSwitch:Boolean ,
+    var isChecked:Boolean,
     val destinationId:Int
 ){
     companion object {

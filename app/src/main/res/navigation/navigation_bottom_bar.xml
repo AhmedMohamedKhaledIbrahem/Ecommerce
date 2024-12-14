@@ -37,6 +37,9 @@
             app:exitAnim="@android:anim/fade_out"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_settingFragment_to_languageFragment"
+            app:destination="@id/languageFragment" />
     </fragment>
     <dialog
         android:id="@+id/editProfileFragment"
@@ -65,4 +68,9 @@
             android:id="@+id/action_editAddressFragment_to_addressFragment"
             app:destination="@id/addressFragment" />
     </fragment>
+    <dialog
+        android:id="@+id/languageFragment"
+        android:name="com.example.ecommerce.features.preferences.presentation.screen.LanguageFragment"
+        android:label="language"
+        tools:layout="@layout/fragment_language" />
 </navigation>

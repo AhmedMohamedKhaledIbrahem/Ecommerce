@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/radio_group_language"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".features.preferences.presentation.screen.LanguageFragment">
+
+    <RadioButton
+        android:id="@+id/radio_english"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/english" />
+
+    <RadioButton
+        android:id="@+id/radio_french"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/french" />
+
+    <RadioButton
+        android:id="@+id/radio_italian"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/italian" />
+
+    <RadioButton
+        android:id="@+id/radio_germany"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/germany" />
+
+    <RadioButton
+        android:id="@+id/radio_arabic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/arabic" />
+
+</RadioGroup>
