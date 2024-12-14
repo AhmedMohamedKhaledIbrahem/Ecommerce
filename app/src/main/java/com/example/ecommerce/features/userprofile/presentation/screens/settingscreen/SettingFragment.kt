@@ -18,6 +18,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
@@ -31,6 +32,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
+import com.example.ecommerce.MainActivity
 import com.example.ecommerce.R
 import com.example.ecommerce.core.data.entities.UserEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
@@ -38,7 +40,10 @@ import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.AddressUtil
 import com.example.ecommerce.core.utils.NetworkStatus
+import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.features.preferences.presentation.viewmodel.IPreferencesViewModel
+import com.example.ecommerce.features.preferences.presentation.viewmodel.PreferencesViewModel
 import com.example.ecommerce.features.userprofile.presentation.screens.settingscreen.settingrecyclerview.SettingAdapter
 import com.example.ecommerce.features.userprofile.presentation.screens.settingscreen.settingrecyclerview.SettingItem
 import com.example.ecommerce.features.userprofile.presentation.viewmodel.imageprofile.IImageProfileViewModel
@@ -72,6 +77,8 @@ class SettingFragment : Fragment() {
     private val loadingDialog by lazy {
         LoadingDialogFragment().getInstance()
     }
+    private var isAdapterInitialized = false
+    private val preferencesViewModel: IPreferencesViewModel by viewModels<PreferencesViewModel>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,13 +122,16 @@ class SettingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         checkInternetStatus()
-        initRecyclerView()
         getUserProfile()
         getUserProfileState()
+        getDarkMode()
+        preferencesState()
+        initRecyclerView()
         updateDisplayNameViewModel =
             ViewModelProvider(requireActivity())[UpdateDisplayNameViewModel::class.java]
         uploadImageProfileState()
         updateUserDisplayName()
+
 
     }
 
@@ -133,7 +143,7 @@ class SettingFragment : Fragment() {
             fragmentManager = parentFragmentManager,
             rootView = rootView,
         )
-        Log.d("network", "${networkStatusViewModel.networkStatus.value}")
+
     }
 
     private fun getUserProfile() {
@@ -161,81 +171,171 @@ class SettingFragment : Fragment() {
         }
     }
 
-    private fun uploadImageProfileUiState(state: UiState<Any>) {
+    private fun preferencesState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                preferencesViewModel.preferencesState.collect { state ->
+                    preferencesUiState(state)
+                }
+            }
+        }
+    }
+
+    private fun preferencesUiState(state: UiState<Any>) {
         when (state) {
             is UiState.Loading -> {
-                when (state.source) {
-                    "uploadImageProfile" -> {
-                        loadingDialog.showLoading(fragmentManager = parentFragmentManager)
-                    }
-                }
+                preferencesLoadingState(state)
             }
 
             is UiState.Success -> {
-                when (state.source) {
-                    "uploadImageProfile" -> {
-                        loadingDialog.dismissLoading()
-                    }
-                }
+                preferencesSuccessState(state)
             }
 
             is UiState.Error -> {
-                when (state.source) {
-                    "uploadImageProfile" -> {
-                        loadingDialog.dismissLoading()
-                        SnackBarCustom.showSnackbar(
-                            view = rootView,
-                            message = state.message
-                        )
-                        Log.d("uploadImageProfileError", "ErrorImage:${state.message} ")
-                    }
-                }
+                preferencesErrorState(state)
             }
 
+        }
+    }
+
+    private fun preferencesErrorState(state: UiState.Error) {
+        when (state.source) {
+            "setDarkModeEnabled" -> {
+                SnackBarCustom.showSnackbar(
+                    rootView,
+                    state.message
+                )
+            }
+
+            "isDarkModeEnabled" -> {
+                SnackBarCustom.showSnackbar(
+                    rootView,
+                    state.message
+                )
+            }
+        }
+    }
+
+    private fun preferencesSuccessState(state: UiState.Success<Any>) {
+        when (state.source) {
+            "setDarkModeEnabled" -> {
+                //updateDarkMode()
+            }
+
+            "isDarkModeEnabled" -> {
+                val isDarkModeEnabled = state.data as Boolean
+                Log.e("isDarkModeEnabled", "isDarkModeEnabled: $isDarkModeEnabled")
+                PreferencesUtils.isDarkMode = isDarkModeEnabled
+            }
+        }
+    }
+
+    private fun preferencesLoadingState(state: UiState.Loading) {
+        when (state.source) {
+            "setDarkModeEnabled" -> {}
+            "isDarkModeEnabled" -> {}
+        }
+    }
+
+    private fun uploadImageProfileUiState(state: UiState<Any>) {
+        when (state) {
+            is UiState.Loading -> {
+                uploadImageProfileLoadingState(state)
+            }
+
+            is UiState.Success -> {
+                uploadImageProfileSuccessState(state)
+            }
+
+            is UiState.Error -> {
+                uploadImageProfileErrorState(state)
+            }
+
+        }
+    }
+
+    private fun uploadImageProfileErrorState(state: UiState.Error) {
+        when (state.source) {
+            "uploadImageProfile" -> {
+                loadingDialog.dismissLoading()
+                SnackBarCustom.showSnackbar(
+                    view = rootView,
+                    message = state.message
+                )
+                Log.d("uploadImageProfileError", "ErrorImage:${state.message} ")
+            }
+        }
+    }
+
+    private fun uploadImageProfileSuccessState(state: UiState.Success<Any>) {
+        when (state.source) {
+            "uploadImageProfile" -> {
+                loadingDialog.dismissLoading()
+            }
+        }
+    }
+
+    private fun uploadImageProfileLoadingState(state: UiState.Loading) {
+        when (state.source) {
+            "uploadImageProfile" -> {
+                loadingDialog.showLoading(fragmentManager = parentFragmentManager)
+            }
         }
     }
 
     private fun getUserProfileUiStates(state: UiState<Any>) {
         when (state) {
             is UiState.Loading -> {
-                when (state.source) {
-                    "getUserProfile" -> {
-                        // loadingDialog.showLoading(fragmentManager = parentFragmentManager)
-                    }
-                }
+                getUserProfileLoadingState(state)
             }
 
             is UiState.Success -> {
-                when (state.source) {
-                    "getUserProfile" -> {
-                        val userProfile = state.data as UserEntity
-                        userSettingNameTextView.text = userProfile.displayName
-
-                        val userEmail = userProfile.userEmail
-                        userSettingEmailTextView.text = userEmail
-                        userProfile.imagePath?.let { imagePath ->
-                            userImageProfileView(imagePath.toUri())
-                        }
-                        AddressUtil.addressId = userProfile.userId
-                        Log.d("getUserProfileSuccess", "Success:${userProfile.userId} ")
-
-                    }
-                }
+                getUserProfileSuccessState(state)
             }
 
             is UiState.Error -> {
-                when (state.source) {
-                    "getUserProfile" -> {
-                        loadingDialog.dismissLoading()
-                        SnackBarCustom.showSnackbar(
-                            view = rootView,
-                            message = state.message
-                        )
-                    }
-                }
+                getUserProfileErrorState(state)
 
             }
 
+        }
+    }
+
+    private fun getUserProfileErrorState(state: UiState.Error) {
+        when (state.source) {
+            "getUserProfile" -> {
+                loadingDialog.dismissLoading()
+                SnackBarCustom.showSnackbar(
+                    view = rootView,
+                    message = state.message
+                )
+            }
+        }
+    }
+
+    private fun getUserProfileSuccessState(state: UiState.Success<Any>) {
+        when (state.source) {
+            "getUserProfile" -> {
+                val userProfile = state.data as UserEntity
+                userSettingNameTextView.text = userProfile.displayName
+
+                val userEmail = userProfile.userEmail
+                userSettingEmailTextView.text = userEmail
+                userProfile.imagePath?.let { imagePath ->
+                    userImageProfileView(imagePath.toUri())
+                }
+                AddressUtil.addressId = userProfile.userId
+                Log.d("getUserProfileSuccess", "Success:${userProfile.userId} ")
+
+            }
+        }
+    }
+
+    private fun getUserProfileLoadingState(state: UiState.Loading) {
+        when (state.source) {
+            "getUserProfile" -> {
+                // loadingDialog.showLoading(fragmentManager = parentFragmentManager)
+            }
         }
     }
 
@@ -252,11 +352,30 @@ class SettingFragment : Fragment() {
     private fun initRecyclerView() {
         lifecycleScope.launch {
             val data = withContext(Dispatchers.IO) { setData() }
-            settingAdapter = SettingAdapter(data) { settingItem ->
-                navigateToDestination(settingItem.destinationId)
-            }
+            settingAdapter = SettingAdapter(
+                data,
+                onItemClickListener = { settingItem ->
+                    navigateToDestination(settingItem.destinationId)
+                },
+                onSwitchChangeListener = { settingItem, isChecked ->
+                    if (settingItem.title == getString(R.string.darkMode)) {
+                        toggleDarkMode(isChecked)
+                        defaultNightMode(isChecked)
+                    }
+                }
+
+            )
             settingRecyclerView.adapter = settingAdapter
+            isAdapterInitialized = true
+            val position = findDarkModeItemPosition()
+            position?.let {
+                settingAdapter.updateItemCheckedState(it, PreferencesUtils.isDarkMode)
+            }
         }
+    }
+
+    private fun toggleDarkMode(isChecked: Boolean) {
+        preferencesViewModel.setDarkModeEnabled(isChecked)
     }
 
     private fun setData(): List<SettingItem> {
@@ -264,43 +383,50 @@ class SettingFragment : Fragment() {
             SettingItem(
                 R.drawable.round_person_24,
                 getString(R.string.accountDetails),
-                false,
+                enableSwitch = false,
+                isChecked = false,
                 R.id.editProfileFragment,
             ),
             SettingItem(
                 R.drawable.online_delivery,
                 getString(R.string.myorders),
-                false,
+                enableSwitch = false,
+                isChecked = false,
                 R.id.productFragment,
             ),
             SettingItem(
                 R.drawable.location,
                 getString(R.string.address),
-                false,
+                enableSwitch = false,
+                isChecked = false,
                 R.id.addressFragment,
             ),
             SettingItem(
                 R.drawable.night_mode,
                 getString(R.string.darkMode),
-                true,
+                enableSwitch = true,
+                isChecked = PreferencesUtils.isDarkMode,
                 SettingItem.NO_DESTINATION,
             ),
             SettingItem(
                 R.drawable.language,
                 getString(R.string.language),
-                false,
-                R.id.productFragment,
+                enableSwitch = false,
+                isChecked = false,
+                R.id.languageFragment,
             ),
             SettingItem(
                 R.drawable.privacy,
                 getString(R.string.policePrivacy),
-                false,
+                enableSwitch = false,
+                isChecked = false,
                 R.id.productFragment,
             ),
             SettingItem(
                 R.drawable.log_out,
                 getString(R.string.logout),
-                false,
+                enableSwitch = false,
+                isChecked = false,
                 SettingItem.NO_DESTINATION,
             ),
 
@@ -415,5 +541,37 @@ class SettingFragment : Fragment() {
         cursor?.close()
         return path
     }
+
+    private fun updateDarkMode() {
+        val intent =
+            Intent(requireContext(), MainActivity::class.java)
+        intent.apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        context?.startActivity(intent)
+    }
+
+    private fun getDarkMode() {
+        preferencesViewModel.isDarkModeEnabled()
+    }
+
+    private fun findDarkModeItemPosition(): Int? {
+        if (!::settingAdapter.isInitialized) {
+            Log.e("AdapterError", "SettingAdapter is not initialized")
+            return null
+        }
+
+        return settingAdapter.items.indexOfFirst { it.title == getString(R.string.darkMode) }
+            .takeIf { it != -1 } // Return null if no matching item is found
+    }
+
+    private fun defaultNightMode(toggle:Boolean) {
+        AppCompatDelegate.setDefaultNightMode(
+            if (toggle) AppCompatDelegate.MODE_NIGHT_YES
+            else AppCompatDelegate.MODE_NIGHT_NO
+        )
+    }
+
 
 }

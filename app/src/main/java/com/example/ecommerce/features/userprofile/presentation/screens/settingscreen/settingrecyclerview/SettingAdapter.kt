@@ -7,13 +7,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
 
 class SettingAdapter(
-    private val settingItems: List<SettingItem>,
-    private val onItemClickListener: (SettingItem) -> Unit
+    private var settingItems: List<SettingItem>,
+    private val onItemClickListener: (SettingItem) -> Unit,
+    private val onSwitchChangeListener: (SettingItem, Boolean) -> Unit
 ) : RecyclerView.Adapter<SettingViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettingViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_setting, parent, false)
         return SettingViewHolder(view)
     }
+    val items:List<SettingItem> get() = settingItems
 
     override fun getItemCount(): Int = settingItems.size
 
@@ -28,6 +30,23 @@ class SettingAdapter(
             holder.settingSwitch.visibility = View.GONE
         } else {
             holder.settingSwitch.visibility = View.VISIBLE
+        }
+        holder.settingSwitch.setOnCheckedChangeListener(null)
+        holder.settingSwitch.isChecked = setting.isChecked
+        holder.settingSwitch.setOnCheckedChangeListener { _, isChecked ->
+            setting.isChecked = isChecked
+            onSwitchChangeListener(setting, isChecked)
+        }
+
+    }
+    fun updateItemCheckedState(position: Int, isChecked: Boolean) {
+        val setting = settingItems[position]
+        if (setting.isChecked != isChecked){
+            val updatedItems  = settingItems.toMutableList().apply {
+                this[position] = this[position].copy(isChecked = isChecked)
+            }
+            settingItems = updatedItems
+            notifyItemChanged(position)
         }
     }
 }

@@ -84,4 +84,10 @@
     <string name="invalid_street_address_format">invalid street address format</string>
     <string name="please_select_country_and_state">Please select country and state</string>
     <string name="please_turn_on_your_location">Please turn on your location</string>
+    <string name="nothing_selected">Nothing selected</string>
+    <string name="english">English</string>
+    <string name="french">French</string>
+    <string name="italian">Italian</string>
+    <string name="germany">Germany</string>
+    <string name="arabic">Arabic</string>
 </resources>
