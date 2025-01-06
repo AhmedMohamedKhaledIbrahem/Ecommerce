@@ -1,10 +1,9 @@
 package com.example.ecommerce.features.userprofile.data.datasources.localdatasource
 
-import com.example.ecommerce.core.data.dao.UserDao
-import com.example.ecommerce.core.data.entities.UserEntity
+import com.example.ecommerce.core.database.data.dao.user.UserDao
+import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.userprofile.data.models.UpdateUserNameDetailsResponseModel
-import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

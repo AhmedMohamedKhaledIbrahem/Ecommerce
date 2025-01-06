@@ -3,14 +3,13 @@ package com.example.ecommerce.features.userprofile.presentation.viewmodel.userpr
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.example.ecommerce.core.data.entities.UserEntity
+import com.example.ecommerce.core.data.entities.user.UserEntity
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.features.await
 import com.example.ecommerce.features.observerViewModelErrorState
 import com.example.ecommerce.features.observerViewModelSuccessState
 import com.example.ecommerce.features.removeObserverFromLiveData
 import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.IGetUserProfileUseCase
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -26,7 +25,6 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @ExperimentalCoroutinesApi
 class UserProfileViewModelTest {

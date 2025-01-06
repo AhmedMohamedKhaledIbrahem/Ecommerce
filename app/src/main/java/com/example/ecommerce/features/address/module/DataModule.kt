@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.address.module
 
-import com.example.ecommerce.core.data.dao.AddressDao
+import com.example.ecommerce.core.database.data.dao.address.AddressDao
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.features.address.data.datasources.AddressApi
 import com.example.ecommerce.features.address.data.datasources.localdatasource.AddressLocalDataSource

@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.authentication.modules
 
-import com.example.ecommerce.core.data.dao.UserDao
+import com.example.ecommerce.core.database.data.dao.user.UserDao
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.core.tokenmanager.TokenManager
 import com.example.ecommerce.features.authentication.data.datasources.AuthenticationApi

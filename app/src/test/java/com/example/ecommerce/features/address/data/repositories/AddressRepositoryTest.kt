@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.address.data.repositories
 
-import com.example.ecommerce.core.data.entities.CustomerAddressEntity
+import com.example.ecommerce.core.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker

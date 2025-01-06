@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.ecommerce.R
-import com.example.ecommerce.core.data.entities.CustomerAddressEntity
+import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
 import com.example.ecommerce.core.state.UiState

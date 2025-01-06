@@ -34,7 +34,7 @@ import coil.load
 import coil.transform.CircleCropTransformation
 import com.example.ecommerce.MainActivity
 import com.example.ecommerce.R
-import com.example.ecommerce.core.data.entities.UserEntity
+import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
 import com.example.ecommerce.core.state.UiState

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/productFragment"
-        android:name="com.example.ecommerce.features.product.presentation.screen.productscreen.ProductFragment"
+        android:name="com.example.ecommerce.features.product.presentation.screen.product.ProductFragment"
         android:label="fragment_product"
         tools:layout="@layout/fragment_product" >
         <action
@@ -17,6 +17,9 @@
             app:exitAnim="@android:anim/fade_out"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_productFragment_to_productDetailsFragment"
+            app:destination="@id/productDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingFragment"
@@ -73,4 +76,13 @@
         android:name="com.example.ecommerce.features.preferences.presentation.screen.LanguageFragment"
         android:label="language"
         tools:layout="@layout/fragment_language" />
+    <fragment
+        android:id="@+id/productDetailsFragment"
+        android:name="com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetailsFragment"
+        android:label="Product Details"
+        tools:layout="@layout/fragment_product_details" >
+        <argument
+            android:name="product"
+            app:argType="com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetails" />
+    </fragment>
 </navigation>

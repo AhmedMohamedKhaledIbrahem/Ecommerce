@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.userprofile.modules
 
-import com.example.ecommerce.core.data.dao.UserDao
+import com.example.ecommerce.core.database.data.dao.user.UserDao
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.features.userprofile.data.datasources.UserProfileApi
 import com.example.ecommerce.features.userprofile.data.datasources.localdatasource.UserProfileLocalDataSource

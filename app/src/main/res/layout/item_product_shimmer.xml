@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/ProductShimmerCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="10dp"
+        android:backgroundTint="?attr/colorBackgroundFloating"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="10dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imageProductShimmer"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:contentDescription="@string/product_image"
+                android:scaleType="centerCrop"
+                android:background="@drawable/shimmer_placeholder"
+
+                app:shapeAppearanceOverlay="@style/roundedCornerProductStyle" />
+
+            <TextView
+                android:id="@+id/nameProductShimmerText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textSize="16sp"
+                android:background="@drawable/shimmer_placeholder"
+                />
+
+            <TextView
+                android:id="@+id/priceProductShimmerText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="6dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:background="@drawable/shimmer_placeholder"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

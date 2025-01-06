@@ -15,7 +15,7 @@ object NetworkStatus {
         loadingDialog: LoadingDialogFragment,
         fragmentManager: FragmentManager,
         rootView: View
-    ) {
+    ):Boolean {
         var flag = false
         networkStatus.observe(lifecycleOwner) { connectivityStatus ->
             when (connectivityStatus) {
@@ -42,5 +42,6 @@ object NetworkStatus {
                 null -> {}
             }
         }
+        return flag
     }
 }

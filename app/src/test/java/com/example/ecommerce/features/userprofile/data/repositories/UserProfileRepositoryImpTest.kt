@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.userprofile.data.repositories
 
-import com.example.ecommerce.core.data.entities.UserEntity
+import com.example.ecommerce.core.data.entities.user.UserEntity
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker

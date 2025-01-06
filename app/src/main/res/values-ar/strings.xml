@@ -89,5 +89,9 @@
     <string name="italian">الإيطالية</string>
     <string name="germany">الألمانية</string>
     <string name="arabic">العربية</string>
+    <string name="product_image">product image</string>
+    <string name="favourite">Favourite</string>
+    <string name="productImage">productImage</string>
+    <string name="add_to_cart">Add to Cart</string>
 
 </resources>

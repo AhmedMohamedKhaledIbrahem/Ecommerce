@@ -466,8 +466,7 @@ class EditAddressFragment : Fragment() {
                 Toast.makeText(
                     requireContext(),
                     getString(R.string.address_updated_successfully), Toast.LENGTH_SHORT
-                )
-                    .show()
+                ).show()
 
                 lifecycleScope.launch {
                     delay(500L)

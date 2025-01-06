@@ -1,7 +1,7 @@
 package com.example.ecommerce.features.authentication.data.datasource.localdatasource
 
-import com.example.ecommerce.core.data.dao.UserDao
-import com.example.ecommerce.core.data.mapper.UserMapper
+import com.example.ecommerce.core.database.data.dao.user.UserDao
+import com.example.ecommerce.core.database.data.mapper.UserMapper
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.authentication.data.datasources.localdatasource.AuthenticationLocalDataSourceImp
 import com.example.ecommerce.features.authentication.data.models.AuthenticationResponseModel
@@ -26,28 +26,30 @@ class AuthenticationLocalDataSourceImpTest {
 
 
     @Before
-    fun setUp(){
+    fun setUp() {
         MockitoAnnotations.openMocks(this)
         localDataSource = AuthenticationLocalDataSourceImp(dao = dao)
     }
+
     private val loginResponse = fixture("login.json").run {
-        Gson().fromJson(this,AuthenticationResponseModel::class.java)
+        Gson().fromJson(this, AuthenticationResponseModel::class.java)
     }
     private val tUserEntity = UserMapper.mapToEntity(loginResponse)
 
     @Test
-    fun`should call dao insertUser and cache data is successful`():Unit= runTest {
+    fun `should call dao insertUser and cache data is successful`(): Unit = runTest {
         `when`(dao.insertUser(tUserEntity)).thenReturn(Unit)
-         localDataSource.insertUser(tUserEntity)
+        localDataSource.insertUser(tUserEntity)
         verify(dao).insertUser(tUserEntity)
     }
+
     @Test
-    fun`should throw FailureException on dao `():Unit= runTest {
+    fun `should throw FailureException on dao `(): Unit = runTest {
         `when`(dao.insertUser(tUserEntity)).thenThrow(RuntimeException("database error"))
         val result = assertFailsWith<FailureException> {
             localDataSource.insertUser(tUserEntity)
         }
-        assertEquals("database error",result.message)
+        assertEquals("database error", result.message)
     }
 
 }
