@@ -1,5 +1,6 @@
 package com.example.ecommerce.features.address.data.repositories
 
+import android.util.Log
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.errors.Failures
@@ -36,10 +37,12 @@ class AddressRepositoryImp @Inject constructor(
         return try {
             if (internetConnectionChecker.hasConnection()) {
                 localDataSource.checkAddressEntityById(id)?.let {
+                    Log.e("localDataSource","${localDataSource.getAddressById(id = id)}")
                     localDataSource.getAddressById(id = id)
                 } ?: run {
                     val remoteGetAddress = remoteDataSource.getAddress()
                     localDataSource.updateAddress(updateAddressParams = remoteGetAddress)
+                    Log.e("getAddressById","${localDataSource.getAddressById(id = id)}")
                     localDataSource.getAddressById(id = id)
                 }
             } else {

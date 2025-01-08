@@ -8,15 +8,15 @@ object CustomerAddressMapper {
         return CustomerAddressEntity(
             id = 0 ,
             userId = model.userId,
-            firstName = model.billing?.firstName,
-            lastName = model.billing?.lastName,
-            email = model.billing?.email,
-            phone = model.billing?.phone,
-            address = model.billing?.address,
-            country = model.billing?.country,
-            city = model.billing?.city,
-            state = model.billing?.state,
-            zipCode = model.billing?.postCode,
+            firstName = model.data?.billing?.firstName,
+            lastName = model.data?.billing?.lastName,
+            email = model.data?.billing?.email,
+            phone = model.data?.billing?.phone,
+            address = model.data?.billing?.address,
+            country = model.data?.billing?.country,
+            city = model.data?.billing?.city,
+            state = model.data?.billing?.state,
+            zipCode = model.data?.billing?.postCode,
         )
     }
 }

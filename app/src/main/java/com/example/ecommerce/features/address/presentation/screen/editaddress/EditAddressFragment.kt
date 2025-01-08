@@ -358,6 +358,7 @@ class EditAddressFragment : Fragment() {
     private fun saveButtonOnClickedListener() {
         buttonSave.setOnClickListener {
             val firstName = firstNameAddressEditText.text.toString()
+            Log.e("firstName",firstName)
             val lastName = lastNameAddressEditText.text.toString()
             val email = emailNameAddressEditText.text.toString()
             val phoneNumber = phoneNumberAddressEditText.text.toString()
@@ -402,6 +403,7 @@ class EditAddressFragment : Fragment() {
                     shipping = shippingInfoAddressRequest,
                     billing = billingInfoAddressRequest,
                 )
+                Log.e("addressRequest","$addressRequestEntity")
                 updateAddress(addressRequestEntity = addressRequestEntity)
 
             } else if (

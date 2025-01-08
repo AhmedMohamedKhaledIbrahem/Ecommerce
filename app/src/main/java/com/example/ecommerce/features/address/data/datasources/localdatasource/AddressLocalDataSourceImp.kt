@@ -1,5 +1,6 @@
 package com.example.ecommerce.features.address.data.datasources.localdatasource
 
+import android.util.Log
 import com.example.ecommerce.core.database.data.dao.address.AddressDao
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.database.data.mapper.CustomerAddressMapper
@@ -18,16 +19,17 @@ class AddressLocalDataSourceImp @Inject constructor(
             try {
                 val address = dao.getAddressById(updateAddressParams.userId)
                 if (address != null) {
-                    address.firstName = updateAddressParams.billing?.firstName
-                    address.lastName = updateAddressParams.billing?.lastName
-                    address.address = updateAddressParams.billing?.address
-                    address.email = updateAddressParams.billing?.email
-                    address.city = updateAddressParams.billing?.city
-                    address.state = updateAddressParams.billing?.state
-                    address.zipCode = updateAddressParams.billing?.postCode
-                    address.country = updateAddressParams.billing?.country
-                    address.phone = updateAddressParams.billing?.phone
+                    address.firstName = updateAddressParams.data?.billing?.firstName
+                    address.lastName = updateAddressParams.data?.billing?.lastName
+                    address.address = updateAddressParams.data?.billing?.address
+                    address.email = updateAddressParams.data?.billing?.email
+                    address.city = updateAddressParams.data?.billing?.city
+                    address.state = updateAddressParams.data?.billing?.state
+                    address.zipCode = updateAddressParams.data?.billing?.postCode
+                    address.country = updateAddressParams.data?.billing?.country
+                    address.phone = updateAddressParams.data?.billing?.phone
                     dao.updateAddress(address)
+
                 } else {
                     val customerAddressEntity =
                         CustomerAddressMapper.mapToEntity(updateAddressParams)

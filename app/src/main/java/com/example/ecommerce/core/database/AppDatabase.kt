@@ -3,12 +3,16 @@ package com.example.ecommerce.core.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.ecommerce.core.database.data.dao.address.AddressDao
+import com.example.ecommerce.core.database.data.dao.cart.CartDao
+import com.example.ecommerce.core.database.data.dao.cart.ItemCartDao
 import com.example.ecommerce.core.database.data.dao.category.CategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
 import com.example.ecommerce.core.database.data.dao.product.ProductDao
 import com.example.ecommerce.core.database.data.dao.user.UserDao
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
+import com.example.ecommerce.core.database.data.entities.cart.CartEntity
+import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
 import com.example.ecommerce.core.database.data.entities.category.CategoryEntity
 import com.example.ecommerce.core.database.data.entities.image.ImageEntity
 import com.example.ecommerce.core.database.data.entities.products.ProductCategoryCrossRefEntity
@@ -22,11 +26,12 @@ import com.example.ecommerce.core.database.data.entities.user.UserEntity
         ProductEntity::class,
         CategoryEntity::class,
         ImageEntity::class,
-
-        ProductCategoryCrossRefEntity::class
+        ProductCategoryCrossRefEntity::class,
+        CartEntity::class,
+        ItemCartEntity::class
 
     ],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -36,6 +41,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun imageDao(): ImageDao
     abstract fun productCategoryCrossRefDao(): ProductCategoryCrossRefDao
+    abstract fun cartDao(): CartDao
+    abstract fun itemCartDao(): ItemCartDao
+
 
 
 }

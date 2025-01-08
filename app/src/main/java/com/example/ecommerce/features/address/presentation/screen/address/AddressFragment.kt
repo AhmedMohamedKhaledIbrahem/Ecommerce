@@ -143,6 +143,7 @@ class AddressFragment : Fragment() {
             "getAddressById" -> {
                 shimmerStopWhenDataSuccess()
                 val addressData = state.data as CustomerAddressEntity
+                Log.e("address","$addressData")
                 AddressUtil.addressEntity = addressData
                 initRecyclerView(addressData)
             }

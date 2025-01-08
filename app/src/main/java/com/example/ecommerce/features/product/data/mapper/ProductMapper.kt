@@ -10,12 +10,12 @@ object ProductMapper {
             name = model.name,
             description = model.description,
             shortDescription = model.shortDescription,
-            price = model.price.price,
+            price = (model.price.price.toInt() / 100).toString(),
             reviewCount = model.reviewCount,
             ratingCount = model.ratingCount,
             isStock = model.stock.isStock,
             statusStock = model.stock.statusStock,
-           // currency = model.currency.currencyCode?:"EG",
+            // currency = model.currency.currencyCode?:"EG",
         )
     }
 }
