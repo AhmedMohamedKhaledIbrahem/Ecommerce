@@ -25,7 +25,7 @@ class CartViewHolder(
     @SuppressLint("SetTextI18n")
     fun bind(item: ItemCartEntity) {
         cartItemName.text = item.name
-        cartItemPrice.text = item.price
+        cartItemPrice.text = item.price.plus(".00") + " EG"
         cartItemQuantity.text = item.quantity.toString()
         cartItemIncrease.setOnClickListener {
             if (item.quantity < 10) {
@@ -35,8 +35,6 @@ class CartViewHolder(
                 cartItemQuantity.text = newQuantity.toString() // Update the UI
                 onCounterUpdate(item, newQuantity) // Notify the callback
 
-            } else {
-                cartItemIncrease.isEnabled = false
             }
 
         }
@@ -47,8 +45,6 @@ class CartViewHolder(
                 cartItemQuantity.text = newQuantity.toString() // Update the UI
                 onCounterUpdate(item, newQuantity) // Notify the callback
 
-            } else {
-                cartItemDecrease.isEnabled = false
             }
         }
         cartItemImage.load(item.image) {

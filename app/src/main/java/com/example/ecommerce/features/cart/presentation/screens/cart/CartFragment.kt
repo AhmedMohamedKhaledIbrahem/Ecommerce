@@ -23,11 +23,13 @@ import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.cart.CartWithItems
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
 import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.cart.data.data_soruce.local.calculateTotalPrice
 import com.example.ecommerce.features.cart.presentation.screens.adapter.CartAdapter
 import com.example.ecommerce.features.cart.presentation.viewmodel.CartViewModel
 import com.example.ecommerce.features.cart.presentation.viewmodel.ICartViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
+import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import kotlinx.coroutines.delay
@@ -38,10 +40,12 @@ class CartFragment : Fragment() {
     private lateinit var cartRecyclerView: RecyclerView
     private lateinit var cartSwipeRefreshLayout: SwipeRefreshLayout
     private lateinit var cartAdapter: CartAdapter
-    private lateinit var totalPriceTextView :TextView
+    private lateinit var checkoutButton: MaterialButton
+    private lateinit var totalPriceTextView: TextView
     private lateinit var detectViewModel: DetectScrollEndViewModel
     private var itemHashKeys: MutableList<ItemCartEntity> = mutableListOf()
     private val cartViewModel: ICartViewModel by viewModels<CartViewModel>()
+    private lateinit var root: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,6 +53,7 @@ class CartFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_cart, container, false)
         initView(view)
+        initViewModel()
         return view
     }
 
@@ -56,11 +61,13 @@ class CartFragment : Fragment() {
         cartRecyclerView = view.findViewById(R.id.cartRecyclerView)
         cartSwipeRefreshLayout = view.findViewById(R.id.cartSwipeRefreshViewLayout)
         totalPriceTextView = view.findViewById(R.id.totalTextView)
+        checkoutButton = view.findViewById(R.id.buttonCheckOut)
+        root = view
+    }
+
+    private fun initViewModel() {
         detectViewModel =
             ViewModelProvider(requireActivity())[DetectScrollEndViewModel::class.java]
-//        countControlLayout = view.findViewById(R.id.counterContainer)
-//        deleteLayout = view.findViewById(R.id.deleteLinearLayout)
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,6 +75,7 @@ class CartFragment : Fragment() {
         getCartWithItems()
         cartState()
         swipeItem()
+        checkoutButtonSetOnClickListener()
         onSwipeRefreshListener()
         detectScrollEnd()
 
@@ -89,9 +97,8 @@ class CartFragment : Fragment() {
                 cartAdapter.notifyItemChanged(index)
                 val totalPrice = calculateTotalPrice(items)
                 totalPriceTextView.text = "Total Price: ${String.format("%.2f", totalPrice)} EG"
-
+                updateItemQuantityViewModel(item.itemId, newQuantity)
             }
-
 
         }
 
@@ -102,6 +109,10 @@ class CartFragment : Fragment() {
 
     private fun getCartWithItems() {
         cartViewModel.getCart()
+    }
+
+    private fun updateItemQuantityViewModel(itemId: Int, newQuantity: Int) {
+        cartViewModel.updateQuantity(itemId = itemId, newQuantity = newQuantity)
     }
 
     private fun cartState() {
@@ -134,17 +145,10 @@ class CartFragment : Fragment() {
 
     private fun cartLoadingState(state: UiState.Loading) {
         when (state.source) {
-            "getCart" -> {
-
-            }
-
-            "removeItem" -> {
-
-            }
-
-            "updateItemsCart" -> {
-
-            }
+            "getCart" -> {}
+            "removeItem" -> {}
+            "updateItemsCart" -> {}
+            "updateQuantity" -> {}
         }
     }
 
@@ -152,21 +156,24 @@ class CartFragment : Fragment() {
         when (state.source) {
             "getCart" -> {
                 val cartWithItems = state.data as? CartWithItems
-
                 if (cartWithItems != null) {
                     itemHashKeys = cartWithItems.items.toMutableList()
                     initRecyclerView(itemHashKeys)
-
                 }
             }
 
             "removeItem" -> {
-
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = getString(R.string.the_item_has_been_removed_successfully)
+                )
             }
 
             "updateItemsCart" -> {
                 cartViewModel.getCart()
             }
+
+            "updateQuantity" -> {}
 
         }
     }
@@ -175,18 +182,38 @@ class CartFragment : Fragment() {
     private fun cartErrorState(state: UiState.Error) {
         when (state.source) {
             "getCart" -> {
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = state.message
+                )
                 Log.e("cartErrorGetCartState", "cartErrorState: ${state.message}")
             }
 
             "removeItem" -> {
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = state.message
+                )
                 Log.e("cartErrorRemoveItemState", "cartErrorState: ${state.message}")
             }
 
             "updateItemsCart" -> {
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = state.message
+                )
 
+            }
+
+            "updateQuantity" -> {
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = state.message
+                )
             }
         }
     }
+
 
     private fun onSwipeRefreshListener() {
         cartSwipeRefreshLayout.setOnRefreshListener {
@@ -199,6 +226,13 @@ class CartFragment : Fragment() {
             }
         }
     }
+
+    private fun checkoutButtonSetOnClickListener() {
+        checkoutButton.setOnClickListener {
+
+        }
+    }
+
 
     private fun swipeItem() {
         val itemTouchHelper = object :

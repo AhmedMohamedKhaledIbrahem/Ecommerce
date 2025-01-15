@@ -2,13 +2,11 @@ package com.example.ecommerce.features.product.presentation.screen.product_detai
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.RatingBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,14 +16,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import coil.load
 import com.example.ecommerce.R
-import com.example.ecommerce.core.database.data.entities.cart.CartWithItems
 import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.cart.domain.entities.AddItemRequestEntity
 import com.example.ecommerce.features.cart.presentation.viewmodel.CartViewModel
 import com.example.ecommerce.features.cart.presentation.viewmodel.ICartViewModel
 import com.google.android.material.imageview.ShapeableImageView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
 @AndroidEntryPoint
 class ProductDetailsFragment : Fragment() {
 
@@ -114,16 +113,17 @@ class ProductDetailsFragment : Fragment() {
 
     private fun cartLoadingState(state: UiState.Loading) {
         when (state.source) {
-            "addItem" -> {
-
-            }
+            "addItem" -> {}
         }
     }
 
     private fun cartSuccessState(state: UiState.Success<Any>) {
         when (state.source) {
             "addItem" -> {
-
+                SnackBarCustom.showSnackbar(
+                    view = requireView(),
+                    message = getString(R.string.the_item_has_been_added_successfully)
+                )
             }
 
         }
@@ -133,13 +133,17 @@ class ProductDetailsFragment : Fragment() {
     private fun cartErrorState(state: UiState.Error) {
         when (state.source) {
             "addItem" -> {
-                Log.e("cartErrorState", "cartErrorState: ${state.message}")
+                SnackBarCustom.showSnackbar(
+                    view = requireView(),
+                    message = state.message
+                )
             }
         }
     }
-    private fun insertItem(id:String){
-        val addItemRequestEntity=AddItemRequestEntity(
-            id = id ,
+
+    private fun insertItem(id: String) {
+        val addItemRequestEntity = AddItemRequestEntity(
+            id = id,
             quantity = "1"
         )
         cartViewModel.addItem(addItemParams = addItemRequestEntity)

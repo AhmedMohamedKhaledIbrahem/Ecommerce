@@ -9,7 +9,6 @@ interface ICartViewModel {
     fun addItem(addItemParams: AddItemRequestEntity)
     fun getCart()
     fun updateItemsCart()
+    fun updateQuantity(itemId: Int, newQuantity: Int)
     fun removeItem(keyItem: String)
-
-
 }

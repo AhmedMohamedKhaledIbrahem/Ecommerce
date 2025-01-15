@@ -10,6 +10,7 @@ import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseC
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.IGetCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.update_item_cart.IUpdateItemsCartUseCase
+import com.example.ecommerce.features.cart.domain.use_case.update_quantity.IUpdateQuantityUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,8 +25,8 @@ class CartViewModel @Inject constructor(
     private val addItemUseCase: IAddItemUseCase,
     private val getCartUseCase: IGetCartUseCase,
     private val removeItemUseCase: IRemoveItemUseCase,
-    private val updateItemsCartUseCase: IUpdateItemsCartUseCase
-
+    private val updateItemsCartUseCase: IUpdateItemsCartUseCase,
+    private val updateQuantityUseCase: IUpdateQuantityUseCase,
 ) : ViewModel(), ICartViewModel {
     private val _cartState = MutableSharedFlow<UiState<Any>>(replay = 0)
     override val cartState: SharedFlow<UiState<Any>> get() = _cartState.asSharedFlow()
@@ -50,6 +51,14 @@ class CartViewModel @Inject constructor(
             operation = { updateItemsCartUseCase() },
             onSuccess = { result -> _cartState.emit(UiState.Success(result, "updateItemsCart")) },
             source = "updateItemsCart"
+        )
+    }
+
+    override fun updateQuantity(itemId: Int, newQuantity: Int) {
+        cartUiState(
+            operation = { updateQuantityUseCase(itemId = itemId, newQuantity = newQuantity) },
+            onSuccess = { result -> _cartState.emit(UiState.Success(result, "updateQuantity")) },
+            source = "updateQuantity"
         )
     }
 

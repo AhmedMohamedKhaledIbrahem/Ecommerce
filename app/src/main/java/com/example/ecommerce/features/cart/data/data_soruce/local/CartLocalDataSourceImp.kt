@@ -46,23 +46,9 @@ class CartLocalDataSourceImp @Inject constructor(
 
     }
 
-    override suspend fun updateItemsCart(cartResponseModel: CartResponseModel) {
+    override suspend fun updateQuantity(itemId: Int, newQuantity: Int) {
         try {
-            val cartEntity = CartMapper.mapToEntity(cartResponseModel = cartResponseModel)
-            val itemsCartEntity = cartResponseModel.items.map {
-                ItemMapper.mapToEntity(
-                    cartItemResponseModel = it,
-                    cartId = cartResponseModel.cartKey
-                )
-            }
-//            if (cartEntity.cartId.isNotEmpty()) {
-//                cartDao.updateCart(cartEntity)
-//                itemCartDao.updateItem(itemsCartEntity)
-//            } else {}
-                cartDao.insertCart(cartEntity)
-                itemCartDao.insertItem(itemsCartEntity)
-
-
+            itemCartDao.updateQuantity(itemId = itemId, newQuantity = newQuantity)
         } catch (e: Exception) {
             throw FailureException("${e.message}")
         }
