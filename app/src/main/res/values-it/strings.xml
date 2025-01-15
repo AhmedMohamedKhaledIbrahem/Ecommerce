@@ -89,4 +89,15 @@
     <string name="italian">Italian</string>
     <string name="germany">Germany</string>
     <string name="arabic">Arabic</string>
+    <string name="product_image">product image</string>
+    <string name="favourite">Favourite</string>
+    <string name="productImage">productImage</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="delete">delete</string>
+    <string name="increase">increase</string>
+    <string name="decrease">decrease</string>
+    <string name="check_out">Check Out</string>
+    <string name="title_cart">Cart</string>
+    <string name="itemcartdecreasecounter">itemCartDecreaseCounter</string>
+    <string name="itemcartincreasecounter">itemCartIncreaseCounter</string>
 </resources>

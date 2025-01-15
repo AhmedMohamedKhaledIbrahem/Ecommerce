@@ -50,7 +50,7 @@ class LoginActivity : AppCompatActivity() {
     private val authenticationViewModel: IAuthenticationViewModel by viewModels<AuthenticationViewModel>()
     private lateinit var authenticationObserver: Observer<UiState<Any>>
     private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance()
+        LoadingDialogFragment().getInstance(supportFragmentManager)
     }
     private lateinit var rootView: View
     override fun onCreate(savedInstanceState: Bundle?) {

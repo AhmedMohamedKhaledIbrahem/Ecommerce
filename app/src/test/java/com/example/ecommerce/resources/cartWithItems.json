@@ -1,0 +1,15 @@
+{
+  "cart_key": "1",
+  "items": [
+    {
+      "item_key": "1te2st",
+      "id": 1,
+      "name": "test",
+      "price": "1000",
+      "featured_image": "test",
+      "quantity": {
+        "value": 1
+      }
+    }
+  ]
+}

@@ -48,7 +48,7 @@ class CheckVerificationCodeActivity : AppCompatActivity() {
     private val authenticationViewModel: IAuthenticationViewModel by viewModels<AuthenticationViewModel>()
     private val resendCodeTimerViewModel: IResendCodeTimerViewModel by viewModels<ResendCodeTimerViewModel>()
     private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance()
+        LoadingDialogFragment().getInstance(supportFragmentManager)
     }
     private lateinit var rootView: View
     private lateinit var verifyButton: Button

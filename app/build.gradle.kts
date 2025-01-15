@@ -5,6 +5,7 @@ plugins {
     // id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id ("androidx.navigation.safeargs.kotlin")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -61,16 +62,22 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.lifecycle.process)
     testImplementation(libs.hilt.android.testing)
+
     kapt(libs.hilt.android.compiler)
     implementation (libs.androidx.room.ktx)
     implementation (libs.androidx.room.runtime)
     kapt(libs.androidx.room.compiler)
 
+
+    implementation (libs.recyclerview.swipedecorator)
+
     implementation (libs.coil)
     implementation (libs.facebook.shimmer)
     implementation (libs.play.services.location)
-
+    implementation (libs.androidx.paging.runtime)
+    implementation (libs.androidx.room.paging)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -10,8 +10,8 @@ object AddressMapper {
         return AddressResponseEntity(
             userId = model.userId,
             message = model.message,
-            billing = model.billing?.let { BillingInfoMapper.mapToEntity(it) },
-            shipping = model.shipping?.let { ShippingInfoMapper.mapToEntity(it) },
+            billing = model.data?.billing?.let { BillingInfoMapper.mapToEntity(it) },
+            shipping = model.data?.shipping?.let { ShippingInfoMapper.mapToEntity(it) },
         )
     }
     fun mapToModel(entity:AddressRequestEntity):AddressRequestModel{

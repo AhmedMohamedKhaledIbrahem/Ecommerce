@@ -1,5 +1,6 @@
 package com.example.ecommerce.core.utils
 
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
@@ -15,7 +16,7 @@ object NetworkStatus {
         loadingDialog: LoadingDialogFragment,
         fragmentManager: FragmentManager,
         rootView: View
-    ) {
+    ):Boolean {
         var flag = false
         networkStatus.observe(lifecycleOwner) { connectivityStatus ->
             when (connectivityStatus) {
@@ -42,5 +43,28 @@ object NetworkStatus {
                 null -> {}
             }
         }
+        return flag
+    }
+    fun checkInternetConnection2(
+        lifecycleOwner: LifecycleOwner,
+        networkStatus: LiveData<ConnectivityStatus?>,
+    ):Boolean {
+        var flag = false
+        networkStatus.observe(lifecycleOwner) { connectivityStatus ->
+            when (connectivityStatus) {
+                ConnectivityStatus.CONNECTED -> {
+                    if (flag) {
+                        Log.e("connection","connection is back")
+                        flag = false
+                    }
+                }
+                ConnectivityStatus.DISCONNECTED -> {
+                    Log.e("connection","connection is not back")
+                    flag = true
+                }
+                null -> {}
+            }
+        }
+        return flag
     }
 }

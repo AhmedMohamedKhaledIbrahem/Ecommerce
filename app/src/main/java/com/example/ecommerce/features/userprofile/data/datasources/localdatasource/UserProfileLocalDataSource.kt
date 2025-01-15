@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.userprofile.data.datasources.localdatasource
 
-import com.example.ecommerce.core.data.entities.UserEntity
+import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.features.userprofile.data.models.UpdateUserNameDetailsResponseModel
 
 interface UserProfileLocalDataSource {

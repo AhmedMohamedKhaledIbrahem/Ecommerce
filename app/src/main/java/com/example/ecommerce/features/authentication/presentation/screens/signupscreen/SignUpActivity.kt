@@ -40,7 +40,7 @@ class SignUpActivity : AppCompatActivity() {
     private val authenticationViewModel: IAuthenticationViewModel by viewModels<AuthenticationViewModel>()
     private lateinit var rootView: View
     private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance()
+        LoadingDialogFragment().getInstance(supportFragmentManager)
     }
     private var emailFromSignUp = ""
     private lateinit var loginNow: TextView

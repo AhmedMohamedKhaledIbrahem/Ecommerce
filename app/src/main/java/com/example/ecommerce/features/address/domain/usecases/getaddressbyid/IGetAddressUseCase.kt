@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.address.domain.usecases.getaddressbyid
 
-import com.example.ecommerce.core.data.entities.CustomerAddressEntity
+import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 
 
 interface IGetAddressUseCase {

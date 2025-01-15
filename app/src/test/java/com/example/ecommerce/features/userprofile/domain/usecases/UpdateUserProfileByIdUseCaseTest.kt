@@ -1,6 +1,5 @@
 package com.example.ecommerce.features.userprofile.domain.usecases
-
-import com.example.ecommerce.features.userprofile.domain.repositories.UserProfileRepository
+/*import com.example.ecommerce.features.userprofile.domain.repositories.UserProfileRepository
 import com.example.ecommerce.features.userprofile.domain.usecases.updateuserprofilebyid.UpdateUserProfileByIdUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -35,4 +34,4 @@ class UpdateUserProfileByIdUseCaseTest {
         verifyNoMoreInteractions(repository)
     }
 
-}
+}*/

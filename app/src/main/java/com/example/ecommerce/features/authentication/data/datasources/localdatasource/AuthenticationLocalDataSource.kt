@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.authentication.data.datasources.localdatasource
 
-import com.example.ecommerce.core.data.entities.UserEntity
+import com.example.ecommerce.core.database.data.entities.user.UserEntity
 
 interface AuthenticationLocalDataSource {
     suspend fun insertUser(userEntity: UserEntity)

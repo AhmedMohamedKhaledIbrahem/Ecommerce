@@ -17,7 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
-import com.example.ecommerce.core.data.entities.UserEntity
+import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
@@ -55,7 +55,7 @@ class EditProfileFragment : DialogFragment() {
     private lateinit var root: View
     private var idUser by Delegates.notNull<Int>()
     private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance()
+        LoadingDialogFragment().getInstance(parentFragmentManager)
     }
     private val userNameDetailsViewModel: IUserNameDetailsProfileViewModel by
     viewModels<UserNameDetailsProfileViewModel>()

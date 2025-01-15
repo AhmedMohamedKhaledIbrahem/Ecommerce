@@ -1,7 +1,7 @@
 package com.example.ecommerce.features.address.data.datasources.localdatasource
 
-import com.example.ecommerce.core.data.dao.AddressDao
-import com.example.ecommerce.core.data.entities.CustomerAddressEntity
+import com.example.ecommerce.core.database.data.dao.address.AddressDao
+import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.address.data.models.AddressResponseModel
 import com.example.ecommerce.resources.fixture
