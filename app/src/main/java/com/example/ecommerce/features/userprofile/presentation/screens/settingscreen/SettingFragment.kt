@@ -36,10 +36,8 @@ import com.example.ecommerce.MainActivity
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.AddressUtil
-import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.preferences.presentation.viewmodel.IPreferencesViewModel
@@ -69,13 +67,11 @@ class SettingFragment : Fragment() {
     private lateinit var pickImageResult: ActivityResultLauncher<Intent>
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var rootView: View
-    private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
     private val userProfileViewModel: IUserProfileViewModel by viewModels<UserProfileViewModel>()
     private val updateImageProfileViewModel: IImageProfileViewModel by viewModels<ImageProfileViewModel>()
     private lateinit var updateDisplayNameViewModel: UpdateDisplayNameViewModel
-    private var test: String? = null
     private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance()
+        LoadingDialogFragment().getInstance(parentFragmentManager)
     }
     private var isAdapterInitialized = false
     private val preferencesViewModel: IPreferencesViewModel by viewModels<PreferencesViewModel>()
@@ -121,7 +117,6 @@ class SettingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        checkInternetStatus()
         getUserProfile()
         getUserProfileState()
         getDarkMode()
@@ -135,16 +130,6 @@ class SettingFragment : Fragment() {
 
     }
 
-    private fun checkInternetStatus() {
-        NetworkStatus.checkInternetConnection(
-            lifecycleOwner = this@SettingFragment,
-            networkStatus = networkStatusViewModel.networkStatus,
-            loadingDialog = loadingDialog,
-            fragmentManager = parentFragmentManager,
-            rootView = rootView,
-        )
-
-    }
 
     private fun getUserProfile() {
         userProfileViewModel.getUserProfile()
@@ -566,7 +551,7 @@ class SettingFragment : Fragment() {
             .takeIf { it != -1 } // Return null if no matching item is found
     }
 
-    private fun defaultNightMode(toggle:Boolean) {
+    private fun defaultNightMode(toggle: Boolean) {
         AppCompatDelegate.setDefaultNightMode(
             if (toggle) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO

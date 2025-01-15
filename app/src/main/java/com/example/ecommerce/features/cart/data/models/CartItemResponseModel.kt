@@ -8,4 +8,5 @@ data class CartItemResponseModel(
     val name: String,
     val price: String,
     @SerializedName("quantity") val quantity: QuantityResponseModel,
+    @SerializedName("featured_image") val imageItemLink: String
 )

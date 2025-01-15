@@ -8,6 +8,7 @@ interface ICartViewModel {
     val cartState: SharedFlow<UiState<Any>>
     fun addItem(addItemParams: AddItemRequestEntity)
     fun getCart()
+    fun updateItemsCart()
     fun removeItem(keyItem: String)
 
 

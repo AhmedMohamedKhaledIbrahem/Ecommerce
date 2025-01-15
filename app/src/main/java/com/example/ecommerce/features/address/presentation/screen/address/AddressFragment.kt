@@ -16,14 +16,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.AddressUtil
-import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
-import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressItem
 import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressAdapter
+import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressItem
 import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
 import com.facebook.shimmer.ShimmerFrameLayout
@@ -40,11 +37,8 @@ class AddressFragment : Fragment() {
     private lateinit var rootView: View
     private lateinit var addressShimmerLayout: ShimmerFrameLayout
     private lateinit var swipeRefreshAddressLayout: SwipeRefreshLayout
-    private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
     private val addressViewModel: IAddressViewModel by viewModels<AddressViewModel>()
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance()
-    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,7 +53,6 @@ class AddressFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        checkInternetStatus()
         addressState()
         getAddressById(AddressUtil.addressId)
         onSwipeRefreshListener()
@@ -79,15 +72,6 @@ class AddressFragment : Fragment() {
         rootView = view
     }
 
-    private fun checkInternetStatus() {
-        NetworkStatus.checkInternetConnection(
-            lifecycleOwner = this@AddressFragment,
-            networkStatus = networkStatusViewModel.networkStatus,
-            loadingDialog = loadingDialog,
-            fragmentManager = parentFragmentManager,
-            rootView = rootView,
-        )
-    }
 
     private fun addressState() {
         lifecycleScope.launch {
@@ -143,7 +127,7 @@ class AddressFragment : Fragment() {
             "getAddressById" -> {
                 shimmerStopWhenDataSuccess()
                 val addressData = state.data as CustomerAddressEntity
-                Log.e("address","$addressData")
+                Log.e("address", "$addressData")
                 AddressUtil.addressEntity = addressData
                 initRecyclerView(addressData)
             }

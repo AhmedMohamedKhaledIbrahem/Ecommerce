@@ -38,6 +38,33 @@ class CartLocalDataSourceImp @Inject constructor(
     }
 
     override suspend fun removeItem(keyItem: String) {
-        itemCartDao.removeItem(keyItem = keyItem)
+        try {
+            itemCartDao.removeItem(keyItem = keyItem)
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
+        }
+
+    }
+
+    override suspend fun updateItemsCart(cartResponseModel: CartResponseModel) {
+        try {
+            val cartEntity = CartMapper.mapToEntity(cartResponseModel = cartResponseModel)
+            val itemsCartEntity = cartResponseModel.items.map {
+                ItemMapper.mapToEntity(
+                    cartItemResponseModel = it,
+                    cartId = cartResponseModel.cartKey
+                )
+            }
+//            if (cartEntity.cartId.isNotEmpty()) {
+//                cartDao.updateCart(cartEntity)
+//                itemCartDao.updateItem(itemsCartEntity)
+//            } else {}
+                cartDao.insertCart(cartEntity)
+                itemCartDao.insertItem(itemsCartEntity)
+
+
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
+        }
     }
 }

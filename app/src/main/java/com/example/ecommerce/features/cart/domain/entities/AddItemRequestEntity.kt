@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.cart.domain.entities
 
 data class AddItemRequestEntity(
-    val id:Int ,
-    val quantity:Int
+    val id:String ,
+    val quantity:String
 )

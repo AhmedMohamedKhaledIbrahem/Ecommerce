@@ -62,12 +62,16 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.lifecycle.process)
     testImplementation(libs.hilt.android.testing)
 
     kapt(libs.hilt.android.compiler)
     implementation (libs.androidx.room.ktx)
     implementation (libs.androidx.room.runtime)
     kapt(libs.androidx.room.compiler)
+
+
+    implementation (libs.recyclerview.swipedecorator)
 
     implementation (libs.coil)
     implementation (libs.facebook.shimmer)

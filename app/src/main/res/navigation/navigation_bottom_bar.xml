@@ -20,6 +20,9 @@
         <action
             android:id="@+id/action_productFragment_to_productDetailsFragment"
             app:destination="@id/productDetailsFragment" />
+        <action
+            android:id="@+id/action_productFragment_to_cartFragment"
+            app:destination="@id/cartFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingFragment"
@@ -85,4 +88,9 @@
             android:name="product"
             app:argType="com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetails" />
     </fragment>
+    <fragment
+        android:id="@+id/cartFragment"
+        android:name="com.example.ecommerce.features.cart.presentation.screens.cart.CartFragment"
+        android:label="cart"
+        tools:layout="@layout/fragment_cart" />
 </navigation>

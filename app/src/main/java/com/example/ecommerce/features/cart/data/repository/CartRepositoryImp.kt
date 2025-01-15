@@ -31,7 +31,7 @@ class CartRepositoryImp @Inject constructor(
                         throw Failures.CacheFailure("${failure.message}")
                     }
                 } else {
-                    throw Failures.CacheFailure("No Internet Connection")
+                    throw Failures.ConnectionFailure("No Internet Connection")
                 }
             } catch (failure: FailureException) {
                 throw Failures.ServerFailure("${failure.message}")
@@ -43,14 +43,14 @@ class CartRepositoryImp @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 if (internetConnectionChecker.hasConnection()) {
-                    remoteDataSource.getCart()
+
                     try {
                         localDataSource.getCart()
                     } catch (failure: FailureException) {
                         throw Failures.CacheFailure("${failure.message}")
                     }
                 } else {
-                    throw Failures.CacheFailure("No Internet Connection")
+                    throw Failures.ConnectionFailure("No Internet Connection")
                 }
             } catch (failure: FailureException) {
                 throw Failures.ServerFailure("${failure.message}")
@@ -69,7 +69,26 @@ class CartRepositoryImp @Inject constructor(
                         throw Failures.CacheFailure("${failure.message}")
                     }
                 } else {
-                    throw Failures.CacheFailure("No Internet Connection")
+                    throw Failures.ConnectionFailure("No Internet Connection")
+                }
+            } catch (failure: FailureException) {
+                throw Failures.ServerFailure("${failure.message}")
+            }
+        }
+    }
+
+    override suspend fun updateItemsCart() {
+        withContext(Dispatchers.IO) {
+            try {
+                if (internetConnectionChecker.hasConnection()) {
+                    val cartResponseModel = remoteDataSource.getCart()
+                    try {
+                        localDataSource.updateItemsCart(cartResponseModel = cartResponseModel)
+                    } catch (e: FailureException) {
+                        throw Failures.CacheFailure("${e.message}")
+                    }
+                } else {
+                    throw Failures.ConnectionFailure("No Internet Connection")
                 }
             } catch (failure: FailureException) {
                 throw Failures.ServerFailure("${failure.message}")

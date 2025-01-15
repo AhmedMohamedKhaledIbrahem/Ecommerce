@@ -3,7 +3,7 @@ package com.example.ecommerce.features.address.presentation.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.example.ecommerce.core.data.entities.address.CustomerAddressEntity
+import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
 import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity

@@ -34,10 +34,8 @@ import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.countryStateMap
 import com.example.ecommerce.core.constants.regionCodeMap
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.AddressUtil
-import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
 import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
@@ -80,9 +78,9 @@ class EditAddressFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val addressViewModel: IAddressViewModel by viewModels<AddressViewModel>()
     private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance()
+        LoadingDialogFragment().getInstance(parentFragmentManager)
     }
-    private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
+
     private lateinit var root: View
 
 
@@ -111,7 +109,7 @@ class EditAddressFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        checkInternetStatus()
+
         spinnerCountryOnItemSelected()
         textWatchers()
         saveButtonOnClickedListener()
@@ -152,15 +150,6 @@ class EditAddressFragment : Fragment() {
         root = view
     }
 
-    private fun checkInternetStatus() {
-        NetworkStatus.checkInternetConnection(
-            lifecycleOwner = this@EditAddressFragment,
-            networkStatus = networkStatusViewModel.networkStatus,
-            loadingDialog = loadingDialog,
-            fragmentManager = parentFragmentManager,
-            rootView = root,
-        )
-    }
 
     private fun spinnerCountryOnItemSelected() {
         val countries = countryStateMap.keys.toList()
@@ -358,7 +347,7 @@ class EditAddressFragment : Fragment() {
     private fun saveButtonOnClickedListener() {
         buttonSave.setOnClickListener {
             val firstName = firstNameAddressEditText.text.toString()
-            Log.e("firstName",firstName)
+            Log.e("firstName", firstName)
             val lastName = lastNameAddressEditText.text.toString()
             val email = emailNameAddressEditText.text.toString()
             val phoneNumber = phoneNumberAddressEditText.text.toString()
@@ -403,7 +392,7 @@ class EditAddressFragment : Fragment() {
                     shipping = shippingInfoAddressRequest,
                     billing = billingInfoAddressRequest,
                 )
-                Log.e("addressRequest","$addressRequestEntity")
+                Log.e("addressRequest", "$addressRequestEntity")
                 updateAddress(addressRequestEntity = addressRequestEntity)
 
             } else if (

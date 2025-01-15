@@ -6,9 +6,10 @@ import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.features.cart.domain.entities.AddItemRequestEntity
-import com.example.ecommerce.features.cart.domain.use_case.add_item.AddItemUseCase
-import com.example.ecommerce.features.cart.domain.use_case.get_cart.GetCartUseCase
-import com.example.ecommerce.features.cart.domain.use_case.remove_Item.RemoveItemUseCase
+import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseCase
+import com.example.ecommerce.features.cart.domain.use_case.get_cart.IGetCartUseCase
+import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveItemUseCase
+import com.example.ecommerce.features.cart.domain.use_case.update_item_cart.IUpdateItemsCartUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,11 +21,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val addItemUseCase: AddItemUseCase,
-    private val getCartUseCase: GetCartUseCase,
-    private val removeItemUseCase: RemoveItemUseCase,
+    private val addItemUseCase: IAddItemUseCase,
+    private val getCartUseCase: IGetCartUseCase,
+    private val removeItemUseCase: IRemoveItemUseCase,
+    private val updateItemsCartUseCase: IUpdateItemsCartUseCase
 
-    ) : ViewModel(), ICartViewModel {
+) : ViewModel(), ICartViewModel {
     private val _cartState = MutableSharedFlow<UiState<Any>>(replay = 0)
     override val cartState: SharedFlow<UiState<Any>> get() = _cartState.asSharedFlow()
     override fun addItem(addItemParams: AddItemRequestEntity) {
@@ -40,6 +42,14 @@ class CartViewModel @Inject constructor(
             operation = { getCartUseCase() },
             onSuccess = { result -> _cartState.emit(UiState.Success(result, "getCart")) },
             source = "getCart"
+        )
+    }
+
+    override fun updateItemsCart() {
+        cartUiState(
+            operation = { updateItemsCartUseCase() },
+            onSuccess = { result -> _cartState.emit(UiState.Success(result, "updateItemsCart")) },
+            source = "updateItemsCart"
         )
     }
 

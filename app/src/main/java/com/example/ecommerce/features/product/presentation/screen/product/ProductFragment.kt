@@ -1,14 +1,14 @@
 package com.example.ecommerce.features.product.presentation.screen.product
 
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
 import android.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,14 +17,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
 import com.example.ecommerce.core.state.UiState
-import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductShimmerAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.item.ProductShimmerItem
@@ -35,7 +33,6 @@ import com.example.ecommerce.features.product.presentation.viewmodel.ProductView
 import com.facebook.shimmer.ShimmerFrameLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -44,18 +41,21 @@ class ProductFragment : Fragment() {
     private lateinit var productAdapter: ProductAdapter
     private lateinit var productShimmerAdapter: ProductShimmerAdapter
     private lateinit var productShimmerRecyclerView: RecyclerView
-    private lateinit var productLinearLayout:LinearLayout
+    private lateinit var productLinearLayout: LinearLayout
     private val productViewModel: ProductViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var productShimmerLayout: ShimmerFrameLayout
     private lateinit var swipeRefreshProductLayout: SwipeRefreshLayout
     private lateinit var detectViewModel: DetectScrollEndViewModel
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance()
-    }
+    private  var screenOrientation :Int = 0
     private val productSearchViewModel: ProductSearchViewModel by viewModels()
-    private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
-    private lateinit var rootView: View
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        screenOrientation = resources.configuration.orientation
+           // initRecycleViewLayoutManger(screenOrientation)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,8 +63,6 @@ class ProductFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_product, container, false)
         initView(view)
         onSwipeRefreshListener()
-
-
         return view
     }
 
@@ -78,14 +76,14 @@ class ProductFragment : Fragment() {
         productLinearLayout = view.findViewById(R.id.productLinearLayout)
         detectViewModel =
             ViewModelProvider(requireActivity())[DetectScrollEndViewModel::class.java]
-        rootView = view
+
 
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        checkInternetStatus()
+
         initProductRecycleView()
         initShimmerRecycleView()
         fetchData()
@@ -94,19 +92,10 @@ class ProductFragment : Fragment() {
         detectScrollEnd()
         setupSearchView()
         searchProduct()
-    }
-
-
-    private fun checkInternetStatus(): Boolean {
-        return NetworkStatus.checkInternetConnection(
-            lifecycleOwner = this@ProductFragment,
-            networkStatus = networkStatusViewModel.networkStatus,
-            loadingDialog = loadingDialog,
-            fragmentManager = parentFragmentManager,
-            rootView = rootView,
-        )
+        productAdapter.refresh()
 
     }
+
 
     private fun initProductRecycleView() {
         productAdapter = ProductAdapter { product ->
@@ -118,12 +107,26 @@ class ProductFragment : Fragment() {
 
 
         }
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+        initRecycleViewLayoutManger()
+        //recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         recyclerView.adapter = productAdapter
+    }
+    private fun initRecycleViewLayoutManger() {
+        Log.e("screenOrientation","$screenOrientation")
+        when(screenOrientation){
+            Configuration.ORIENTATION_PORTRAIT ->{
+                recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+            }
+            Configuration.ORIENTATION_LANDSCAPE ->{
+                recyclerView.layoutManager = GridLayoutManager(requireContext() , 4)
+            }
+        }
+
     }
 
     private fun productDetails(product: ProductWithAllDetails): ProductDetails {
         return ProductDetails(
+            productId = product.product.productIdJson.toString(),
             productName = product.product.name,
             productPrice = product.product.price,
             productDescription = product.product.description,
@@ -229,7 +232,9 @@ class ProductFragment : Fragment() {
     private fun getProduct() {
         lifecycleScope.launch {
             productViewModel.productsPaged.collectLatest { paging ->
+                productAdapter.refresh()
                 productAdapter.submitData(paging)
+
 
             }
 
@@ -274,7 +279,6 @@ class ProductFragment : Fragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
                     Log.e("sds", it)
-
                     productSearchViewModel.updateSearchQuery(it)
                 }
                 return true
@@ -282,11 +286,10 @@ class ProductFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 newText?.let { productSearchViewModel.updateSearchQuery(it) }
-
                 return true
             }
         })
-        productSearch.setOnClickListener{
+        productSearch.setOnClickListener {
             productSearch.isIconified = false
         }
 
@@ -294,10 +297,8 @@ class ProductFragment : Fragment() {
 
     private fun searchProduct() {
         lifecycleScope.launch {
-            productSearchViewModel.product.distinctUntilChanged().collectLatest { pagingData ->
-
-
-                    productAdapter.submitData(pagingData)
+            productSearchViewModel.product.collectLatest { pagingData ->
+                productAdapter.submitData(pagingData)
 
             }
         }

@@ -1,7 +1,7 @@
 package com.example.ecommerce.core.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,24 +9,20 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.example.ecommerce.R
 
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
 
 class LoadingDialogFragment : DialogFragment() {
-    companion object {
-        private var instance: LoadingDialogFragment? = null
+
+    fun getInstance(fragmentManager: FragmentManager): LoadingDialogFragment {
+        val existingDialog =
+            fragmentManager.findFragmentByTag("loadingDialog") as? LoadingDialogFragment
+        return existingDialog ?: LoadingDialogFragment()
     }
-    fun getInstance():LoadingDialogFragment{
-        if (instance ==null){
-            instance = LoadingDialogFragment()
-        }
-        return instance!!
-    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Make the dialog non-cancelable
         isCancelable = false
+
     }
 
 
@@ -42,21 +38,29 @@ class LoadingDialogFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
     }
+
+    @SuppressLint("SuspiciousIndentation")
     fun showLoading(fragmentManager: FragmentManager) {
         if (!isAdded) {
-            this.show(fragmentManager, "loadingDialog")
+            if (!fragmentManager.isStateSaved)
+                this.show(fragmentManager, "loadingDialog")
         }
     }
 
     fun dismissLoading() {
-        if (isAdded) {
-            this.dismiss()
+//        val existingDialog =
+//            parentFragmentManager.findFragmentByTag("loadingDialog") as? LoadingDialogFragment
+//        existingDialog?.let {
+//            if (it.isAdded) {
+//                parentFragmentManager.beginTransaction().remove(it).commitAllowingStateLoss()
+//            }
+//        }
+        if (isAdded){
+            dismiss()
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
 
     }
+
+
 
 }

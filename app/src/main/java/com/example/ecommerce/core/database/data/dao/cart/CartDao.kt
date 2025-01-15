@@ -1,5 +1,6 @@
 package com.example.ecommerce.core.database.data.dao.cart
 
+import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -7,7 +8,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.example.ecommerce.core.database.data.entities.cart.CartEntity
 import com.example.ecommerce.core.database.data.entities.cart.CartWithItems
-
+@Dao
 interface CartDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

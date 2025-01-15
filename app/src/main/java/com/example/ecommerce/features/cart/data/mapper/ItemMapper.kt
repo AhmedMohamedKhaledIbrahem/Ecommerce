@@ -9,9 +9,10 @@ object ItemMapper {
             itemId = cartItemResponseModel.id,
             itemHashKey = cartItemResponseModel.itemKey,
             name = cartItemResponseModel.name,
-            price = cartItemResponseModel.price,
+            image = cartItemResponseModel.imageItemLink.replace("localhost", "10.0.0.106"),
+            price = (cartItemResponseModel.price.toInt() / 100).toString(),
             cartId = cartId,
-            quantity = ( cartItemResponseModel.quantity.value.toInt() / 100)
+            quantity = cartItemResponseModel.quantity.value
         )
     }
 }

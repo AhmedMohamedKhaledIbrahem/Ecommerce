@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.address.domain.usecases
 
-import com.example.ecommerce.core.data.entities.address.CustomerAddressEntity
+import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.features.address.domain.repositories.AddressRepository
 import com.example.ecommerce.features.address.domain.usecases.getaddressbyid.GetAddressUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi

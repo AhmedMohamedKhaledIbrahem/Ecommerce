@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.authentication.data.repositories
 
-import com.example.ecommerce.core.data.mapper.UserMapper
+import com.example.ecommerce.core.database.data.mapper.UserMapper
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker

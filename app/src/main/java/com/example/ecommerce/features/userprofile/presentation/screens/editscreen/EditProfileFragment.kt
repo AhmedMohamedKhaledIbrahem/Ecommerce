@@ -55,7 +55,7 @@ class EditProfileFragment : DialogFragment() {
     private lateinit var root: View
     private var idUser by Delegates.notNull<Int>()
     private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance()
+        LoadingDialogFragment().getInstance(parentFragmentManager)
     }
     private val userNameDetailsViewModel: IUserNameDetailsProfileViewModel by
     viewModels<UserNameDetailsProfileViewModel>()

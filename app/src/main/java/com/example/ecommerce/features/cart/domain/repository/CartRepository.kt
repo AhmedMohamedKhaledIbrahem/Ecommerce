@@ -7,4 +7,5 @@ interface CartRepository {
     suspend fun addItem(addItemParams: AddItemRequestEntity)
     suspend fun getCart():CartWithItems
     suspend fun removeItem(keyItem:String)
+    suspend fun updateItemsCart()
 }

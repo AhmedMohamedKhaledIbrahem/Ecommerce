@@ -21,6 +21,7 @@ data class ItemCartEntity(
     val itemHashKey: String,
     val cartId: String,
     val name: String,
+    val image:String,
     val price: String,
-    val quantity: Int,
+    var quantity: Int,
 )
