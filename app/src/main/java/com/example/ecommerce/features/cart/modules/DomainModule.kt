@@ -9,6 +9,8 @@ import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveIt
 import com.example.ecommerce.features.cart.domain.use_case.remove_Item.RemoveItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.update_item_cart.IUpdateItemsCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.update_item_cart.UpdateItemsCartUseCase
+import com.example.ecommerce.features.cart.domain.use_case.update_quantity.IUpdateQuantityUseCase
+import com.example.ecommerce.features.cart.domain.use_case.update_quantity.UpdateQuantityUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,6 +45,12 @@ object DomainModule {
     fun provideUpdateItemCartUseCase(cartRepository: CartRepository): IUpdateItemsCartUseCase {
         return UpdateItemsCartUseCase(cartRepository)
 
+    }
+
+    @Provides
+    @Singleton
+    fun provideUpdateQuantityUseCase(cartRepository: CartRepository): IUpdateQuantityUseCase {
+        return UpdateQuantityUseCase(cartRepository)
     }
 
 

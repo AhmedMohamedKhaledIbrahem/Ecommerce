@@ -27,8 +27,8 @@ val dummyCartWithItemEntity = CartWithItems(
 
 
 val dummyAddItemRequestEntity = AddItemRequestEntity(
-    id = 1,
-    quantity = 1
+    id = "1",
+    quantity = "1"
 )
 val dummyAddItemRequestModel = AddItemRequestMapper.mapToModel(dummyAddItemRequestEntity)
 

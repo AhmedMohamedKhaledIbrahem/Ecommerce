@@ -43,17 +43,12 @@ class CartRepositoryImp @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 if (internetConnectionChecker.hasConnection()) {
-
-                    try {
-                        localDataSource.getCart()
-                    } catch (failure: FailureException) {
-                        throw Failures.CacheFailure("${failure.message}")
-                    }
+                    localDataSource.getCart()
                 } else {
                     throw Failures.ConnectionFailure("No Internet Connection")
                 }
             } catch (failure: FailureException) {
-                throw Failures.ServerFailure("${failure.message}")
+                throw Failures.CacheFailure("${failure.message}")
             }
         }
     }
@@ -62,7 +57,7 @@ class CartRepositoryImp @Inject constructor(
         withContext(Dispatchers.IO) {
             try {
                 if (internetConnectionChecker.hasConnection()) {
-                    remoteDataSource.deleteItemFromCard(keyItem = keyItem)
+                    //remoteDataSource.deleteItemFromCard(keyItem = keyItem)
                     try {
                         localDataSource.removeItem(keyItem = keyItem)
                     } catch (failure: FailureException) {
@@ -77,15 +72,29 @@ class CartRepositoryImp @Inject constructor(
         }
     }
 
+    override suspend fun updateQuantity(itemId: Int, newQuantity: Int) {
+        withContext(Dispatchers.IO) {
+            try {
+                if (internetConnectionChecker.hasConnection()) {
+                    localDataSource.updateQuantity(itemId = itemId, newQuantity = newQuantity)
+                } else {
+                    throw Failures.ConnectionFailure("No Internet Connection")
+                }
+            } catch (failure: FailureException) {
+                throw Failures.CacheFailure("${failure.message}")
+            }
+        }
+    }
+
     override suspend fun updateItemsCart() {
         withContext(Dispatchers.IO) {
             try {
                 if (internetConnectionChecker.hasConnection()) {
-                    val cartResponseModel = remoteDataSource.getCart()
+                    val getItemsCart = remoteDataSource.getCart()
                     try {
-                        localDataSource.updateItemsCart(cartResponseModel = cartResponseModel)
-                    } catch (e: FailureException) {
-                        throw Failures.CacheFailure("${e.message}")
+                        localDataSource.insertCartWithItems(cartResponseModel = getItemsCart)
+                    } catch (failure: FailureException) {
+                        throw Failures.CacheFailure("${failure.message}")
                     }
                 } else {
                     throw Failures.ConnectionFailure("No Internet Connection")

@@ -3,6 +3,8 @@ package com.example.ecommerce.modules
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.room.Room
+import com.example.ecommerce.core.customer.CustomerManager
+import com.example.ecommerce.core.customer.CustomerManagerImp
 import com.example.ecommerce.core.database.AppDatabase
 import com.example.ecommerce.core.database.data.dao.address.AddressDao
 import com.example.ecommerce.core.database.data.dao.cart.CartDao
@@ -86,5 +88,11 @@ object DataCoreModule {
     @Singleton
     fun provideTokenManager(preferences: SharedPreferences): TokenManager {
         return TokenManagerImp(preferences = preferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCustomerManager(preferences: SharedPreferences): CustomerManager {
+        return CustomerManagerImp(sharedPreferences = preferences)
     }
 }

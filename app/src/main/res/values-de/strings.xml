@@ -101,4 +101,15 @@
     <string name="title_cart">Cart</string>
     <string name="itemcartdecreasecounter">itemCartDecreaseCounter</string>
     <string name="itemcartincreasecounter">itemCartIncreaseCounter</string>
+    <string name="onDelivery">onDelivery</string>
+    <string name="creditCard">CreditCard</string>
+    <string name="ok">OK</string>
+    <string name="cash_onDelivery">Payment method: Cash on delivery</string>
+    <string name="creditCardNumber">Credit Card Number</string>
+    <string name="expiredCard">Expired Card</string>
+    <string name="cvv">Cvv\n</string>
+    <string name="the_item_has_been_removed_successfully">The item has been removed successfully</string>
+    <string name="the_item_has_been_added_successfully" />
+    <string name="empty_cart">Empty cart</string>
+    <string name="order_has_been_created_successfully">Order Has Been Created Successfully</string>
 </resources>

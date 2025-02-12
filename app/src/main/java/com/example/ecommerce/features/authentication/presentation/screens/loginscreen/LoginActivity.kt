@@ -13,29 +13,30 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.ecommerce.MainNavigationActivity
 import com.example.ecommerce.R
+import com.example.ecommerce.core.customer.CustomerManager
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
+import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationResponseEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
-import com.example.ecommerce.features.authentication.presentation.screens.signupscreen.SignUpActivity
 import com.example.ecommerce.features.authentication.presentation.screens.checkverificationcodescreen.CheckVerificationCodeActivity
 import com.example.ecommerce.features.authentication.presentation.screens.forgetpasswordscreen.ForgetPasswordActivity
+import com.example.ecommerce.features.authentication.presentation.screens.signupscreen.SignUpActivity
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.IAuthenticationViewModel
-import com.example.ecommerce.core.state.UiState
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
@@ -48,7 +49,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var loginButton: Button
     private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
     private val authenticationViewModel: IAuthenticationViewModel by viewModels<AuthenticationViewModel>()
-    private lateinit var authenticationObserver: Observer<UiState<Any>>
+    @Inject
+    lateinit var customerManager: CustomerManager
     private val loadingDialog by lazy {
         LoadingDialogFragment().getInstance(supportFragmentManager)
     }
@@ -125,10 +127,12 @@ class LoginActivity : AppCompatActivity() {
                             Log.e("state1", "$state")
                             loadingDialog.showLoading(fragmentManager = supportFragmentManager)
                         }
+
                         is UiState.Success -> {
                             loadingDialog.dismissLoading()
                             val response = state.data as AuthenticationResponseEntity
                             if (response.verificationStatues) {
+                                customerManager.setCustomerId(response.userId)
                                 val intent = Intent(
                                     this@LoginActivity,
                                     MainNavigationActivity::class.java

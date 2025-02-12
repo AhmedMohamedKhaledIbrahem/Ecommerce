@@ -9,7 +9,7 @@ import com.example.ecommerce.features.await
 import com.example.ecommerce.features.observerViewModelErrorState
 import com.example.ecommerce.features.observerViewModelSuccessState
 import com.example.ecommerce.features.removeObserverFromLiveData
-import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.IGetUserProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofile.IGetUserProfileUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
