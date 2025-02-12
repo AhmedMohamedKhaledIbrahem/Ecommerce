@@ -8,6 +8,8 @@ import com.example.ecommerce.features.await
 import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.IGetCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveItemUseCase
+import com.example.ecommerce.features.cart.domain.use_case.update_item_cart.IUpdateItemsCartUseCase
+import com.example.ecommerce.features.cart.domain.use_case.update_quantity.IUpdateQuantityUseCase
 import com.example.ecommerce.features.cart.dummyAddItemRequestEntity
 import com.example.ecommerce.features.cart.dummyCartWithItemEntity
 import com.example.ecommerce.features.cart.keyItem
@@ -15,7 +17,6 @@ import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.observerViewModelErrorState
 import com.example.ecommerce.features.observerViewModelSuccessState
 import com.example.ecommerce.features.removeObserverFromLiveData
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -46,6 +47,11 @@ class CartViewModelTest {
     @Mock
     private lateinit var removeItemUseCase: IRemoveItemUseCase
 
+    @Mock
+    private lateinit var updateItemsCartUseCase: IUpdateItemsCartUseCase
+
+    @Mock
+    private lateinit var updateQuantityUseCase: IUpdateQuantityUseCase
     private lateinit var viewModel: CartViewModel
     private val dispatcher = UnconfinedTestDispatcher()
 
@@ -56,7 +62,9 @@ class CartViewModelTest {
         viewModel = CartViewModel(
             addItemUseCase = addItemUseCase,
             getCartUseCase = getCartUseCase,
-            removeItemUseCase = removeItemUseCase
+            removeItemUseCase = removeItemUseCase,
+            updateItemsCartUseCase = updateItemsCartUseCase,
+            updateQuantityUseCase = updateQuantityUseCase
         )
     }
 
@@ -81,8 +89,9 @@ class CartViewModelTest {
         )
         await(latch = latch)
         verify(addItemUseCase).invoke(addItemParams = dummyAddItemRequestEntity)
-        removeObserverFromLiveData(cartStateUiAsLiveData() , observer)
+        removeObserverFromLiveData(cartStateUiAsLiveData(), observer)
     }
+
     @Test
     fun `addItem should emit cartState with error state when use case throw exception`() = runTest {
         val latch = CountDownLatch(1)
@@ -97,7 +106,7 @@ class CartViewModelTest {
         )
         await(latch = latch)
         verify(addItemUseCase).invoke(addItemParams = dummyAddItemRequestEntity)
-        removeObserverFromLiveData(cartStateUiAsLiveData() , observer)
+        removeObserverFromLiveData(cartStateUiAsLiveData(), observer)
     }
 
     @Test
@@ -112,7 +121,7 @@ class CartViewModelTest {
         )
         await(latch = latch)
         verify(getCartUseCase).invoke()
-        removeObserverFromLiveData(cartStateUiAsLiveData() , observer)
+        removeObserverFromLiveData(cartStateUiAsLiveData(), observer)
     }
 
     @Test
@@ -129,14 +138,14 @@ class CartViewModelTest {
         )
         await(latch = latch)
         verify(getCartUseCase).invoke()
-        removeObserverFromLiveData(cartStateUiAsLiveData() , observer)
+        removeObserverFromLiveData(cartStateUiAsLiveData(), observer)
     }
 
     @Test
     fun `removeItem should emit cartState with success state when use case succeeds`() = runTest {
         val latch = CountDownLatch(1)
         `when`(removeItemUseCase(keyItem = keyItem)).thenReturn(Unit)
-        viewModel.removeItem( keyItem = keyItem)
+        viewModel.removeItem(keyItem = keyItem)
         val observer = observerViewModelSuccessState(
             latch = latch,
             Unit,
@@ -144,24 +153,25 @@ class CartViewModelTest {
         )
         await(latch = latch)
         verify(removeItemUseCase).invoke(keyItem = keyItem)
-        removeObserverFromLiveData(cartStateUiAsLiveData() , observer)
+        removeObserverFromLiveData(cartStateUiAsLiveData(), observer)
     }
 
     @Test
-    fun `removeItem should emit cartState with error state when use case throw exception`() = runTest {
-        val latch = CountDownLatch(1)
-        `when`(removeItemUseCase(keyItem = keyItem)).thenThrow(
-            RuntimeException(errorMessage)
-        )
-        viewModel.removeItem(keyItem = keyItem)
-        val observer = observerViewModelErrorState(
-            latch = latch,
-            errorMessage,
-            cartStateUiAsLiveData()
-        )
-        await(latch = latch)
-        verify(removeItemUseCase).invoke(keyItem = keyItem)
-        removeObserverFromLiveData(cartStateUiAsLiveData() , observer)
-    }
+    fun `removeItem should emit cartState with error state when use case throw exception`() =
+        runTest {
+            val latch = CountDownLatch(1)
+            `when`(removeItemUseCase(keyItem = keyItem)).thenThrow(
+                RuntimeException(errorMessage)
+            )
+            viewModel.removeItem(keyItem = keyItem)
+            val observer = observerViewModelErrorState(
+                latch = latch,
+                errorMessage,
+                cartStateUiAsLiveData()
+            )
+            await(latch = latch)
+            verify(removeItemUseCase).invoke(keyItem = keyItem)
+            removeObserverFromLiveData(cartStateUiAsLiveData(), observer)
+        }
 
 }

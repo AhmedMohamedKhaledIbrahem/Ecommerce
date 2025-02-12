@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,37 +14,58 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.ecommerce.R
+import com.example.ecommerce.core.customer.CustomerManager
+import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.database.data.entities.cart.CartWithItems
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
+import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
+import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequestEntity
+import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
 import com.example.ecommerce.features.cart.data.data_soruce.local.calculateTotalPrice
+import com.example.ecommerce.features.cart.presentation.BottomSpacingDecoration
 import com.example.ecommerce.features.cart.presentation.screens.adapter.CartAdapter
+import com.example.ecommerce.features.cart.presentation.screens.adapter.CheckAdapter
 import com.example.ecommerce.features.cart.presentation.viewmodel.CartViewModel
 import com.example.ecommerce.features.cart.presentation.viewmodel.ICartViewModel
+import com.example.ecommerce.features.orders.domain.entities.LineItemRequestEntity
+import com.example.ecommerce.features.orders.domain.entities.OrderRequestEntity
+import com.example.ecommerce.features.orders.presentation.viewmodel.IOrderViewModel
+import com.example.ecommerce.features.orders.presentation.viewmodel.OrderViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
-import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CartFragment : Fragment() {
     private lateinit var cartRecyclerView: RecyclerView
     private lateinit var cartSwipeRefreshLayout: SwipeRefreshLayout
     private lateinit var cartAdapter: CartAdapter
-    private lateinit var checkoutButton: MaterialButton
-    private lateinit var totalPriceTextView: TextView
+    private lateinit var checkAdapter: CheckAdapter
+    @Inject
+    lateinit var customerManager: CustomerManager
     private lateinit var detectViewModel: DetectScrollEndViewModel
+    private lateinit var root: View
     private var itemHashKeys: MutableList<ItemCartEntity> = mutableListOf()
     private val cartViewModel: ICartViewModel by viewModels<CartViewModel>()
-    private lateinit var root: View
+    private val addressViewModel: IAddressViewModel by viewModels<AddressViewModel>()
+    private val orderViewModel: IOrderViewModel by viewModels<OrderViewModel>()
+    private val loadingDialog by lazy {
+        LoadingDialogFragment().getInstance(parentFragmentManager)
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,8 +80,6 @@ class CartFragment : Fragment() {
     private fun initView(view: View) {
         cartRecyclerView = view.findViewById(R.id.cartRecyclerView)
         cartSwipeRefreshLayout = view.findViewById(R.id.cartSwipeRefreshViewLayout)
-        totalPriceTextView = view.findViewById(R.id.totalTextView)
-        checkoutButton = view.findViewById(R.id.buttonCheckOut)
         root = view
     }
 
@@ -74,9 +92,10 @@ class CartFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         getCartWithItems()
         cartState()
+        addressState()
+        orderState()
         swipeItem()
-        checkoutButtonSetOnClickListener()
-        onSwipeRefreshListener()
+       // onSwipeRefreshListener()
         detectScrollEnd()
 
     }
@@ -85,26 +104,42 @@ class CartFragment : Fragment() {
     @SuppressLint("SetTextI18n", "DefaultLocale")
     private fun initRecyclerView(items: MutableList<ItemCartEntity>) {
         cartRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        checkAdapter = CheckAdapter {
+            getAddressByCustomerId()
+        }
         cartAdapter = CartAdapter(
             items,
         ) { item, newQuantity ->
+            updateItemQuantity(items, item, newQuantity)
+        }
+        updateAdapter(items)
+        val totalPrice = calculateTotalPrice(items)
+        checkAdapter.updateTotalPrice(totalPrice)
+    }
 
-            val index = items.indexOf(item)
-            if (index != -1) {
-                Log.e("CartFragment", "initRecyclerView: $newQuantity")
-                items[index].quantity = newQuantity
-                cartAdapter.notifyItemChanged(index)
-                cartAdapter.notifyItemChanged(index)
-                val totalPrice = calculateTotalPrice(items)
-                totalPriceTextView.text = "Total Price: ${String.format("%.2f", totalPrice)} EG"
-                updateItemQuantityViewModel(item.itemId, newQuantity)
-            }
+    private fun updateItemQuantity(
+        items: MutableList<ItemCartEntity>,
+        item: ItemCartEntity,
+        newQuantity: Int
+    ) {
+        val index = items.indexOf(item)
+        if (index != -1) {
+            items[index].quantity = newQuantity
+            cartAdapter.notifyItemChanged(index)
+            val totalPrice = calculateTotalPrice(items)
+            checkAdapter.updateTotalPrice(totalPrice)
+            updateItemQuantityViewModel(item.itemId, newQuantity)
+        }
+    }
 
+    private fun updateAdapter(items: MutableList<ItemCartEntity>) {
+        println(items)
+        if (items.isEmpty()) {
+            cartRecyclerView.adapter = cartAdapter
+        } else {
+            cartRecyclerView.adapter = ConcatAdapter(cartAdapter, checkAdapter)
         }
 
-        cartRecyclerView.adapter = cartAdapter
-        val totalPrice = calculateTotalPrice(items)
-        totalPriceTextView.text = "Total Price: ${String.format("%.2f", totalPrice)} EG"
     }
 
     private fun getCartWithItems() {
@@ -125,6 +160,27 @@ class CartFragment : Fragment() {
         }
     }
 
+    private fun addressState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                addressViewModel.addressState.collect { state ->
+                    addressUiState(state)
+                }
+            }
+        }
+    }
+
+    private fun orderState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                orderViewModel.orderState.collect { state ->
+                    orderUiState(state)
+                }
+            }
+        }
+    }
+
+
     private fun cartUiState(state: UiState<Any>) {
         when (state) {
             is UiState.Loading -> {
@@ -142,6 +198,116 @@ class CartFragment : Fragment() {
         }
     }
 
+    private fun addressUiState(state: UiState<Any>) {
+        when (state) {
+            is UiState.Loading -> {
+                addressLoadingState(state)
+            }
+
+            is UiState.Success -> {
+                addressSuccessState(state)
+            }
+
+            is UiState.Error -> {
+                addressErrorState(state)
+            }
+        }
+    }
+
+    private fun orderUiState(state: UiState<Any>) {
+        when (state) {
+            is UiState.Loading -> {
+                orderLoadingState(state)
+            }
+
+            is UiState.Success -> {
+                orderSuccessState(state)
+            }
+
+            is UiState.Error -> {
+                orderErrorState(state)
+            }
+        }
+    }
+
+    private fun addressLoadingState(state: UiState.Loading) {
+        when (state.source) {
+            "getAddressById" -> {
+                loadingDialog.showLoading(fragmentManager = parentFragmentManager)
+            }
+        }
+    }
+
+    private fun addressSuccessState(state: UiState.Success<Any>) {
+        when (state.source) {
+            "getAddressById" -> {
+                val address = state.data as? CustomerAddressEntity
+                if (address != null) {
+                    Log.e("is null??","no")
+                    val billingEntity = billingInfoRequestEntity(address)
+                    val shippingEntity = shippingInfoRequestEntity(address)
+                    val lineItemRequestEntity: List<LineItemRequestEntity> =
+                        lineItemRequestEntities()
+                    val orderRequestEntity =
+                        orderRequestEntity(billingEntity, shippingEntity, lineItemRequestEntity)
+                    createOrder(orderRequestEntity)
+                }
+
+            }
+        }
+    }
+
+
+    private fun addressErrorState(state: UiState.Error) {
+        when (state.source) {
+            "getAddressById" -> {
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = state.message
+                )
+            }
+        }
+    }
+
+    private fun orderLoadingState(state: UiState.Loading) {
+        when (state.source) {
+            "createOrder" -> {
+
+            }
+        }
+    }
+
+    private fun orderSuccessState(state: UiState.Success<Any>) {
+        when (state.source) {
+            "createOrder" -> {
+                loadingDialog.dismissLoading()
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = getString(R.string.order_has_been_created_successfully)
+                )
+
+            }
+        }
+    }
+
+    private fun orderErrorState(state: UiState.Error) {
+        when (state.source) {
+            "createOrder" -> {
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = state.message
+                )
+            }
+        }
+    }
+
+    private fun getAddressByCustomerId() {
+        addressViewModel.getAddressById(id = customerManager.getCustomerId())
+    }
+
+    private fun createOrder(orderRequestEntity: OrderRequestEntity) {
+        orderViewModel.createOrder(orderRequestEntity)
+    }
 
     private fun cartLoadingState(state: UiState.Loading) {
         when (state.source) {
@@ -214,6 +380,62 @@ class CartFragment : Fragment() {
         }
     }
 
+    private fun orderRequestEntity(
+        billingEntity: BillingInfoRequestEntity,
+        shippingEntity: ShippingInfoRequestEntity,
+        lineItemRequestEntity: List<LineItemRequestEntity>
+    ): OrderRequestEntity {
+        val orderRequestEntity = OrderRequestEntity(
+            paymentMethod = "cod",
+            paymentMethodTitle = "Cash On Delivery",
+            setPaid = false,
+            billing = billingEntity,
+            shipping = shippingEntity,
+            lineItems = lineItemRequestEntity,
+            customerId = customerManager.getCustomerId()
+        )
+        return orderRequestEntity
+    }
+
+    private fun lineItemRequestEntities(): List<LineItemRequestEntity> {
+        val lineItemRequestEntity: List<LineItemRequestEntity> =
+            itemHashKeys.map { item ->
+                LineItemRequestEntity(
+                    productId = item.itemId,
+                    quantity = item.quantity
+                )
+            }
+        return lineItemRequestEntity
+    }
+
+    private fun shippingInfoRequestEntity(address: CustomerAddressEntity): ShippingInfoRequestEntity {
+        val shippingEntity = ShippingInfoRequestEntity(
+            firstName = address.firstName,
+            lastName = address.lastName,
+            address = address.address,
+            city = address.city,
+            state = address.state,
+            country = address.country,
+            postCode = address.zipCode,
+
+            )
+        return shippingEntity
+    }
+
+    private fun billingInfoRequestEntity(address: CustomerAddressEntity): BillingInfoRequestEntity {
+        val billingEntity = BillingInfoRequestEntity(
+            firstName = address.firstName,
+            lastName = address.lastName,
+            address = address.address,
+            city = address.city,
+            state = address.state,
+            country = address.country,
+            postCode = address.zipCode,
+            phone = address.phone,
+            email = address.email,
+        )
+        return billingEntity
+    }
 
     private fun onSwipeRefreshListener() {
         cartSwipeRefreshLayout.setOnRefreshListener {
@@ -224,12 +446,6 @@ class CartFragment : Fragment() {
 
 
             }
-        }
-    }
-
-    private fun checkoutButtonSetOnClickListener() {
-        checkoutButton.setOnClickListener {
-
         }
     }
 
@@ -255,6 +471,9 @@ class CartFragment : Fragment() {
                             cartViewModel.removeItem(keyItem = key)
                             itemHashKeys.removeAt(position)
                             cartAdapter.notifyItemRemoved(position)
+                            if (itemHashKeys.isEmpty()) {
+                                cartRecyclerView.adapter = cartAdapter
+                            }
 
                         }
 
@@ -277,7 +496,13 @@ class CartFragment : Fragment() {
                 val limitedDx = dX.coerceIn(-maxSwipeDistance, maxSwipeDistance)
 
                 RecyclerViewSwipeDecorator.Builder(
-                    c, recyclerView, viewHolder, limitedDx, dY, actionState, isCurrentlyActive
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    limitedDx,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
                 )
                     .addSwipeLeftBackgroundColor(
                         ContextCompat.getColor(
@@ -312,19 +537,41 @@ class CartFragment : Fragment() {
         cartRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                val layoutManager = recyclerView.layoutManager as? LinearLayoutManager
-                layoutManager?.let {
-                    val visibleItemCount = it.childCount
-                    val totalItemCount = it.itemCount
-                    val pastVisibleItemCount = it.findFirstVisibleItemPosition()
-                    if ((visibleItemCount + pastVisibleItemCount) >= totalItemCount && dy > 0) {
-                        detectViewModel.updateDetectScroll(true)
-                    } else {
-                        detectViewModel.updateDetectScroll(false)
+                val layoutManager =
+                    recyclerView.layoutManager as? LinearLayoutManager ?: return
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
+
+                if ((visibleItemCount + pastVisibleItems) >= totalItemCount && dy > 0) {
+                    recyclerView.post {
+                        val lastView =
+                            recyclerView.findViewHolderForAdapterPosition(totalItemCount - 1)?.itemView
+                        lastView?.let {
+                            val lastItemHeight = it.height
+                            println(lastItemHeight)
+                            removeItemDecoration(recyclerView)
+                            recyclerView.addItemDecoration(
+                                BottomSpacingDecoration(
+                                    lastItemHeight
+                                )
+                            )
+                            recyclerView.clipToPadding = false
+                        }
                     }
                 }
             }
         })
+    }
+
+    private fun removeItemDecoration(recyclerView: RecyclerView) {
+        for (i in 0 until recyclerView.itemDecorationCount) {
+            val decoration = recyclerView.getItemDecorationAt(i)
+            if (decoration is BottomSpacingDecoration) {
+                recyclerView.removeItemDecoration(decoration)
+                break
+            }
+        }
     }
 
 }

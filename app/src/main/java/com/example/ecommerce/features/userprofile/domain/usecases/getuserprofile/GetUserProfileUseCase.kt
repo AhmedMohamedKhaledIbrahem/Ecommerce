@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid
+package com.example.ecommerce.features.userprofile.domain.usecases.getuserprofile
 
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.features.userprofile.domain.repositories.UserProfileRepository

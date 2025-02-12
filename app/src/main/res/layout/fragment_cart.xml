@@ -4,31 +4,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".features.cart.presentation.screens.cart.CartFragment">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/cartSwipeRefreshViewLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/spaceLinearLayout"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.05">
+       >
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/cartRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:paddingTop="15dp"
-            android:paddingBottom="5dp">
+            android:layout_height="match_parent"
+            android:paddingTop="12dp"
+            android:scrollbars="vertical"
+            android:clipToPadding="false"
+           >
 
         </androidx.recyclerview.widget.RecyclerView>
 
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <LinearLayout
+   <!-- <LinearLayout
         android:id="@+id/spaceLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -80,7 +83,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-    </LinearLayout>
+    </LinearLayout>-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

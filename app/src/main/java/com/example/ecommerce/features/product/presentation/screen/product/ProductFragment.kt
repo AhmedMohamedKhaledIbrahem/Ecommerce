@@ -16,15 +16,19 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.util.query
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
 import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.features.cart.presentation.BottomSpacingDecoration
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductShimmerAdapter
+import com.example.ecommerce.features.product.presentation.screen.product.adapter.SearchAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.item.ProductShimmerItem
 import com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetails
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
@@ -34,10 +38,11 @@ import com.facebook.shimmer.ShimmerFrameLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 @AndroidEntryPoint
 class ProductFragment : Fragment() {
-    private lateinit var productSearch: SearchView
+   // private lateinit var productSearch: SearchView
     private lateinit var productAdapter: ProductAdapter
     private lateinit var productShimmerAdapter: ProductShimmerAdapter
     private lateinit var productShimmerRecyclerView: RecyclerView
@@ -72,7 +77,7 @@ class ProductFragment : Fragment() {
         productShimmerLayout = view.findViewById(R.id.productShimmerFrameLayout)
         swipeRefreshProductLayout = view.findViewById(R.id.productSwipeRefreshViewLayout)
         productShimmerRecyclerView = view.findViewById(R.id.productShimmerRecyclerView)
-        productSearch = view.findViewById(R.id.searchProduct)
+       // productSearch = view.findViewById(R.id.searchProduct)
         productLinearLayout = view.findViewById(R.id.productLinearLayout)
         detectViewModel =
             ViewModelProvider(requireActivity())[DetectScrollEndViewModel::class.java]
@@ -89,8 +94,9 @@ class ProductFragment : Fragment() {
         fetchData()
         getProduct()
         uiState()
-        detectScrollEnd()
-        setupSearchView()
+       // detectScrollEnd()
+        detectScrollEnd2()
+        //setupSearchView()
         searchProduct()
         productAdapter.refresh()
 
@@ -98,6 +104,10 @@ class ProductFragment : Fragment() {
 
 
     private fun initProductRecycleView() {
+        val searchAdapter = SearchAdapter { query ->
+            productSearchViewModel.updateSearchQuery(query)
+
+        }
         productAdapter = ProductAdapter { product ->
             val productDetails = productDetails(product)
             val action = ProductFragmentDirections.actionProductFragmentToProductDetailsFragment(
@@ -105,22 +115,22 @@ class ProductFragment : Fragment() {
             )
             findNavController().navigate(action)
 
-
         }
         initRecycleViewLayoutManger()
-        //recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-        recyclerView.adapter = productAdapter
+
+        recyclerView.adapter = ConcatAdapter(searchAdapter, productAdapter)
     }
     private fun initRecycleViewLayoutManger() {
-        Log.e("screenOrientation","$screenOrientation")
-        when(screenOrientation){
-            Configuration.ORIENTATION_PORTRAIT ->{
-                recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+        val spanCount = if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) 2 else 4
+        val gridLayoutManager = GridLayoutManager(requireContext(), spanCount)
+        gridLayoutManager.spanSizeLookup = object :GridLayoutManager.SpanSizeLookup(){
+            override fun getSpanSize(position: Int): Int {
+                return if (position == 0) spanCount else 1
             }
-            Configuration.ORIENTATION_LANDSCAPE ->{
-                recyclerView.layoutManager = GridLayoutManager(requireContext() , 4)
-            }
+
         }
+        recyclerView.layoutManager = gridLayoutManager
+
 
     }
 
@@ -273,33 +283,32 @@ class ProductFragment : Fragment() {
         }
     }
 
-    private fun setupSearchView() {
-
-        productSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let {
-                    Log.e("sds", it)
-                    productSearchViewModel.updateSearchQuery(it)
-                }
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                newText?.let { productSearchViewModel.updateSearchQuery(it) }
-                return true
-            }
-        })
-        productSearch.setOnClickListener {
-            productSearch.isIconified = false
-        }
-
-    }
+//    private fun setupSearchView() {
+//
+//        productSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(query: String?): Boolean {
+//                query?.let {
+//                    //Log.e("sds", it)
+//                    productSearchViewModel.updateSearchQuery(it)
+//                }
+//                return true
+//            }
+//
+//            override fun onQueryTextChange(newText: String?): Boolean {
+//                newText?.let { productSearchViewModel.updateSearchQuery(it) }
+//                return true
+//            }
+//        })
+//        productSearch.setOnClickListener {
+//            productSearch.isIconified = false
+//        }
+//
+//    }
 
     private fun searchProduct() {
         lifecycleScope.launch {
             productSearchViewModel.product.collectLatest { pagingData ->
                 productAdapter.submitData(pagingData)
-
             }
         }
     }
@@ -321,6 +330,41 @@ class ProductFragment : Fragment() {
                 }
             }
         })
+    }
+    private fun detectScrollEnd2() {
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val layoutManager = recyclerView.layoutManager as? GridLayoutManager ?: return
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
+
+                if ((visibleItemCount + pastVisibleItems) >= totalItemCount && dy > 0) {
+                    recyclerView.post {
+                        val lastView = recyclerView.findViewHolderForAdapterPosition(totalItemCount - 1)?.itemView
+                        lastView?.let {
+                            val lastItemHeight = it.height / 3
+                            println(lastItemHeight)
+                            removeItemDecoration(recyclerView)
+
+                            recyclerView.addItemDecoration(BottomSpacingDecoration(lastItemHeight))
+                            recyclerView.clipToPadding = false
+                        }
+                    }
+                }
+            }
+        })
+    }
+    private fun removeItemDecoration(recyclerView: RecyclerView) {
+        for (i in 0 until recyclerView.itemDecorationCount) {
+            val decoration = recyclerView.getItemDecorationAt(i)
+            if (decoration is BottomSpacingDecoration) {
+                recyclerView.removeItemDecoration(decoration)
+                break
+            }
+        }
     }
 
 

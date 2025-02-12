@@ -2,7 +2,7 @@ package com.example.ecommerce.features.userprofile.domain.usecases
 
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.features.userprofile.domain.repositories.UserProfileRepository
-import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.GetUserProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofile.GetUserProfileUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before

@@ -9,16 +9,44 @@ import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
 class CartAdapter(
     private val cartItems: List<ItemCartEntity>,
     private val onCounterUpdate: (ItemCartEntity, Int) -> Unit
-) : RecyclerView.Adapter<CartViewHolder>() {
-
-    override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
-        holder.bind(cartItems[position])
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    companion object {
+        private const val TYPE_ITEM = 1
+        private const val TYPE_EMPTY = 0
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartViewHolder {
-        val create = LayoutInflater.from(parent.context).inflate(R.layout.item_cart, parent, false)
-        return CartViewHolder(create, onCounterUpdate)
+    override fun getItemViewType(position: Int): Int {
+        return if (cartItems.isEmpty()) TYPE_EMPTY else TYPE_ITEM
     }
 
-    override fun getItemCount(): Int = cartItems.size
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (cartItems.isEmpty() && holder is EmptyViewHolder) {
+            // ✅ Handle empty cart state
+        } else if (holder is CartViewHolder) {
+            holder.bind(cartItems[position]) // Ensure `position` is valid
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+//        val create = LayoutInflater.from(parent.context).inflate(R.layout.item_cart, parent, false)
+//        return CartViewHolder(create, onCounterUpdate)
+        return when (viewType) {
+            TYPE_ITEM -> {
+                val view =
+                    LayoutInflater.from(parent.context).inflate(R.layout.item_cart, parent, false)
+                CartViewHolder(view, onCounterUpdate)
+            }
+            TYPE_EMPTY -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.empty_cart, parent, false)
+                EmptyViewHolder(view)
+            }
+
+            else -> {throw IllegalArgumentException("Invalid view type")}
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return if (cartItems.isEmpty()) 1 else cartItems.size
+    }
 }

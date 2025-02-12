@@ -5,8 +5,8 @@ import com.example.ecommerce.features.userprofile.domain.usecases.getimageprofil
 import com.example.ecommerce.features.userprofile.domain.usecases.getimageprofilebyid.IGetImageProfileByIdUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.getusernamedetails.GetUserNameDetailsUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.getusernamedetails.IGetUserNameDetailsUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.GetUserProfileUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofilebyid.IGetUserProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofile.GetUserProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofile.IGetUserProfileUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.updateusernamedetails.IUpdateUserNameDetailsUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.updateusernamedetails.UpdateUserNameDetailsUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.uploadimageprofile.IUploadImageProfileUseCase

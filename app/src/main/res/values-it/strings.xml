@@ -109,4 +109,6 @@
     <string name="cvv">Cvv\n</string>
     <string name="the_item_has_been_removed_successfully">The item has been removed successfully</string>
     <string name="the_item_has_been_added_successfully" />
+    <string name="empty_cart">Empty cart</string>
+    <string name="order_has_been_created_successfully">Order Has Been Created Successfully</string>
 </resources>

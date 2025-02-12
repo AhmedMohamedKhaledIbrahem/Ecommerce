@@ -39,28 +39,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="visible"
-            >
+            android:visibility="visible">
 
-            <SearchView
-                android:id="@+id/searchProduct"
-                android:layout_marginHorizontal="23dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:queryHint="Search Products"
-                app:iconifiedByDefault="true"
-                android:iconifiedByDefault="false"
-                android:background="@drawable/search_view_background"
+<!--            <SearchView-->
+<!--                android:id="@+id/searchProduct"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginHorizontal="23dp"-->
+<!--                android:background="@drawable/search_view_background"-->
+<!--                android:iconifiedByDefault="false"-->
+<!--                android:queryHint="Search Products"-->
+<!--                app:iconifiedByDefault="true"-->
 
-                />
+<!--                />-->
+
+
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/productRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingHorizontal="23dp"
-                android:paddingTop="10dp"
-                 />
+                android:paddingHorizontal="26dp"
+                android:paddingTop="10dp" />
 
 
         </LinearLayout>

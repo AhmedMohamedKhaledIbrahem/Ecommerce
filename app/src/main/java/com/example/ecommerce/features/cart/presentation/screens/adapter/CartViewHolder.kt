@@ -8,13 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
+import com.google.android.material.imageview.ShapeableImageView
 
 class CartViewHolder(
     view: View,
     private val onCounterUpdate: (ItemCartEntity, Int) -> Unit,
 
     ) : RecyclerView.ViewHolder(view) {
-    private val cartItemImage: ImageView = itemView.findViewById(R.id.cartItemImage)
+    private val cartItemImage: ShapeableImageView = itemView.findViewById(R.id.cartItemImage)
     private val cartItemName: TextView = itemView.findViewById(R.id.nameItemCartText)
     private val cartItemPrice: TextView = itemView.findViewById(R.id.priceItemCartText)
     private val cartItemQuantity: TextView = itemView.findViewById(R.id.cartItemPriceTextView)

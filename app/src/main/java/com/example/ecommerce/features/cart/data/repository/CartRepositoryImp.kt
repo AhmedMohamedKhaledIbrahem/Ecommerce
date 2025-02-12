@@ -57,7 +57,7 @@ class CartRepositoryImp @Inject constructor(
         withContext(Dispatchers.IO) {
             try {
                 if (internetConnectionChecker.hasConnection()) {
-                    remoteDataSource.deleteItemFromCard(keyItem = keyItem)
+                    //remoteDataSource.deleteItemFromCard(keyItem = keyItem)
                     try {
                         localDataSource.removeItem(keyItem = keyItem)
                     } catch (failure: FailureException) {

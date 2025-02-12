@@ -26,8 +26,8 @@ class AddItemUseCaseTest {
     }
 
     private val tAddItemParams = AddItemRequestEntity(
-        id = 1,
-        quantity = 1
+        id = "1",
+        quantity = "1"
     )
 
     @Test
