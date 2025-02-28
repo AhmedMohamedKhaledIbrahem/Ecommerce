@@ -11,6 +11,8 @@ import com.example.ecommerce.core.database.data.dao.cart.CartDao
 import com.example.ecommerce.core.database.data.dao.cart.ItemCartDao
 import com.example.ecommerce.core.database.data.dao.category.CategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
+import com.example.ecommerce.core.database.data.dao.orders.OrderItemDao
+import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
 import com.example.ecommerce.core.database.data.dao.product.ProductDao
 import com.example.ecommerce.core.database.data.dao.user.UserDao
@@ -76,6 +78,18 @@ object DataCoreModule {
     @Singleton
     fun provideItemCartDao(database: AppDatabase): ItemCartDao {
         return database.itemCartDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideOrderTagDao(database: AppDatabase): OrderTagDao {
+        return database.orderTagDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideOrderItemDao(database: AppDatabase): OrderItemDao {
+        return database.orderItemDao()
     }
 
     @Provides

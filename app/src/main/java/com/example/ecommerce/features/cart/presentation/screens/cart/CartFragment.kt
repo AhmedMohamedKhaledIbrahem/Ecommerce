@@ -14,6 +14,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +25,7 @@ import com.example.ecommerce.core.customer.CustomerManager
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.database.data.entities.cart.CartWithItems
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
+import com.example.ecommerce.core.decoration.BottomSpacingDecoration
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
@@ -32,13 +34,13 @@ import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequest
 import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
 import com.example.ecommerce.features.cart.data.data_soruce.local.calculateTotalPrice
-import com.example.ecommerce.features.cart.presentation.BottomSpacingDecoration
 import com.example.ecommerce.features.cart.presentation.screens.adapter.CartAdapter
 import com.example.ecommerce.features.cart.presentation.screens.adapter.CheckAdapter
 import com.example.ecommerce.features.cart.presentation.viewmodel.CartViewModel
 import com.example.ecommerce.features.cart.presentation.viewmodel.ICartViewModel
 import com.example.ecommerce.features.orders.domain.entities.LineItemRequestEntity
 import com.example.ecommerce.features.orders.domain.entities.OrderRequestEntity
+import com.example.ecommerce.features.orders.domain.entities.OrderResponseEntity
 import com.example.ecommerce.features.orders.presentation.viewmodel.IOrderViewModel
 import com.example.ecommerce.features.orders.presentation.viewmodel.OrderViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
@@ -54,6 +56,7 @@ class CartFragment : Fragment() {
     private lateinit var cartSwipeRefreshLayout: SwipeRefreshLayout
     private lateinit var cartAdapter: CartAdapter
     private lateinit var checkAdapter: CheckAdapter
+
     @Inject
     lateinit var customerManager: CustomerManager
     private lateinit var detectViewModel: DetectScrollEndViewModel
@@ -95,7 +98,7 @@ class CartFragment : Fragment() {
         addressState()
         orderState()
         swipeItem()
-       // onSwipeRefreshListener()
+        // onSwipeRefreshListener()
         detectScrollEnd()
 
     }
@@ -243,13 +246,14 @@ class CartFragment : Fragment() {
             "getAddressById" -> {
                 val address = state.data as? CustomerAddressEntity
                 if (address != null) {
-                    Log.e("is null??","no")
+                    Log.e("is null??", "no")
                     val billingEntity = billingInfoRequestEntity(address)
                     val shippingEntity = shippingInfoRequestEntity(address)
                     val lineItemRequestEntity: List<LineItemRequestEntity> =
                         lineItemRequestEntities()
                     val orderRequestEntity =
                         orderRequestEntity(billingEntity, shippingEntity, lineItemRequestEntity)
+                    println(orderRequestEntity)
                     createOrder(orderRequestEntity)
                 }
 
@@ -272,6 +276,9 @@ class CartFragment : Fragment() {
     private fun orderLoadingState(state: UiState.Loading) {
         when (state.source) {
             "createOrder" -> {
+            }
+
+            "saveOrderLocally" -> {
 
             }
         }
@@ -280,12 +287,17 @@ class CartFragment : Fragment() {
     private fun orderSuccessState(state: UiState.Success<Any>) {
         when (state.source) {
             "createOrder" -> {
+                val orderResponseEntity = state.data as? OrderResponseEntity ?: return
+                orderViewModel.saveOrderLocally(orderResponseEntity = orderResponseEntity)
+            }
+
+            "saveOrderLocally" -> {
                 loadingDialog.dismissLoading()
                 SnackBarCustom.showSnackbar(
                     view = root,
                     message = getString(R.string.order_has_been_created_successfully)
                 )
-
+                findNavController().navigate(R.id.ordersFragment)
             }
         }
     }
@@ -293,6 +305,17 @@ class CartFragment : Fragment() {
     private fun orderErrorState(state: UiState.Error) {
         when (state.source) {
             "createOrder" -> {
+                loadingDialog.dismissLoading()
+                Log.e("orderErrorState", "orderErrorState: ${state.message}")
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = state.message
+                )
+            }
+
+            "saveOrderLocally" -> {
+                loadingDialog.dismissLoading()
+                Log.e("orderErrorState", "orderErrorState: ${state.message}")
                 SnackBarCustom.showSnackbar(
                     view = root,
                     message = state.message

@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
 import com.example.ecommerce.R
@@ -124,6 +125,7 @@ class ProductDetailsFragment : Fragment() {
                     view = requireView(),
                     message = getString(R.string.the_item_has_been_added_successfully)
                 )
+                findNavController().navigate(R.id.cartFragment)
             }
 
         }

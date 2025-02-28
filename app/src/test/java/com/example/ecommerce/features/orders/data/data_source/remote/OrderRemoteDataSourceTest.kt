@@ -1,5 +1,6 @@
 package com.example.ecommerce.features.orders.data.data_source.remote
 
+import com.example.ecommerce.core.customer.CustomerManager
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.errorBody
 import com.example.ecommerce.features.errorMessage
@@ -23,12 +24,18 @@ import kotlin.test.assertFailsWith
 class OrderRemoteDataSourceTest {
     @Mock
     private lateinit var api: OrderApi
+
+    @Mock
+    private lateinit var customerManager: CustomerManager
     private lateinit var remoteDataSource: OrderRemoteDataSourceImp
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        remoteDataSource = OrderRemoteDataSourceImp(api)
+        remoteDataSource = OrderRemoteDataSourceImp(
+            orderApi = api,
+            customerManager = customerManager
+        )
     }
 
     @Test

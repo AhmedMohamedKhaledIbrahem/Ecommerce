@@ -1,7 +1,6 @@
 package com.example.ecommerce
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -23,7 +22,6 @@ import com.example.ecommerce.core.network.NetworkHelperViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainNavigationActivity : AppCompatActivity() {
@@ -100,11 +98,14 @@ class MainNavigationActivity : AppCompatActivity() {
 
             profileToolbar.title = ""
             titleToolBarTextView.text = nameOfLabel?.replaceFirstChar { it.uppercase() }
-            if (destination.id == R.id.editAddressFragment || destination.id == R.id.productDetailsFragment) {
-                Log.e("test", "yes")
-                bottomNavigationView.visibility = android.view.View.GONE
+            if (
+                destination.id == R.id.editAddressFragment ||
+                destination.id == R.id.productDetailsFragment||
+                destination.id == R.id.orderDetailsFragment
+            ) {
+                bottomNavigationView.visibility = View.GONE
             } else {
-                bottomNavigationView.visibility = android.view.View.VISIBLE
+                bottomNavigationView.visibility = View.VISIBLE
             }
 
         }

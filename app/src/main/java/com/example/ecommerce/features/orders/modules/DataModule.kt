@@ -1,7 +1,12 @@
 package com.example.ecommerce.features.orders.modules
 
+import com.example.ecommerce.core.customer.CustomerManager
+import com.example.ecommerce.core.database.data.dao.orders.OrderItemDao
+import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.features.orders.data.data_source.OrderApi
+import com.example.ecommerce.features.orders.data.data_source.local.OrderLocalDataSource
+import com.example.ecommerce.features.orders.data.data_source.local.OrderLocalDataSourceImp
 import com.example.ecommerce.features.orders.data.data_source.remote.OrderRemoteDataSource
 import com.example.ecommerce.features.orders.data.data_source.remote.OrderRemoteDataSourceImp
 import com.example.ecommerce.features.orders.data.repository.OrderRepositoryImp
@@ -17,19 +22,36 @@ import javax.inject.Singleton
 object DataModule {
     @Provides
     @Singleton
-    fun provideOrderRemoteDataSource(orderApi: OrderApi): OrderRemoteDataSource {
-        return OrderRemoteDataSourceImp(orderApi = orderApi)
+    fun provideOrderRemoteDataSource(
+        orderApi: OrderApi,
+        customerManager: CustomerManager
+    ): OrderRemoteDataSource {
+        return OrderRemoteDataSourceImp(orderApi = orderApi, customerManager = customerManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOrderLocalDataSource(
+        orderItemDao: OrderItemDao,
+        orderTagDao: OrderTagDao
+    ): OrderLocalDataSource {
+        return OrderLocalDataSourceImp(
+            orderItemDao = orderItemDao,
+            orderTagDao = orderTagDao,
+        )
     }
 
     @Provides
     @Singleton
     fun provideOrderRepository(
         remoteDataSource: OrderRemoteDataSource,
+        localDataSource: OrderLocalDataSource,
         internetConnectionChecker: InternetConnectionChecker
     ): OrderRepository {
         return OrderRepositoryImp(
             remoteDataSource = remoteDataSource,
-            internetConnectionChecker = internetConnectionChecker
+            localDataSource = localDataSource,
+            internetConnectionChecker = internetConnectionChecker,
         )
     }
 

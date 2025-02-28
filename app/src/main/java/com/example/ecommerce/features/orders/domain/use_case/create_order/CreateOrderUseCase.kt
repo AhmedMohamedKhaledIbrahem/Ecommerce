@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class CreateOrderUseCase @Inject constructor(
     private val orderRepository: OrderRepository
-):ICreateOrderUseCase {
+) : ICreateOrderUseCase {
     override suspend fun invoke(orderRequestEntity: OrderRequestEntity): OrderResponseEntity {
         return orderRepository.createOrder(orderRequestEntity)
     }

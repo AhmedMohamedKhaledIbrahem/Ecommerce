@@ -22,9 +22,32 @@ object OrderMapper {
     }
 
     fun mapModelToEntity(model: OrderResponseModel): OrderResponseEntity {
+        val lineItems = model.lineItems.map { LineItemMapper.mapModelToEntity(it) }
         return OrderResponseEntity(
             id = model.id,
-            status = model.status
+            orderTagNumber = model.orderTagNumber,
+            totalPrice = model.totalPrice,
+            paymentMethod = model.paymentMethod,
+            paymentMethodTitle = model.paymentMethodTitle,
+            status = model.status,
+            dateCreate = model.dateCreate,
+            currency = model.currency,
+            lineItems = lineItems
+        )
+    }
+
+    fun mapEntityToModel(entity: OrderResponseEntity): OrderResponseModel {
+        val lineItems = entity.lineItems.map { LineItemMapper.mapEntityToModel(it) }
+        return OrderResponseModel(
+            id = entity.id,
+            orderTagNumber = entity.orderTagNumber,
+            totalPrice = entity.totalPrice,
+            paymentMethod = entity.paymentMethod,
+            paymentMethodTitle = entity.paymentMethodTitle,
+            status = entity.status,
+            dateCreate = entity.dateCreate,
+            currency = entity.currency,
+            lineItems = lineItems
         )
     }
 

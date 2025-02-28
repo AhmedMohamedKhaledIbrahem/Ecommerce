@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.cart.presentation
+package com.example.ecommerce.core.decoration
 
 import android.graphics.Rect
 import android.view.View
