@@ -27,6 +27,7 @@ class OrderLocalDataSourceTest {
     private lateinit var orderItemDao: OrderItemDao
 
     private lateinit var localDataSource: OrderLocalDataSource
+    private val orderWithItems = listOf(tOrderWithItems)
 
     @Before
     fun setUp() {
@@ -35,6 +36,7 @@ class OrderLocalDataSourceTest {
             orderTagDao = orderTagDao,
             orderItemDao = orderItemDao
         )
+
     }
 
     @Test
@@ -70,9 +72,9 @@ class OrderLocalDataSourceTest {
 
     @Test
     fun `getOrders should return order with items from the database`() = runTest {
-        `when`(orderTagDao.getOrderTags()).thenReturn(tOrderWithItems)
+        `when`(orderTagDao.getOrderTags()).thenReturn(orderWithItems)
         val result = localDataSource.getOrders()
-        assertEquals(tOrderWithItems, result)
+        assertEquals(orderWithItems, result)
         verify(orderTagDao).getOrderTags()
     }
 

@@ -1,7 +1,7 @@
 package com.example.ecommerce.features.authentication.data.datasource.localdatasource
 
 import com.example.ecommerce.core.errors.FailureException
-import com.example.ecommerce.core.tokenmanager.TokenManager
+import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.features.authentication.data.datasources.localdatasource.AuthenticationSharedPreferencesDataSourceImp
 import com.example.ecommerce.features.authentication.data.models.AuthenticationResponseModel
 import com.example.ecommerce.resources.fixture
@@ -21,7 +21,7 @@ import kotlin.test.assertFailsWith
 @ExperimentalCoroutinesApi
 class AuthenticationSharedPreferencesDataSourceImpTest {
     @Mock
-    private lateinit var tokenManger :TokenManager
+    private lateinit var tokenManger : TokenManager
     private lateinit var sharedPreferences:AuthenticationSharedPreferencesDataSourceImp
 
     @Before

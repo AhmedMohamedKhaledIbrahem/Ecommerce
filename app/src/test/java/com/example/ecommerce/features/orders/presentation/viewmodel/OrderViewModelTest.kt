@@ -11,7 +11,9 @@ import com.example.ecommerce.features.observerViewModelSuccessState
 import com.example.ecommerce.features.orders.domain.use_case.clear_orders.IClearOrderUseCase
 import com.example.ecommerce.features.orders.domain.use_case.create_order.ICreateOrderUseCase
 import com.example.ecommerce.features.orders.domain.use_case.get_orders.IGetOrdersUseCase
+import com.example.ecommerce.features.orders.domain.use_case.save_order_locally.ISaveOrderLocallyUseCase
 import com.example.ecommerce.features.orders.tCreateOrderRequestEntity
+import com.example.ecommerce.features.orders.tOrderResponseEntity
 import com.example.ecommerce.features.orders.tOrderWithItems
 import com.example.ecommerce.features.removeObserverFromLiveData
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +45,8 @@ class OrderViewModelTest {
 
     @Mock
     private lateinit var clearOrdersUseCase: IClearOrderUseCase
-
+    @Mock
+    private lateinit var saveOrderLocallyUseCase: ISaveOrderLocallyUseCase
     private lateinit var viewModel: OrderViewModel
     private val dispatcher = UnconfinedTestDispatcher()
 
@@ -54,7 +57,8 @@ class OrderViewModelTest {
         viewModel = OrderViewModel(
             createOrderUseCase = createOrderUseCase,
             getOrdersUseCase = getOrderUseCase,
-            clearOrderUseCase = clearOrdersUseCase
+            clearOrderUseCase = clearOrdersUseCase,
+            saveOrderLocallyUseCase = saveOrderLocallyUseCase
         )
 
     }
@@ -73,7 +77,7 @@ class OrderViewModelTest {
         runTest {
             val latch = CountDownLatch(1)
             `when`(createOrderUseCase(tCreateOrderRequestEntity)).thenReturn(
-                Unit
+                tOrderResponseEntity
             )
             viewModel.createOrder(tCreateOrderRequestEntity)
             val observer = observerViewModelSuccessState(
@@ -108,7 +112,7 @@ class OrderViewModelTest {
         runTest {
             val latch = CountDownLatch(1)
             `when`(getOrderUseCase()).thenReturn(
-                tOrderWithItems
+                listOf(tOrderWithItems)
             )
             viewModel.getOrders()
             val observer = observerViewModelSuccessState(
@@ -137,6 +141,7 @@ class OrderViewModelTest {
         verify(getOrderUseCase).invoke()
         removeObserverFromLiveData(orderStateUiAsLiveData(), observer)
     }
+
     @Test
     fun `clearOrders should emit success state when clearOrdersUseCase returns success`() =
         runTest {

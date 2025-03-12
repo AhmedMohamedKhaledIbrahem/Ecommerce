@@ -3,6 +3,7 @@ package com.example.ecommerce.features.orders.domain.usecase
 import com.example.ecommerce.features.orders.domain.repository.OrderRepository
 import com.example.ecommerce.features.orders.domain.use_case.create_order.CreateOrderUseCase
 import com.example.ecommerce.features.orders.tCreateOrderRequestEntity
+import com.example.ecommerce.features.orders.tOrderResponseEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -16,7 +17,7 @@ import org.mockito.MockitoAnnotations
 @ExperimentalCoroutinesApi
 class CreateOrderUseCaseTest {
     @Mock
-    private lateinit var repository: OrderRepository
+     lateinit var repository: OrderRepository
     private lateinit var createOrderUseCase: CreateOrderUseCase
 
     @Before
@@ -28,7 +29,7 @@ class CreateOrderUseCaseTest {
     @Test
     fun `invoke should call createOrder from the repository`() = runTest {
         `when`(repository.createOrder(orderRequestEntity = tCreateOrderRequestEntity)).thenReturn(
-            Unit
+            tOrderResponseEntity
         )
         createOrderUseCase.invoke(orderRequestEntity = tCreateOrderRequestEntity)
         verify(repository).createOrder(orderRequestEntity = tCreateOrderRequestEntity)

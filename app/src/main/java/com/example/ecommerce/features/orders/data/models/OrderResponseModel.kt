@@ -10,6 +10,6 @@ data class OrderResponseModel(
     @SerializedName("payment_method_title") val paymentMethodTitle: String,
     @SerializedName("date_created") val dateCreate: String,
     @SerializedName("total") val totalPrice: String,
-    @SerializedName("number") val orderTagNumber: String,
+    @SerializedName("order_number") val orderTagNumber: String,
     @SerializedName("line_items") val lineItems: List<LineItemResponseModel>
 )

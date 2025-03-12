@@ -28,6 +28,7 @@ class GetOrdersUseCaseTest {
 
     @Test
     fun `invoke should call getOrders from the repository`() = runTest {
+        val tOrderWithItems = listOf(tOrderWithItems)
         `when`(repository.getOrders()).thenReturn(tOrderWithItems)
         val result = getOrdersUseCase.invoke()
         assertEquals(tOrderWithItems, result)

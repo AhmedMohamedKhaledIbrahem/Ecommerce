@@ -18,7 +18,6 @@ class OrderLocalDataSourceImp @Inject constructor(
         try {
             val orderTagEntity =
                 OrderTagMapper.mapToEntity(orderTagResponseModel = orderResponseModel)
-            Log.e("orderTagEntity", "insertOrderWithItem: $orderTagEntity")
             val orderItemEntity = orderResponseModel.lineItems.map {
                 OrderItemMapper.mapToEntity(
                     lineItemResponseModel = it,

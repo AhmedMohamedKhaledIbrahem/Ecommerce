@@ -1,11 +1,11 @@
-package com.example.ecommerce.core.tokenmanager
+package com.example.ecommerce.core.manager.token
 
 import android.content.SharedPreferences
 import javax.inject.Inject
 
 class TokenManagerImp @Inject constructor(
     private val preferences:SharedPreferences
-):TokenManager {
+): TokenManager {
     companion object{
         private const val TOKEN_KEY = "auth_token"
     }

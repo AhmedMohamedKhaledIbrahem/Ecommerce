@@ -16,11 +16,16 @@ import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
 import com.example.ecommerce.core.database.data.dao.product.ProductDao
 import com.example.ecommerce.core.database.data.dao.user.UserDao
-import com.example.ecommerce.core.tokenmanager.TokenManager
-import com.example.ecommerce.core.tokenmanager.TokenManagerImp
+import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
+import com.example.ecommerce.core.manager.fcm.FcmDeviceTokenImp
+import com.example.ecommerce.core.manager.token.TokenManager
+import com.example.ecommerce.core.manager.token.TokenManagerImp
+import com.example.ecommerce.core.notification.INotification
+import com.example.ecommerce.core.notification.Notification
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -108,5 +113,18 @@ object DataCoreModule {
     @Singleton
     fun provideCustomerManager(preferences: SharedPreferences): CustomerManager {
         return CustomerManagerImp(sharedPreferences = preferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSocketManager(preferences: SharedPreferences): FcmDeviceToken {
+        return FcmDeviceTokenImp(sharedPreferences = preferences)
+
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotification(@ApplicationContext context: Context): INotification {
+        return Notification(context = context)
     }
 }

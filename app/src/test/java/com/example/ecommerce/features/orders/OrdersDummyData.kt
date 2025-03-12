@@ -20,6 +20,7 @@ val tCreateOrderResponseModelJson: OrderResponseModel = fixture("createdOrder.js
 }
 
 val tOrderTagEntityByMapper = OrderTagMapper.mapToEntity(tCreateOrderResponseModelJson)
+val tOrderResponseEntity = OrderMapper.mapModelToEntity(tCreateOrderResponseModelJson)
 val tOrderItemEntityByMapper = tCreateOrderResponseModelJson.lineItems.map {
     OrderItemMapper.mapToEntity(it, tCreateOrderResponseModelJson.id)
 }

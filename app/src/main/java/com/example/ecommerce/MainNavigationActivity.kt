@@ -1,12 +1,19 @@
 package com.example.ecommerce
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -15,12 +22,18 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.ecommerce.core.app.AppLifecycleObserver
 import com.example.ecommerce.core.app.AppLifecycleViewModel
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.NetworkHelperViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -41,6 +54,15 @@ class MainNavigationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+//        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+//            if (task.isSuccessful) {
+//                val token = task.result
+//                Log.d("FCM Token", token)
+//            } else {
+//                Log.w("FCM Token", "Fetching FCM registration token failed", task.exception)
+//            }
+//        }
+        requestNotificationPermission()
         setContentView(R.layout.activity_main_navigation)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -48,6 +70,7 @@ class MainNavigationActivity : AppCompatActivity() {
             insets
         }
         val rootView = findViewById<View>(android.R.id.content)
+
 
         (application as EcommerceApp).hideSystemUI(this)
         initView()
@@ -68,6 +91,7 @@ class MainNavigationActivity : AppCompatActivity() {
         navigationView(navController)
         toolbar(navController)
         checkScrollEnd()
+
 
     }
 
@@ -100,7 +124,7 @@ class MainNavigationActivity : AppCompatActivity() {
             titleToolBarTextView.text = nameOfLabel?.replaceFirstChar { it.uppercase() }
             if (
                 destination.id == R.id.editAddressFragment ||
-                destination.id == R.id.productDetailsFragment||
+                destination.id == R.id.productDetailsFragment ||
                 destination.id == R.id.orderDetailsFragment
             ) {
                 bottomNavigationView.visibility = View.GONE
@@ -127,6 +151,26 @@ class MainNavigationActivity : AppCompatActivity() {
         }
     }
 
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED -> {
+                    requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
+
+    private val requestNotificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (!isGranted) {
+                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+
 
     override fun onSupportNavigateUp(): Boolean {
         val navController: NavController = findNavController(R.id.fragmentContainer)
@@ -134,6 +178,11 @@ class MainNavigationActivity : AppCompatActivity() {
         return true
     }
 
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+    }
 
 }
 

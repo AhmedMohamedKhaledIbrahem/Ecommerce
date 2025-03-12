@@ -22,5 +22,8 @@ interface OrderTagDao {
     @Query("select * from order_tags")
     suspend fun getOrderTags(): List<OrderWithItems>
 
+    @Query("Update order_tags set status = :status where orderId = :orderId")
+    suspend fun updateOrderStatus(orderId: Int, status: String)
+
 
 }

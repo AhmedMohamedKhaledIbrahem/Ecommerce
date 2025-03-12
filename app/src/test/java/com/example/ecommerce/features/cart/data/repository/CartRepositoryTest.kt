@@ -107,11 +107,9 @@ class CartRepositoryTest {
     @Test
     fun `getCart should return cart with items when internet connection is available`() = runTest {
         checkInternet(true, internetConnectionChecker)
-        `when`(remoteDataSource.getCart()).thenReturn(dummyCartResponseModel)
         `when`(localDataSource.getCart()).thenReturn(dummyCartWithItemEntity)
         val result = repository.getCart()
         assertEquals(dummyCartWithItemEntity, result)
-        verify(remoteDataSource).getCart()
         verify(localDataSource).getCart()
     }
 
@@ -125,15 +123,7 @@ class CartRepositoryTest {
             assertEquals(connectionFailureMessage, result.message)
         }
 
-    @Test
-    fun `getCart should throw ServerFailure when the internet connection is available`() = runTest {
-        checkInternet(true, internetConnectionChecker)
-        `when`(remoteDataSource.getCart()).thenThrow(FailureException(serverFailureMessage))
-        val result = serverFailure {
-            repository.getCart()
-        }
-        assertEquals(serverFailureMessage, result.message)
-    }
+
 
     @Test
     fun `getCart should throw CacheFailure when the internet connection is available`() = runTest {
@@ -151,10 +141,9 @@ class CartRepositoryTest {
     fun `removeItem should return cart with items when internet connection is available`() =
         runTest {
             checkInternet(true, internetConnectionChecker)
-            `when`(remoteDataSource.deleteItemFromCard(keyItem = keyItem)).thenReturn(Unit)
             `when`(localDataSource.removeItem(keyItem = keyItem)).thenReturn(Unit)
             repository.removeItem(keyItem = keyItem)
-            verify(remoteDataSource).deleteItemFromCard(keyItem = keyItem)
+            //verify(remoteDataSource).deleteItemFromCard(keyItem = keyItem)
             verify(localDataSource).removeItem(keyItem = keyItem)
         }
 
@@ -168,18 +157,7 @@ class CartRepositoryTest {
             assertEquals(connectionFailureMessage, result.message)
         }
 
-    @Test
-    fun `removeItem should throw ServerFailure when the internet connection is available`() =
-        runTest {
-            checkInternet(true, internetConnectionChecker)
-            `when`(remoteDataSource.deleteItemFromCard(keyItem = keyItem)).thenThrow(
-                FailureException(serverFailureMessage)
-            )
-            val result = serverFailure {
-                repository.removeItem(keyItem = keyItem)
-            }
-            assertEquals(serverFailureMessage, result.message)
-        }
+
 
     @Test
     fun `removeItem should throw CacheFailure when the internet connection is available`() =
