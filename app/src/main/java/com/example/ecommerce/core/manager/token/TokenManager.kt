@@ -1,4 +1,4 @@
-package com.example.ecommerce.core.tokenmanager
+package com.example.ecommerce.core.manager.token
 
 interface TokenManager {
     fun saveToken(token:String)

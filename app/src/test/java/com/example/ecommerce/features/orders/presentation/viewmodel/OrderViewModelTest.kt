@@ -8,9 +8,13 @@ import com.example.ecommerce.features.await
 import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.observerViewModelErrorState
 import com.example.ecommerce.features.observerViewModelSuccessState
+import com.example.ecommerce.features.orders.domain.use_case.clear_orders.IClearOrderUseCase
 import com.example.ecommerce.features.orders.domain.use_case.create_order.ICreateOrderUseCase
+import com.example.ecommerce.features.orders.domain.use_case.get_orders.IGetOrdersUseCase
+import com.example.ecommerce.features.orders.domain.use_case.save_order_locally.ISaveOrderLocallyUseCase
 import com.example.ecommerce.features.orders.tCreateOrderRequestEntity
-import com.example.ecommerce.features.orders.tCreateOrderResponseEntity
+import com.example.ecommerce.features.orders.tOrderResponseEntity
+import com.example.ecommerce.features.orders.tOrderWithItems
 import com.example.ecommerce.features.removeObserverFromLiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +40,13 @@ class OrderViewModelTest {
     @Mock
     private lateinit var createOrderUseCase: ICreateOrderUseCase
 
+    @Mock
+    private lateinit var getOrderUseCase: IGetOrdersUseCase
+
+    @Mock
+    private lateinit var clearOrdersUseCase: IClearOrderUseCase
+    @Mock
+    private lateinit var saveOrderLocallyUseCase: ISaveOrderLocallyUseCase
     private lateinit var viewModel: OrderViewModel
     private val dispatcher = UnconfinedTestDispatcher()
 
@@ -43,7 +54,12 @@ class OrderViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(dispatcher)
-        viewModel = OrderViewModel(createOrderUseCase)
+        viewModel = OrderViewModel(
+            createOrderUseCase = createOrderUseCase,
+            getOrdersUseCase = getOrderUseCase,
+            clearOrderUseCase = clearOrdersUseCase,
+            saveOrderLocallyUseCase = saveOrderLocallyUseCase
+        )
 
     }
 
@@ -61,12 +77,12 @@ class OrderViewModelTest {
         runTest {
             val latch = CountDownLatch(1)
             `when`(createOrderUseCase(tCreateOrderRequestEntity)).thenReturn(
-                tCreateOrderResponseEntity
+                tOrderResponseEntity
             )
             viewModel.createOrder(tCreateOrderRequestEntity)
             val observer = observerViewModelSuccessState(
                 latch = latch,
-                tCreateOrderResponseEntity,
+                Unit,
                 orderStateUiAsLiveData()
             )
             await(latch = latch)
@@ -75,7 +91,6 @@ class OrderViewModelTest {
         }
 
     @Test
-
     fun `createOrder should emit error state when createOrderUseCase  throw exception`() = runTest {
         val latch = CountDownLatch(1)
         `when`(createOrderUseCase(tCreateOrderRequestEntity)).thenThrow(
@@ -89,6 +104,76 @@ class OrderViewModelTest {
         )
         await(latch = latch)
         verify(createOrderUseCase).invoke(tCreateOrderRequestEntity)
+        removeObserverFromLiveData(orderStateUiAsLiveData(), observer)
+    }
+
+    @Test
+    fun `getOrders should emit success state when getOrdersUseCase returns success`() =
+        runTest {
+            val latch = CountDownLatch(1)
+            `when`(getOrderUseCase()).thenReturn(
+                listOf(tOrderWithItems)
+            )
+            viewModel.getOrders()
+            val observer = observerViewModelSuccessState(
+                latch = latch,
+                tOrderWithItems,
+                orderStateUiAsLiveData()
+            )
+            await(latch = latch)
+            verify(getOrderUseCase).invoke()
+            removeObserverFromLiveData(orderStateUiAsLiveData(), observer)
+        }
+
+    @Test
+    fun `getOrders should emit error state when getOrdersUseCase  throw exception`() = runTest {
+        val latch = CountDownLatch(1)
+        `when`(getOrderUseCase()).thenThrow(
+            RuntimeException(errorMessage)
+        )
+        viewModel.getOrders()
+        val observer = observerViewModelErrorState(
+            latch = latch,
+            errorMessage,
+            orderStateUiAsLiveData()
+        )
+        await(latch = latch)
+        verify(getOrderUseCase).invoke()
+        removeObserverFromLiveData(orderStateUiAsLiveData(), observer)
+    }
+
+    @Test
+    fun `clearOrders should emit success state when clearOrdersUseCase returns success`() =
+        runTest {
+            val latch = CountDownLatch(1)
+            `when`(clearOrdersUseCase()).thenReturn(
+                Unit
+            )
+            viewModel.clearOrders()
+            val observer = observerViewModelSuccessState(
+                latch = latch,
+                Unit,
+                orderStateUiAsLiveData()
+            )
+            await(latch = latch)
+            verify(clearOrdersUseCase).invoke()
+            removeObserverFromLiveData(orderStateUiAsLiveData(), observer)
+        }
+
+    @Test
+    fun `clearOrders should emit error state when clearOrdersUseCase  throw exception`() = runTest {
+        val latch = CountDownLatch(1)
+        `when`(clearOrdersUseCase()).thenThrow(
+            RuntimeException(errorMessage)
+        )
+        viewModel.clearOrders()
+        val observer = observerViewModelErrorState(
+            latch = latch,
+            errorMessage,
+            orderStateUiAsLiveData()
+        )
+        await(latch = latch)
+        verify(clearOrdersUseCase).invoke()
         removeObserverFromLiveData(orderStateUiAsLiveData(), observer)
     }
 }

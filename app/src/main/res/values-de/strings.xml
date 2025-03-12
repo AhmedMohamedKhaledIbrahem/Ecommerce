@@ -112,4 +112,16 @@
     <string name="the_item_has_been_added_successfully" />
     <string name="empty_cart">Empty cart</string>
     <string name="order_has_been_created_successfully">Order Has Been Created Successfully</string>
+    <string name="order_tag_number">OrderTagNumber:</string>
+    <string name="order_date_create">orderDateCreate:</string>
+    <string name="order_status">orderStatus:</string>
+    <string name="order_total">orderTotal</string>
+    <string name="orders">Orders</string>
+    <string name="products_amount">Products Amount:</string>
+    <string name="total_price">Total Price :</string>
+    <string name="currency">EG</string>
+    <string name="product">Product:</string>
+    <string name="price">Price:</string>
+    <string name="order_change">Your order %1$s has changed status to %2$s.</string>
+    <string name="your_order_has_changed_status_to">"Your Order %1$s has changed status to %2$s "</string>
 </resources>

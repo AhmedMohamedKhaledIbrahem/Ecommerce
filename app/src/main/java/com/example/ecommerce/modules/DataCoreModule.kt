@@ -11,14 +11,21 @@ import com.example.ecommerce.core.database.data.dao.cart.CartDao
 import com.example.ecommerce.core.database.data.dao.cart.ItemCartDao
 import com.example.ecommerce.core.database.data.dao.category.CategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
+import com.example.ecommerce.core.database.data.dao.orders.OrderItemDao
+import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
 import com.example.ecommerce.core.database.data.dao.product.ProductDao
 import com.example.ecommerce.core.database.data.dao.user.UserDao
-import com.example.ecommerce.core.tokenmanager.TokenManager
-import com.example.ecommerce.core.tokenmanager.TokenManagerImp
+import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
+import com.example.ecommerce.core.manager.fcm.FcmDeviceTokenImp
+import com.example.ecommerce.core.manager.token.TokenManager
+import com.example.ecommerce.core.manager.token.TokenManagerImp
+import com.example.ecommerce.core.notification.INotification
+import com.example.ecommerce.core.notification.Notification
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -80,6 +87,18 @@ object DataCoreModule {
 
     @Provides
     @Singleton
+    fun provideOrderTagDao(database: AppDatabase): OrderTagDao {
+        return database.orderTagDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideOrderItemDao(database: AppDatabase): OrderItemDao {
+        return database.orderItemDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideProductCategoryCrossRefDao(database: AppDatabase): ProductCategoryCrossRefDao {
         return database.productCategoryCrossRefDao()
     }
@@ -94,5 +113,18 @@ object DataCoreModule {
     @Singleton
     fun provideCustomerManager(preferences: SharedPreferences): CustomerManager {
         return CustomerManagerImp(sharedPreferences = preferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSocketManager(preferences: SharedPreferences): FcmDeviceToken {
+        return FcmDeviceTokenImp(sharedPreferences = preferences)
+
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotification(@ApplicationContext context: Context): INotification {
+        return Notification(context = context)
     }
 }

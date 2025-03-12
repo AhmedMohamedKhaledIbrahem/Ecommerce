@@ -55,20 +55,16 @@ class CartRepositoryImp @Inject constructor(
 
     override suspend fun removeItem(keyItem: String) {
         withContext(Dispatchers.IO) {
-            try {
-                if (internetConnectionChecker.hasConnection()) {
-                    //remoteDataSource.deleteItemFromCard(keyItem = keyItem)
-                    try {
-                        localDataSource.removeItem(keyItem = keyItem)
-                    } catch (failure: FailureException) {
-                        throw Failures.CacheFailure("${failure.message}")
-                    }
-                } else {
-                    throw Failures.ConnectionFailure("No Internet Connection")
+            if (internetConnectionChecker.hasConnection()) {
+                try {
+                    localDataSource.removeItem(keyItem = keyItem)
+                } catch (failure: FailureException) {
+                    throw Failures.CacheFailure("${failure.message}")
                 }
-            } catch (failure: FailureException) {
-                throw Failures.ServerFailure("${failure.message}")
+            } else {
+                throw Failures.ConnectionFailure("No Internet Connection")
             }
+
         }
     }
 

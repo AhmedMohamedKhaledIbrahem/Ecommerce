@@ -1,7 +1,7 @@
 package com.example.ecommerce.features.authentication.data.datasources.localdatasource
 
 import com.example.ecommerce.core.errors.FailureException
-import com.example.ecommerce.core.tokenmanager.TokenManager
+import com.example.ecommerce.core.manager.token.TokenManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

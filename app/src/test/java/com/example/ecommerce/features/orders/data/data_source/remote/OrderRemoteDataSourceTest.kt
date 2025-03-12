@@ -1,9 +1,12 @@
 package com.example.ecommerce.features.orders.data.data_source.remote
 
+import com.example.ecommerce.core.customer.CustomerManager
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.errorBody
 import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.errorResponseBody
+import com.example.ecommerce.features.failureException
+import com.example.ecommerce.features.orders.customerId
 import com.example.ecommerce.features.orders.data.data_source.OrderApi
 import com.example.ecommerce.features.orders.data.models.OrderResponseModel
 import com.example.ecommerce.features.orders.tCreateOrderRequestModel
@@ -23,12 +26,18 @@ import kotlin.test.assertFailsWith
 class OrderRemoteDataSourceTest {
     @Mock
     private lateinit var api: OrderApi
-    private lateinit var remoteDataSource: OrderRemoteDataSourceImp
 
+    @Mock
+    private lateinit var customerManager: CustomerManager
+    private lateinit var remoteDataSource: OrderRemoteDataSourceImp
+    private val tCreateOrderResponses= listOf(tCreateOrderResponseModelJson)
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        remoteDataSource = OrderRemoteDataSourceImp(api)
+        remoteDataSource = OrderRemoteDataSourceImp(
+            orderApi = api,
+            customerManager = customerManager
+        )
     }
 
     @Test
@@ -58,7 +67,7 @@ class OrderRemoteDataSourceTest {
                 errorBody
             )
             `when`(api.createOrder(tCreateOrderRequestModel)).thenReturn(response)
-            val exception = assertFailsWith<FailureException> {
+            val exception = failureException{
                 remoteDataSource.createOrder(tCreateOrderRequestModel)
             }
             assertEquals(errorMessage, exception.message)
@@ -74,4 +83,6 @@ class OrderRemoteDataSourceTest {
         }
         assertEquals(errorMessage, exception.message)
     }
+
+
 }

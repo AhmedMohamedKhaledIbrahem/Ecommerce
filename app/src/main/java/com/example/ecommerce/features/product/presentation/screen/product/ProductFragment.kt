@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.product.presentation.screen.product
 
-import android.content.pm.ActivityInfo
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -18,14 +17,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.util.query
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.work.WorkManager
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
+import com.example.ecommerce.core.decoration.BottomSpacingDecoration
 import com.example.ecommerce.core.state.UiState
-import com.example.ecommerce.features.cart.presentation.BottomSpacingDecoration
+import com.example.ecommerce.features.notification.presentation.viewmodel.notification.NotificationViewModel
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductShimmerAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.SearchAdapter
@@ -38,27 +37,27 @@ import com.facebook.shimmer.ShimmerFrameLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlin.math.max
 
 @AndroidEntryPoint
 class ProductFragment : Fragment() {
-   // private lateinit var productSearch: SearchView
+    // private lateinit var productSearch: SearchView
     private lateinit var productAdapter: ProductAdapter
     private lateinit var productShimmerAdapter: ProductShimmerAdapter
     private lateinit var productShimmerRecyclerView: RecyclerView
     private lateinit var productLinearLayout: LinearLayout
     private val productViewModel: ProductViewModel by viewModels()
+    private val notificationViewModel: NotificationViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var productShimmerLayout: ShimmerFrameLayout
     private lateinit var swipeRefreshProductLayout: SwipeRefreshLayout
     private lateinit var detectViewModel: DetectScrollEndViewModel
-    private  var screenOrientation :Int = 0
+    private var screenOrientation: Int = 0
     private val productSearchViewModel: ProductSearchViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         screenOrientation = resources.configuration.orientation
-           // initRecycleViewLayoutManger(screenOrientation)
+        // initRecycleViewLayoutManger(screenOrientation)
     }
 
     override fun onCreateView(
@@ -77,7 +76,7 @@ class ProductFragment : Fragment() {
         productShimmerLayout = view.findViewById(R.id.productShimmerFrameLayout)
         swipeRefreshProductLayout = view.findViewById(R.id.productSwipeRefreshViewLayout)
         productShimmerRecyclerView = view.findViewById(R.id.productShimmerRecyclerView)
-       // productSearch = view.findViewById(R.id.searchProduct)
+        // productSearch = view.findViewById(R.id.searchProduct)
         productLinearLayout = view.findViewById(R.id.productLinearLayout)
         detectViewModel =
             ViewModelProvider(requireActivity())[DetectScrollEndViewModel::class.java]
@@ -89,14 +88,13 @@ class ProductFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         initProductRecycleView()
         initShimmerRecycleView()
         fetchData()
         getProduct()
         uiState()
-       // detectScrollEnd()
         detectScrollEnd2()
-        //setupSearchView()
         searchProduct()
         productAdapter.refresh()
 
@@ -120,10 +118,11 @@ class ProductFragment : Fragment() {
 
         recyclerView.adapter = ConcatAdapter(searchAdapter, productAdapter)
     }
+
     private fun initRecycleViewLayoutManger() {
         val spanCount = if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) 2 else 4
         val gridLayoutManager = GridLayoutManager(requireContext(), spanCount)
-        gridLayoutManager.spanSizeLookup = object :GridLayoutManager.SpanSizeLookup(){
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 return if (position == 0) spanCount else 1
             }
@@ -283,6 +282,47 @@ class ProductFragment : Fragment() {
         }
     }
 
+    @SuppressLint("RepeatOnLifecycleWrongUsage")
+    private fun notificationState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                notificationViewModel.notificationState.collect { state ->
+                    notificationUiState(state)
+                }
+            }
+        }
+    }
+
+    private fun notificationUiState(state: UiState<Any>) {
+        when (state) {
+            is UiState.Loading -> {
+                when (state.source) {
+                    "connect" -> {}
+
+                }
+            }
+
+            is UiState.Success -> {
+                when (state.source) {
+                    "connect" -> {
+                        Log.e("notification", "notificationUiState: ${state.data}")
+                    }
+
+                }
+            }
+
+            is UiState.Error -> {
+                when (state.source) {
+                    "connect" -> {
+                        Log.e("notification", "notificationUiState: ${state.message}")
+
+                    }
+
+                }
+            }
+        }
+    }
+
 //    private fun setupSearchView() {
 //
 //        productSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -331,6 +371,7 @@ class ProductFragment : Fragment() {
             }
         })
     }
+
     private fun detectScrollEnd2() {
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -343,7 +384,8 @@ class ProductFragment : Fragment() {
 
                 if ((visibleItemCount + pastVisibleItems) >= totalItemCount && dy > 0) {
                     recyclerView.post {
-                        val lastView = recyclerView.findViewHolderForAdapterPosition(totalItemCount - 1)?.itemView
+                        val lastView =
+                            recyclerView.findViewHolderForAdapterPosition(totalItemCount - 1)?.itemView
                         lastView?.let {
                             val lastItemHeight = it.height / 3
                             println(lastItemHeight)
@@ -357,6 +399,7 @@ class ProductFragment : Fragment() {
             }
         })
     }
+
     private fun removeItemDecoration(recyclerView: RecyclerView) {
         for (i in 0 until recyclerView.itemDecorationCount) {
             val decoration = recyclerView.getItemDecorationAt(i)
@@ -367,5 +410,9 @@ class ProductFragment : Fragment() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        WorkManager.getInstance(requireContext()).cancelAllWork()
+    }
 
 }

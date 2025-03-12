@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.ecommerce.core.tokenmanager.TokenManager
+import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
 
 
     private fun isLogin(): Boolean {

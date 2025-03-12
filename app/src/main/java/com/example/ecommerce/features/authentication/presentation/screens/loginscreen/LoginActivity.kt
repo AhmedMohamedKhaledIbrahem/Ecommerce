@@ -31,6 +31,10 @@ import com.example.ecommerce.features.authentication.presentation.screens.forget
 import com.example.ecommerce.features.authentication.presentation.screens.signupscreen.SignUpActivity
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.IAuthenticationViewModel
+import com.example.ecommerce.features.notification.presentation.viewmodel.notification.INotificationViewModel
+import com.example.ecommerce.features.notification.presentation.viewmodel.notification.NotificationViewModel
+import com.example.ecommerce.features.notification.presentation.viewmodel.notificationmanager.INotificationManagerViewModel
+import com.example.ecommerce.features.notification.presentation.viewmodel.notificationmanager.NotificationManagerViewModel
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,6 +53,9 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var loginButton: Button
     private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
     private val authenticationViewModel: IAuthenticationViewModel by viewModels<AuthenticationViewModel>()
+    private val notificationViewModel: INotificationViewModel by viewModels<NotificationViewModel>()
+    private val notificationManagerViewModel: INotificationManagerViewModel by viewModels<NotificationManagerViewModel>()
+
     @Inject
     lateinit var customerManager: CustomerManager
     private val loadingDialog by lazy {
@@ -65,7 +72,9 @@ class LoginActivity : AppCompatActivity() {
         navigateToSignUpActivity()
         navigateToForgetPasswordActivity()
         loginWithUserNameOrEmailAndPassword()
-        loginAuthentication()
+        loginAuthenticationUiState()
+        notificationUiState()
+        notificationManagerUiState()
 
 
     }
@@ -92,92 +101,219 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginWithUserNameOrEmailAndPassword() {
-
-
         loginButton.setOnClickListener {
             val username = userNameOrEmailEditText.text.toString()
             val password = passwordEditText.text.toString()
-            Log.e(
-                "loginWithUserNameOrEmailAndPassword",
-                "loginWithUserNameOrEmailAndPassword:$username ",
-            )
             if (validateInputs()) {
                 val loginRequestEntity =
                     AuthenticationRequestEntity(
                         userName = username,
                         password = password
                     )
-                Log.e(
-                    "loginWithUserNameOrEmailAndPassword",
-                    "loginWithUserNameOrEmailAndPassword:${loginRequestEntity.userName} ",
-                )
-
                 authenticationViewModel.login(loginRequestEntity)
             }
         }
     }
 
-    private fun loginAuthentication() {
-        rootView = findViewById(android.R.id.content)
+    private fun loginAuthenticationUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 authenticationViewModel.authenticationState.collect { state ->
-                    when (state) {
-                        is UiState.Loading -> {
-                            Log.e("state1", "$state")
-                            loadingDialog.showLoading(fragmentManager = supportFragmentManager)
-                        }
-
-                        is UiState.Success -> {
-                            loadingDialog.dismissLoading()
-                            val response = state.data as AuthenticationResponseEntity
-                            if (response.verificationStatues) {
-                                customerManager.setCustomerId(response.userId)
-                                val intent = Intent(
-                                    this@LoginActivity,
-                                    MainNavigationActivity::class.java
-                                )
-                                startActivity(intent)
-                                finish()
-                            } else {
-                                val email = state.data.userEmail
-                                val sendVerificationParams = EmailRequestEntity(email = email)
-                                authenticationViewModel.sendVerificationCode(
-                                    sendVerificationCodeParams = sendVerificationParams
-                                )
-                                val intent = Intent(
-                                    this@LoginActivity,
-                                    CheckVerificationCodeActivity::class.java
-                                ).apply {
-                                    putExtra("emailFromLogin", email)
-                                }
-                                lifecycleScope.launch {
-                                    Toast.makeText(
-                                        this@LoginActivity,
-                                        "check your email",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    delay(1500L)
-                                    startActivity(intent)
-                                }
-                            }
-
-                        }
-
-                        is UiState.Error -> {
-                            Log.e("state3", "$state")
-                            loadingDialog.dismissLoading()
-                            SnackBarCustom.showSnackbar(
-                                view = rootView,
-                                message = state.message
-                            )
-
-                        }
-                    }
+                    loginAuthenticationState(state)
                 }
             }
         }
 
+    }
+
+    private fun notificationUiState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                notificationViewModel.notificationState.collect { state ->
+                    notificationState(state)
+                }
+            }
+        }
+    }
+
+    private fun notificationManagerUiState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                notificationManagerViewModel.notificationManagerState.collect { state ->
+                    notificationManagerState(state)
+                }
+            }
+        }
+    }
+
+
+    private fun loginAuthenticationState(state: UiState<Any>) {
+        when (state) {
+
+            is UiState.Loading -> {
+                loginAuthenticationLoadingState(state)
+            }
+
+            is UiState.Success -> {
+                loginAuthenticationSuccessState(state)
+            }
+
+            is UiState.Error -> {
+                loginAuthenticationErrorState(state)
+            }
+        }
+    }
+
+    private fun notificationState(state: UiState<Any>) {
+        when (state) {
+            is UiState.Loading -> {
+                notificationLoadingState(state)
+            }
+
+            is UiState.Success -> {
+                notificationSuccessState(state)
+            }
+
+            is UiState.Error -> {
+                notificationErrorState(state)
+            }
+        }
+    }
+
+    private fun notificationManagerState(state: UiState<Any>) {
+        when (state) {
+            is UiState.Loading -> {
+                notificationManagerLoadingState(state)
+            }
+
+            is UiState.Success -> {
+                notificationManagerSuccessState(state)
+            }
+
+            is UiState.Error -> {
+                notificationManagerErrorState(state)
+            }
+        }
+    }
+
+    private fun loginAuthenticationLoadingState(state: UiState.Loading) {
+        when (state.source) {
+            "login" -> {
+                loadingDialog.showLoading(fragmentManager = supportFragmentManager)
+            }
+        }
+    }
+    private fun notificationManagerLoadingState(state: UiState.Loading) {
+        when (state.source) {
+            "getFcmTokenDevice" -> {}
+        }
+    }
+    private fun notificationLoadingState(state: UiState.Loading) {
+        when (state.source) {
+            "addFcmTokenDevice" -> {}
+        }
+    }
+    private fun loginAuthenticationSuccessState(state: UiState.Success<Any>) {
+        when (state.source) {
+            "login" -> {
+                loadingDialog.dismissLoading()
+                val response = state.data as AuthenticationResponseEntity
+                when (response.verificationStatues) {
+                    true -> {
+                        customerManager.setCustomerId(response.userId)
+                        notificationManagerViewModel.getFcmTokenDevice()
+                        val intent = Intent(
+                            this@LoginActivity,
+                            MainNavigationActivity::class.java
+                        )
+
+                        startActivity(intent)
+                        finish()
+                    }
+
+                    false -> {
+                        val email = state.data.userEmail
+                        val sendVerificationParams = EmailRequestEntity(email = email)
+                        authenticationViewModel.sendVerificationCode(
+                            sendVerificationCodeParams = sendVerificationParams
+                        )
+                        val intent = Intent(
+                            this@LoginActivity,
+                            CheckVerificationCodeActivity::class.java
+                        ).apply {
+                            putExtra("emailFromLogin", email)
+                        }
+                        lifecycleScope.launch {
+                            Toast.makeText(
+                                this@LoginActivity,
+                                "check your email",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            delay(1500L)
+                            startActivity(intent)
+                        }
+                    }
+
+                }
+
+            }
+        }
+    }
+
+    private fun notificationManagerSuccessState(state: UiState.Success<Any>) {
+        when (state.source) {
+            "getFcmTokenDevice" -> {
+                val token = state.data as? String
+                token?.let { notificationViewModel.addFcmTokenDevice(token = it) }
+            }
+        }
+    }
+
+    private fun notificationSuccessState(state: UiState.Success<Any>) {
+        when (state.source) {
+            "addFcmTokenDevice" -> {
+//                val token = state.data as? String
+//                token?.let { notificationViewModel.addFcmTokenDevice(token = it) }
+            }
+        }
+    }
+
+
+
+
+    private fun loginAuthenticationErrorState(state: UiState.Error) {
+        when (state.source) {
+            "login" -> {
+                Log.e("state3", "$state")
+                loadingDialog.dismissLoading()
+                SnackBarCustom.showSnackbar(
+                    view = rootView,
+                    message = state.message
+                )
+            }
+        }
+    }
+
+    private fun notificationErrorState(state: UiState.Error) {
+        when (state.source) {
+            "addFcmTokenDevice" -> {
+                SnackBarCustom.showSnackbar(
+                    view = rootView,
+                    message = state.message
+                )
+            }
+        }
+    }
+
+    private fun notificationManagerErrorState(state: UiState.Error) {
+        when (state.source) {
+            "getFcmTokenDevice" -> {
+                SnackBarCustom.showSnackbar(
+                    view = rootView,
+                    message = state.message
+                )
+            }
+        }
     }
 
     private fun validateInputs(): Boolean {

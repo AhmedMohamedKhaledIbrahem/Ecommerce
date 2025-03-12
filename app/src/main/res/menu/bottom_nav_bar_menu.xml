@@ -9,6 +9,10 @@
         android:icon="@drawable/baseline_shopping_cart_24"
         android:title="@string/title_cart" />
     <item
+        android:id="@+id/ordersFragment"
+        android:icon="@drawable/online_delivery"
+        android:title="@string/orders" />
+    <item
         android:id="@+id/settingFragment"
         android:icon="@drawable/filed_settings_2"
         android:title="@string/title_setting" />

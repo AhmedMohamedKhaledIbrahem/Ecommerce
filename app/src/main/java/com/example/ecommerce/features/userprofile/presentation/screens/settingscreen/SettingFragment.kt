@@ -377,7 +377,7 @@ class SettingFragment : Fragment() {
                 getString(R.string.myorders),
                 enableSwitch = false,
                 isChecked = false,
-                R.id.productFragment,
+                R.id.ordersFragment,
             ),
             SettingItem(
                 R.drawable.location,

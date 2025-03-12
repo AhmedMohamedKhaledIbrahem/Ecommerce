@@ -1,6 +1,6 @@
 package com.example.ecommerce.core.network.interceptor
 
-import com.example.ecommerce.core.tokenmanager.TokenManager
+import com.example.ecommerce.core.manager.token.TokenManager
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject

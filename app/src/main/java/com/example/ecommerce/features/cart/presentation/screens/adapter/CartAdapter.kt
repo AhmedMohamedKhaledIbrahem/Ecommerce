@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
+import com.example.ecommerce.core.viewholder.EmptyViewHolder
 
 class CartAdapter(
     private val cartItems: List<ItemCartEntity>,
@@ -21,7 +22,6 @@ class CartAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (cartItems.isEmpty() && holder is EmptyViewHolder) {
-            // ✅ Handle empty cart state
         } else if (holder is CartViewHolder) {
             holder.bind(cartItems[position]) // Ensure `position` is valid
         }

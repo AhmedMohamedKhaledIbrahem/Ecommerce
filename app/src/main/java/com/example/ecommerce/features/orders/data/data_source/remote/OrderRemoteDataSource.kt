@@ -5,5 +5,5 @@ import com.example.ecommerce.features.orders.data.models.OrderResponseModel
 
 interface OrderRemoteDataSource {
     suspend fun createOrder(orderRequestModel: OrderRequestModel): OrderResponseModel
-
+    suspend fun getOrders(): List<OrderResponseModel>
 }

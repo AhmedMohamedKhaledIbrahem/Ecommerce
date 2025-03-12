@@ -7,8 +7,7 @@ import android.os.Build
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import androidx.lifecycle.ProcessLifecycleOwner
-import com.example.ecommerce.core.app.AppLifecycleObserver
+import androidx.hilt.work.HiltWorkerFactory
 import com.example.ecommerce.core.utils.PreferencesUtils
 import dagger.hilt.android.HiltAndroidApp
 import java.util.Locale
@@ -17,9 +16,12 @@ import javax.inject.Inject
 @HiltAndroidApp
 class EcommerceApp() : Application() {
 
+
     @Inject
     lateinit var shardPreferences: SharedPreferences
 
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
     override fun onCreate() {
         super.onCreate()
         preloadLanguage()
