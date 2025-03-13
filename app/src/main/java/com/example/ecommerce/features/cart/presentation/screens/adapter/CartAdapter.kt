@@ -9,7 +9,8 @@ import com.example.ecommerce.core.viewholder.EmptyViewHolder
 
 class CartAdapter(
     private val cartItems: List<ItemCartEntity>,
-    private val onCounterUpdate: (ItemCartEntity, Int) -> Unit
+    private val onCounterUpdate: (ItemCartEntity, Int) -> Unit,
+    private val onDeleteItem: (ItemCartEntity) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TYPE_ITEM = 1
@@ -28,13 +29,11 @@ class CartAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-//        val create = LayoutInflater.from(parent.context).inflate(R.layout.item_cart, parent, false)
-//        return CartViewHolder(create, onCounterUpdate)
         return when (viewType) {
             TYPE_ITEM -> {
                 val view =
                     LayoutInflater.from(parent.context).inflate(R.layout.item_cart, parent, false)
-                CartViewHolder(view, onCounterUpdate)
+                CartViewHolder(view, onCounterUpdate , onDeleteItem)
             }
             TYPE_EMPTY -> {
                 val view = LayoutInflater.from(parent.context)

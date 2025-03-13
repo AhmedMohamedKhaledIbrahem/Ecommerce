@@ -52,7 +52,16 @@ class OrderRepositoryImp @Inject constructor(
         withContext(Dispatchers.IO) {
             try {
                 val orderResponseModel = OrderMapper.mapEntityToModel(entity = orderResponseEntity)
-                localDataSource.insertOrderWithItem(orderResponseModel = orderResponseModel)
+                val imagesId = mutableListOf<Int>()
+                orderResponseModel.lineItems.map { lineItem ->
+                    imagesId.add(lineItem.productId)
+                }
+                val images = localDataSource.getImagesByProductId(imagesId)
+
+                localDataSource.insertOrderWithItem(
+                    orderResponseModel = orderResponseModel,
+                    image = images
+                )
             } catch (failure: FailureException) {
                 throw Failures.CacheFailure("${failure.message}")
             }

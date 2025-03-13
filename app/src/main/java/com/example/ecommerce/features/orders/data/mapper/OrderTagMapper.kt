@@ -11,7 +11,7 @@ object OrderTagMapper {
             paymentMethod = orderTagResponseModel.paymentMethod,
             paymentMethodTitle = orderTagResponseModel.paymentMethodTitle,
             dateCreatedOrder = orderTagResponseModel.dateCreate,
-            orderTagNumber = orderTagResponseModel.orderTagNumber,
+            orderTagNumber = orderTagResponseModel.id.toString(),
             totalPrice = orderTagResponseModel.totalPrice,
             currency = orderTagResponseModel.currency
         )

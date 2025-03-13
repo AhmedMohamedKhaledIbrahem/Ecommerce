@@ -14,6 +14,9 @@ interface ImageDao {
     @Query("SELECT * FROM image")
     suspend fun getAllImage(): List<ImageEntity>
 
+    @Query ("select * from image where productId in (:productsId)")
+    suspend fun getImagesByProductId(productsId: List<Int>) : List<ImageEntity>
+
     @Query("delete from image")
     suspend fun delete()
 }

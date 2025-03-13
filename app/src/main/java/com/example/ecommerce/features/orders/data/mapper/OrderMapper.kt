@@ -14,7 +14,7 @@ object OrderMapper {
             paymentMethodTitle = entity.paymentMethodTitle,
             setPaid = entity.setPaid,
             billing = entity.billing,
-            shipping = entity.shipping,
+           // shipping = entity.shipping,
             lineItems = lineItems,
             customerId = entity.customerId
 
@@ -25,7 +25,7 @@ object OrderMapper {
         val lineItems = model.lineItems.map { LineItemMapper.mapModelToEntity(it) }
         return OrderResponseEntity(
             id = model.id,
-            orderTagNumber = model.orderTagNumber,
+            orderTagNumber = model.id.toString(),
             totalPrice = model.totalPrice,
             paymentMethod = model.paymentMethod,
             paymentMethodTitle = model.paymentMethodTitle,
@@ -40,7 +40,7 @@ object OrderMapper {
         val lineItems = entity.lineItems.map { LineItemMapper.mapEntityToModel(it) }
         return OrderResponseModel(
             id = entity.id,
-            orderTagNumber = entity.orderTagNumber,
+            //orderTagNumber = entity.orderTagNumber,
             totalPrice = entity.totalPrice,
             paymentMethod = entity.paymentMethod,
             paymentMethodTitle = entity.paymentMethodTitle,

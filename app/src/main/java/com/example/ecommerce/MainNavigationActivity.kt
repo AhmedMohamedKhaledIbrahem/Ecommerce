@@ -109,7 +109,7 @@ class MainNavigationActivity : AppCompatActivity() {
     }
 
     private fun toolbar(navController: NavController) {
-        var nameOfLabel: String? = null
+        var nameOfLabel: String?
         setSupportActionBar(profileToolbar)
 
         NavigationUI.setupActionBarWithNavController(this, navController)

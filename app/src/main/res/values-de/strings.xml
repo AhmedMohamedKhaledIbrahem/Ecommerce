@@ -124,4 +124,5 @@
     <string name="price">Price:</string>
     <string name="order_change">Your order %1$s has changed status to %2$s.</string>
     <string name="your_order_has_changed_status_to">"Your Order %1$s has changed status to %2$s "</string>
+    <string name="delete_button">delete_button</string>
 </resources>
