@@ -23,48 +23,18 @@
         <include layout="@layout/product_shimmer_recycle_view" />
     </com.facebook.shimmer.ShimmerFrameLayout>
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/productSwipeRefreshViewLayout"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/productRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/productShimmerFrameLayout">
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/productShimmerFrameLayout"
 
-        <LinearLayout
-            android:id="@+id/productLinearLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
+        />
 
-<!--            <SearchView-->
-<!--                android:id="@+id/searchProduct"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginHorizontal="23dp"-->
-<!--                android:background="@drawable/search_view_background"-->
-<!--                android:iconifiedByDefault="false"-->
-<!--                android:queryHint="Search Products"-->
-<!--                app:iconifiedByDefault="true"-->
-
-<!--                />-->
-
-
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/productRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingHorizontal="26dp"
-                android:paddingTop="10dp" />
-
-
-        </LinearLayout>
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

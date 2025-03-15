@@ -5,20 +5,17 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
-import com.example.ecommerce.core.constants.emptyOrderMessage
-import com.example.ecommerce.core.constants.emptyOrderMessageAr
 import com.example.ecommerce.core.database.data.entities.orders.OrderItemEntity
 import com.example.ecommerce.core.database.data.entities.orders.OrderWithItems
 import com.example.ecommerce.core.viewholder.EmptyViewEntity
 import com.example.ecommerce.core.viewholder.EmptyViewHolder
-import java.util.Locale
 
 class OrderAdapter(
     private val context: Context,
     private val orderWithItems: List<OrderWithItems>,
     private val onOrderClick: (List<OrderItemEntity>) -> Unit,
 
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TYPE_ITEM = 1
         private const val TYPE_EMPTY = 0
@@ -43,6 +40,7 @@ class OrderAdapter(
             }
         }
     }
+
     override fun getItemViewType(position: Int): Int {
         return if (orderWithItems.isEmpty()) TYPE_EMPTY else TYPE_ITEM
     }
@@ -54,7 +52,7 @@ class OrderAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (orderWithItems.isNotEmpty() && holder is OrderViewHolder) {
             holder.bind(orderWithItems[position])
-        }else if (holder is EmptyViewHolder){
+        } else if (holder is EmptyViewHolder) {
             val emptyMessageLocal = holder.itemView.context.getString(R.string.empty_orders_message)
             val emptyViewEntity = EmptyViewEntity(
                 emptyText = emptyMessageLocal,

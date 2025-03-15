@@ -127,5 +127,6 @@
     <string name="empty_message">%1$s</string>
     <string name="empty_cart_message">عربة التسوق فارغة</string>
     <string name="empty_orders_message">لا توجد طلبات</string>
+    <string name="search_products">Search Products</string>
 
 </resources>

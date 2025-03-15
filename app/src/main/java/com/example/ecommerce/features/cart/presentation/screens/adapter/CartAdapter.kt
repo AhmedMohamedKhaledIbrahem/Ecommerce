@@ -4,12 +4,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
-import com.example.ecommerce.core.constants.emptyCartMessage
-import com.example.ecommerce.core.constants.emptyCartMessageAr
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
 import com.example.ecommerce.core.viewholder.EmptyViewEntity
 import com.example.ecommerce.core.viewholder.EmptyViewHolder
-import java.util.Locale
 
 class CartAdapter(
     private val cartItems: List<ItemCartEntity>,
