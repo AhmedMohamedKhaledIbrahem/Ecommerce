@@ -1,13 +1,11 @@
 package com.example.ecommerce.features.cart.presentation.screens.cart
 
 import android.annotation.SuppressLint
-import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -16,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -30,7 +27,6 @@ import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
-import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequestEntity
 import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
 import com.example.ecommerce.features.cart.data.data_soruce.local.calculateTotalPrice
@@ -45,7 +41,6 @@ import com.example.ecommerce.features.orders.presentation.viewmodel.IOrderViewMo
 import com.example.ecommerce.features.orders.presentation.viewmodel.OrderViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -261,7 +256,7 @@ class CartFragment : Fragment() {
             "getAddressById" -> {
                 val address = state.data as? CustomerAddressEntity
                 if (address != null) {
-                    Log.e("is null??", "no")
+
                     val billingEntity = billingInfoRequestEntity(address)
                     val lineItemRequestEntity: List<LineItemRequestEntity> =
                         lineItemRequestEntities()
@@ -443,7 +438,6 @@ class CartFragment : Fragment() {
             }
         return lineItemRequestEntity
     }
-
 
 
     private fun billingInfoRequestEntity(address: CustomerAddressEntity): BillingInfoRequestEntity {

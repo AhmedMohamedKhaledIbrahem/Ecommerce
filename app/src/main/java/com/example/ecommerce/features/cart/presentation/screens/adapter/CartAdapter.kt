@@ -4,8 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
+import com.example.ecommerce.core.constants.emptyCartMessage
+import com.example.ecommerce.core.constants.emptyCartMessageAr
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
+import com.example.ecommerce.core.viewholder.EmptyViewEntity
 import com.example.ecommerce.core.viewholder.EmptyViewHolder
+import java.util.Locale
 
 class CartAdapter(
     private val cartItems: List<ItemCartEntity>,
@@ -23,6 +27,12 @@ class CartAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (cartItems.isEmpty() && holder is EmptyViewHolder) {
+            val emptyMessageLocal = holder.itemView.context.getString(R.string.empty_cart_message)
+            val emptyViewEntity = EmptyViewEntity(
+                emptyText = emptyMessageLocal,
+                emptyImage = R.drawable.empty_box
+            )
+            holder.bind(emptyViewEntity)
         } else if (holder is CartViewHolder) {
             holder.bind(cartItems[position]) // Ensure `position` is valid
         }
@@ -33,15 +43,18 @@ class CartAdapter(
             TYPE_ITEM -> {
                 val view =
                     LayoutInflater.from(parent.context).inflate(R.layout.item_cart, parent, false)
-                CartViewHolder(view, onCounterUpdate , onDeleteItem)
+                CartViewHolder(view, onCounterUpdate, onDeleteItem)
             }
+
             TYPE_EMPTY -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.empty_cart, parent, false)
                 EmptyViewHolder(view)
             }
 
-            else -> {throw IllegalArgumentException("Invalid view type")}
+            else -> {
+                throw IllegalArgumentException("Invalid view type")
+            }
         }
     }
 

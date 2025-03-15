@@ -124,5 +124,8 @@
     <string name="order_change">Your order %1$s has changed status to %2$s.</string>
     <string name="your_order_has_changed_status_to">"Your Order %1$s has changed status to %2$s "</string>
     <string name="delete_button">delete_button</string>
+    <string name="empty_message">%1$s</string>
+    <string name="empty_cart_message">عربة التسوق فارغة</string>
+    <string name="empty_orders_message">لا توجد طلبات</string>
 
 </resources>
