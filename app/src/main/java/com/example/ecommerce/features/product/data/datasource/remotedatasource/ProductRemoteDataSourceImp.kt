@@ -28,7 +28,7 @@ class ProductRemoteDataSourceImp @Inject constructor(
                     throw FailureException(errorMessage)
                 }
             } catch (e: Exception) {
-                throw Failures.ServerFailure("${e.message}")
+                throw FailureException("${e.message}")
             }
         }
     }

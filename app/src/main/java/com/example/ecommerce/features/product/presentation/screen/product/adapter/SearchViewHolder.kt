@@ -7,35 +7,45 @@ import android.widget.SearchView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
 
-class SearchViewHolder(view: View, private val onSearchQueryChanged: (String) -> Unit) :
+class SearchViewHolder(private val view: View, private val onSearchQueryChanged: (String) -> Unit) :
     RecyclerView.ViewHolder(view) {
     private val searchEditText: SearchView = view.findViewById(R.id.searchProduct)
-
 
     fun bind(query: String) {
         searchEditText.setQuery(query, false)
         searchEditText.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let { onSearchQueryChanged(it) }
-                hideKeyboard(searchEditText)
+                if (query.isNullOrEmpty()) {
+                    hideKeyboard(view)
+                } else {
+                    onSearchQueryChanged(query)
+                }
                 searchEditText.clearFocus()
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                newText?.let { onSearchQueryChanged(it) }
+
+                newText?.let {
+                    onSearchQueryChanged(it)
+                }
                 return true
             }
 
         })
+
+
+
+
         searchEditText.setOnCloseListener {
-            hideKeyboard(searchEditText)
+            hideKeyboard(view)
             searchEditText.clearFocus()
             searchEditText.clearAnimation()
 
             false
         }
     }
+
     private fun hideKeyboard(view: View) {
         val inputMethodManager =
             view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

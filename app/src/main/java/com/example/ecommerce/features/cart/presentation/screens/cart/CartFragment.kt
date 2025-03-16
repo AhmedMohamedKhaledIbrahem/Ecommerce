@@ -92,6 +92,7 @@ class CartFragment : Fragment() {
         cartState()
         addressState()
         orderState()
+
         detectScrollEnd()
 
     }
@@ -144,11 +145,12 @@ class CartFragment : Fragment() {
     }
 
     private fun updateAdapter(items: MutableList<ItemCartEntity>) {
-        println(items)
+
         if (items.isNotEmpty()) {
             cartRecyclerView.adapter = ConcatAdapter(cartAdapter, checkAdapter)
-
+            Log.e("cartRecyclerView", "updateAdapter: items is not empty")
         } else {
+            Log.e("cartRecyclerView", "updateAdapter: items is empty")
             cartRecyclerView.adapter = cartAdapter
 
         }
@@ -354,10 +356,13 @@ class CartFragment : Fragment() {
         when (state.source) {
             "getCart" -> {
                 val cartWithItems = state.data as? CartWithItems
+
+
                 if (cartWithItems != null) {
                     itemHashKeys = cartWithItems.items.toMutableList()
-                    initRecyclerView(itemHashKeys)
                 }
+                initRecyclerView(itemHashKeys)
+
             }
 
             "removeItem" -> {

@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProductLocalDataSource {
     fun getProductsPaged(): Flow<PagingData<ProductWithAllDetails>>
+    suspend fun isEmpty():Boolean
     suspend fun insertProducts(page: Int, pageSize: Int, product: EcommerceResponseModel)
     fun searchProduct(query: String): Flow<PagingData<ProductWithAllDetails>>
+
 
 }

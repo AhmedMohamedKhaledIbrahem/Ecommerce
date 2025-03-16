@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkManager
 import com.example.ecommerce.R
+import com.example.ecommerce.core.constants.Page
+import com.example.ecommerce.core.constants.PerPage
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
 import com.example.ecommerce.core.decoration.BottomSpacingDecoration
 import com.example.ecommerce.core.state.UiState
@@ -145,7 +147,7 @@ class ProductFragment : Fragment() {
     }
 
     private fun fetchData() {
-        productViewModel.fetchProductsFromRemote(page = 1, perPage = 20)
+        productViewModel.fetchProductsFromRemote(page = Page, perPage = PerPage)
     }
 
     private fun shimmerProducts(): List<ProductShimmerItem> {

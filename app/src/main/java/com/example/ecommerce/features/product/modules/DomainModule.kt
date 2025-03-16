@@ -1,5 +1,6 @@
 package com.example.ecommerce.features.product.modules
 
+import com.example.ecommerce.core.manager.prdouct.ProductHandler
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.features.product.data.datasource.localdatasource.ProductLocalDataSource
 import com.example.ecommerce.features.product.data.datasource.remotedatasource.ProductRemoteDataSource
@@ -20,11 +21,13 @@ object DomainModule {
         productLocalDataSource: ProductLocalDataSource,
         productRemoteDataSource: ProductRemoteDataSource,
         internetConnectionChecker: InternetConnectionChecker,
+        productHandler: ProductHandler
     ): ProductRepository {
         return ProductRepositoryImp(
             productLocalDataSource = productLocalDataSource,
             productRemoteDataSource = productRemoteDataSource,
-            checkInternetConnection = internetConnectionChecker
+            checkInternetConnection = internetConnectionChecker,
+            productHandler = productHandler
         )
     }
 }

@@ -13,7 +13,8 @@
         android:layout_height="wrap_content"
         android:background="@drawable/search_view_background"
         android:iconifiedByDefault="false"
-
+        android:inputType="textPersonName"
+        android:imeOptions="actionDone|flagNoFullscreen"
         android:queryHint="@string/search_products"
         app:iconifiedByDefault="true"
 

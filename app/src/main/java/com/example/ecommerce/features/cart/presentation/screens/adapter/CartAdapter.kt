@@ -27,7 +27,7 @@ class CartAdapter(
             val emptyMessageLocal = holder.itemView.context.getString(R.string.empty_cart_message)
             val emptyViewEntity = EmptyViewEntity(
                 emptyText = emptyMessageLocal,
-                emptyImage = R.drawable.empty_box
+                emptyImage = R.drawable.empty_cart
             )
             holder.bind(emptyViewEntity)
         } else if (holder is CartViewHolder) {
