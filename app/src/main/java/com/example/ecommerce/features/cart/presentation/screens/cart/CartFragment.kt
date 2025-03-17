@@ -264,7 +264,7 @@ class CartFragment : Fragment() {
                         lineItemRequestEntities()
                     val orderRequestEntity =
                         orderRequestEntity(billingEntity, lineItemRequestEntity)
-                    println(orderRequestEntity)
+
                     createOrder(orderRequestEntity)
                 }
 
@@ -304,6 +304,7 @@ class CartFragment : Fragment() {
 
             "saveOrderLocally" -> {
                 loadingDialog.dismissLoading()
+                cartViewModel.clearCart()
                 SnackBarCustom.showSnackbar(
                     view = root,
                     message = getString(R.string.order_has_been_created_successfully)
@@ -349,6 +350,7 @@ class CartFragment : Fragment() {
             "removeItem" -> {}
             "updateItemsCart" -> {}
             "updateQuantity" -> {}
+            "clearCart" -> {}
         }
     }
 
@@ -362,6 +364,7 @@ class CartFragment : Fragment() {
                     itemHashKeys = cartWithItems.items.toMutableList()
                 }
                 initRecyclerView(itemHashKeys)
+
 
             }
 
@@ -377,6 +380,7 @@ class CartFragment : Fragment() {
             }
 
             "updateQuantity" -> {}
+            "clearCart" -> {}
 
         }
     }
@@ -409,6 +413,13 @@ class CartFragment : Fragment() {
             }
 
             "updateQuantity" -> {
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = state.message
+                )
+            }
+
+            "clearCart" -> {
                 SnackBarCustom.showSnackbar(
                     view = root,
                     message = state.message

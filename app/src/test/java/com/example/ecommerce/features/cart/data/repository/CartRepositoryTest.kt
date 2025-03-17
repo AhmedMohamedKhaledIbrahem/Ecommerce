@@ -124,7 +124,6 @@ class CartRepositoryTest {
         }
 
 
-
     @Test
     fun `getCart should throw CacheFailure when the internet connection is available`() = runTest {
         checkInternet(true, internetConnectionChecker)
@@ -158,12 +157,11 @@ class CartRepositoryTest {
         }
 
 
-
     @Test
     fun `removeItem should throw CacheFailure when the internet connection is available`() =
         runTest {
             checkInternet(true, internetConnectionChecker)
-            `when`(remoteDataSource.deleteItemFromCard(keyItem = keyItem)).thenReturn(Unit)
+            `when`(remoteDataSource.removeItem(itemHash = keyItem)).thenReturn(Unit)
             `when`(localDataSource.removeItem(keyItem = keyItem)).thenThrow(
                 FailureException(
                     cacheFailureMessage
@@ -173,6 +171,62 @@ class CartRepositoryTest {
                 repository.removeItem(keyItem = keyItem)
             }
             assertEquals(cacheFailureMessage, result.message)
+
+        }
+
+    @Test
+    fun `clearCart should clear cart  internet connection is available`() =
+        runTest {
+            checkInternet(true, internetConnectionChecker)
+            `when`(remoteDataSource.clearCart()).thenReturn(Unit)
+            `when`(localDataSource.clearCart()).thenReturn(Unit)
+            repository.clearCart()
+            verify(remoteDataSource).clearCart()
+            verify(localDataSource).clearCart()
+        }
+
+    @Test
+    fun `clearCart should throw ConnectionFailure when the internet connection isn't available`() =
+        runTest {
+            checkInternet(false, internetConnectionChecker)
+            val result = connectionFailure {
+                repository.clearCart()
+            }
+            assertEquals(connectionFailureMessage, result.message)
+        }
+
+
+    @Test
+    fun `clearCart should throw CacheFailure when localDataSource throws an exception`() =
+        runTest {
+            checkInternet(true, internetConnectionChecker)
+            `when`(remoteDataSource.clearCart()).thenReturn(Unit)
+            `when`(localDataSource.clearCart()).thenThrow(
+                FailureException(
+                    cacheFailureMessage
+                )
+            )
+            val result = cacheFailure {
+                repository.clearCart()
+            }
+            assertEquals(cacheFailureMessage, result.message)
+
+        }
+
+    @Test
+    fun `clearCart should throw ServerFailure when remoteDataSource throws an exception`() =
+        runTest {
+            checkInternet(true, internetConnectionChecker)
+            `when`(remoteDataSource.clearCart()).thenThrow(
+                FailureException(
+                    serverFailureMessage
+                )
+            )
+            `when`(localDataSource.clearCart()).thenReturn(Unit)
+            val result = serverFailure {
+                repository.clearCart()
+            }
+            assertEquals(serverFailureMessage, result.message)
 
         }
 

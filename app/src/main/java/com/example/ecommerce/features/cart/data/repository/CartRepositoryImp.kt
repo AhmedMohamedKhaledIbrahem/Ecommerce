@@ -57,6 +57,11 @@ class CartRepositoryImp @Inject constructor(
         withContext(Dispatchers.IO) {
             if (internetConnectionChecker.hasConnection()) {
                 try {
+                    remoteDataSource.removeItem(itemHash = keyItem)
+                } catch (failure: FailureException) {
+                    throw Failures.ServerFailure("${failure.message}")
+                }
+                try {
                     localDataSource.removeItem(keyItem = keyItem)
                 } catch (failure: FailureException) {
                     throw Failures.CacheFailure("${failure.message}")
@@ -98,6 +103,23 @@ class CartRepositoryImp @Inject constructor(
             } catch (failure: FailureException) {
                 throw Failures.ServerFailure("${failure.message}")
             }
+        }
+    }
+
+    override suspend fun clearCart() {
+        try {
+            if (internetConnectionChecker.hasConnection()) {
+                remoteDataSource.clearCart()
+                try {
+                    localDataSource.clearCart()
+                } catch (failure: FailureException) {
+                    throw Failures.CacheFailure("${failure.message}")
+                }
+            } else {
+                throw Failures.ConnectionFailure("No Internet Connection")
+            }
+        } catch (failure: FailureException) {
+            throw Failures.ServerFailure("${failure.message}")
         }
     }
 }

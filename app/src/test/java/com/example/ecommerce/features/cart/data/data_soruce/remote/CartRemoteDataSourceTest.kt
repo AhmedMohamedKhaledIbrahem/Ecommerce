@@ -124,23 +124,62 @@ class CartRemoteDataSourceTest {
     }
 
     @Test
-    fun `deleteItemFromCard should return response when call the remote data source success`() =
+    fun `deleteItemFromCart should return response when call the remote data source success`() =
         runTest {
-            `when`(api.deleteItemFromCart(keyItem = keyItem)).thenReturn(Unit)
-            remoteDataSource.deleteItemFromCard(keyItem = keyItem)
-            verify(api).deleteItemFromCart(keyItem = keyItem)
+            `when`(api.removeItem(keyItem = keyItem)).thenReturn(Unit)
+            remoteDataSource.removeItem(itemHash = keyItem)
+            verify(api).removeItem(keyItem = keyItem)
         }
 
     @Test
-    fun `deleteItemFromCard  should throw FailureException when API call throws exception`() =
+    fun `deleteItemFromCart  should throw FailureException when API call throws exception`() =
         runTest {
-            `when`(api.deleteItemFromCart(keyItem = keyItem)).thenThrow(
+            `when`(api.removeItem(keyItem = keyItem)).thenThrow(
                 RuntimeException(
                     errorMessage
                 )
             )
             val result = failureException {
-                remoteDataSource.deleteItemFromCard(keyItem = keyItem)
+                remoteDataSource.removeItem(itemHash = keyItem)
+            }
+            assertEquals(errorMessage, result.message)
+        }
+
+
+    @Test
+    fun `clearCart should return response when call the remote data source success`() =
+        runTest {
+            val response = Response.success<Unit>(null)
+            `when`(api.clearCart()).thenReturn(response)
+            remoteDataSource.clearCart()
+            verify(api).clearCart()
+        }
+
+    @Test
+    fun `clearCart should throw Failure exception when the status code is 400 or higher`() = runTest {
+        val response = Response.error<Unit>(
+            400,
+            errorBody
+        )
+        `when`(api.clearCart()).thenReturn(response)
+        val result = failureException {
+            remoteDataSource.clearCart()
+        }
+        assertEquals(errorMessage, result.message)
+
+    }
+
+    @Test
+    fun `clearCart  should throw FailureException when API call throws exception`() =
+        runTest {
+
+            `when`(api.clearCart()).thenThrow(
+                RuntimeException(
+                    errorMessage
+                )
+            )
+            val result = failureException {
+                remoteDataSource.clearCart()
             }
             assertEquals(errorMessage, result.message)
         }

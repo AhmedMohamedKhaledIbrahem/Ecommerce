@@ -9,4 +9,5 @@ interface CartRepository {
     suspend fun removeItem(keyItem:String)
     suspend fun updateQuantity(itemId: Int, newQuantity: Int)
     suspend fun updateItemsCart()
+    suspend fun clearCart()
 }

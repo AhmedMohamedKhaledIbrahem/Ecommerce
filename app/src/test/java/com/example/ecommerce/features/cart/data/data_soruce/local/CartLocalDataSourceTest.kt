@@ -118,4 +118,24 @@ class CartLocalDataSourceTest {
             }
             assertEquals(cacheFailureMessage, result.message)
         }
+    @Test
+    fun `clearCart should clear cart from the database`() = runTest {
+        `when`(cartDao.deleteCart()).thenReturn(Unit)
+        localDataSource.clearCart()
+        verify(cartDao).deleteCart()
+    }
+
+    @Test
+    fun `clearCart should throw a FailureException when deleteCart throws an exception`() =
+        runTest {
+            `when`(cartDao.deleteCart()).thenThrow(
+                RuntimeException(
+                    cacheFailureMessage
+                )
+            )
+            val result = failureException {
+                localDataSource.clearCart()
+            }
+            assertEquals(cacheFailureMessage, result.message)
+        }
 }

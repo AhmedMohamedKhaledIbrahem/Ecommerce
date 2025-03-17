@@ -6,6 +6,7 @@ import androidx.lifecycle.asLiveData
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.features.await
 import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseCase
+import com.example.ecommerce.features.cart.domain.use_case.clear_cart.IClearCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.IGetCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.update_item_cart.IUpdateItemsCartUseCase
@@ -52,6 +53,9 @@ class CartViewModelTest {
 
     @Mock
     private lateinit var updateQuantityUseCase: IUpdateQuantityUseCase
+
+    @Mock
+    private lateinit var clearCartUseCase: IClearCartUseCase
     private lateinit var viewModel: CartViewModel
     private val dispatcher = UnconfinedTestDispatcher()
 
@@ -64,7 +68,8 @@ class CartViewModelTest {
             getCartUseCase = getCartUseCase,
             removeItemUseCase = removeItemUseCase,
             updateItemsCartUseCase = updateItemsCartUseCase,
-            updateQuantityUseCase = updateQuantityUseCase
+            updateQuantityUseCase = updateQuantityUseCase,
+            clearCartUseCase = clearCartUseCase
         )
     }
 
@@ -171,6 +176,39 @@ class CartViewModelTest {
             )
             await(latch = latch)
             verify(removeItemUseCase).invoke(keyItem = keyItem)
+            removeObserverFromLiveData(cartStateUiAsLiveData(), observer)
+        }
+
+    @Test
+    fun `clearCart should emit cartState with success state when use case succeeds`() = runTest {
+        val latch = CountDownLatch(1)
+        `when`(clearCartUseCase.invoke()).thenReturn(Unit)
+        viewModel.clearCart()
+        val observer = observerViewModelSuccessState(
+            latch = latch,
+            Unit,
+            cartStateUiAsLiveData()
+        )
+        await(latch = latch)
+        verify(clearCartUseCase).invoke()
+        removeObserverFromLiveData(cartStateUiAsLiveData(), observer)
+    }
+
+    @Test
+    fun `clearCart should emit cartState with error state when use case throw exception`() =
+        runTest {
+            val latch = CountDownLatch(1)
+            `when`(clearCartUseCase.invoke()).thenThrow(
+                RuntimeException(errorMessage)
+            )
+            viewModel.clearCart()
+            val observer = observerViewModelErrorState(
+                latch = latch,
+                errorMessage,
+                cartStateUiAsLiveData()
+            )
+            await(latch = latch)
+            verify(clearCartUseCase).invoke()
             removeObserverFromLiveData(cartStateUiAsLiveData(), observer)
         }
 

@@ -18,13 +18,14 @@ class CartResponseModelTest {
             imageItemLink = "test"
         )
     )
-
+    private val cartHash = "d24ac79a778cebf33b54bd7869146494"
 
     @Test
     fun `cartResponseModel should have correct properties`() {
         val cartResponseModel = CartResponseModel(
             cartKey = cartKey,
-            items = items
+            items = items,
+            cartHash = cartHash
         )
 
         assertEquals(dummyCartResponseModel,cartResponseModel)

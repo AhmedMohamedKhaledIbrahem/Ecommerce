@@ -3,6 +3,8 @@ package com.example.ecommerce.features.cart.modules
 import com.example.ecommerce.features.cart.domain.repository.CartRepository
 import com.example.ecommerce.features.cart.domain.use_case.add_item.AddItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseCase
+import com.example.ecommerce.features.cart.domain.use_case.clear_cart.ClearCartUseCase
+import com.example.ecommerce.features.cart.domain.use_case.clear_cart.IClearCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.GetCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.IGetCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveItemUseCase
@@ -51,6 +53,13 @@ object DomainModule {
     @Singleton
     fun provideUpdateQuantityUseCase(cartRepository: CartRepository): IUpdateQuantityUseCase {
         return UpdateQuantityUseCase(cartRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideClearCartUseCase(cartRepository: CartRepository): IClearCartUseCase {
+        return ClearCartUseCase(cartRepository)
+
     }
 
 
