@@ -7,6 +7,11 @@ import com.example.ecommerce.R
 
 class SearchAdapter(private val onSearchQueryChanged: (String) -> Unit) :
     RecyclerView.Adapter<SearchViewHolder>() {
+    private var currentQuery: String = ""
+    fun updateQuery(query: String) {
+        currentQuery = query
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.item_search_bar, parent, false)
@@ -15,5 +20,7 @@ class SearchAdapter(private val onSearchQueryChanged: (String) -> Unit) :
 
     override fun getItemCount(): Int = 1
 
-    override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {}
+    override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
+        holder.bind(currentQuery)
+    }
 }

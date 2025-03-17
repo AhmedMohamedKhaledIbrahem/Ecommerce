@@ -46,11 +46,27 @@ class CartRemoteDataSourceImp @Inject constructor(
 
     }
 
-    override suspend fun deleteItemFromCard(keyItem: String) {
+    override suspend fun removeItem(itemHash: String) {
         try {
-            cartApi.deleteItemFromCart(keyItem = keyItem)
+            cartApi.removeItem(keyItem = itemHash)
         } catch (e: Exception) {
             throw FailureException("${e.message}")
+        }
+    }
+
+    override suspend fun clearCart() {
+        try {
+            val response = cartApi.clearCart()
+            if (!response.isSuccessful) {
+                val errorBody = response.errorBody()?.string()
+                val errorMessage = errorBody?.let {
+                    JSONObject(it).optString("message", "Unknown error")
+                } ?: "Unknown error"
+                throw FailureException(errorMessage)
+            }
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
+
         }
     }
 }

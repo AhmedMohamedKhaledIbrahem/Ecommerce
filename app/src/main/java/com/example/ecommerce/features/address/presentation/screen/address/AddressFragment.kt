@@ -19,6 +19,7 @@ import com.example.ecommerce.core.database.data.entities.address.CustomerAddress
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.AddressUtil
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressAdapter
 import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressItem
 import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
@@ -56,6 +57,7 @@ class AddressFragment : Fragment() {
         addressState()
         getAddressById(AddressUtil.addressId)
         onSwipeRefreshListener()
+        detectScrollEnd(addressRecyclerView)
         Log.d("onViewCreated", "yes: ")
     }
 

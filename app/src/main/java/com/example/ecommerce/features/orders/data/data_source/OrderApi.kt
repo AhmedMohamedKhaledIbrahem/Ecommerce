@@ -9,7 +9,7 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface OrderApi {
-    @POST("wp-json/wc/v3/orders")
+    @POST("wp-json/custom/v1/orders")
     suspend fun createOrder(@Body orderRequestModel: OrderRequestModel): Response<OrderResponseModel>
 
     @GET("wp-json/wc/v3/orders")

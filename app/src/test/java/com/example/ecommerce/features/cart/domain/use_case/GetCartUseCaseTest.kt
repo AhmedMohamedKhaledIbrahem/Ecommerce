@@ -26,8 +26,9 @@ class GetCartUseCaseTest {
         MockitoAnnotations.openMocks(this)
         useCase = GetCartUseCase(cartRepository = repository)
     }
+    private val cartHash = "d24ac79a778cebf33b54bd7869146494"
 
-    private val tCartEntity = CartEntity(cartId = "1")
+    private val tCartEntity = CartEntity(cartId = "1" , cartHash = cartHash)
     private val tItemEntity = listOf(
         ItemCartEntity(
             cartId = "1",

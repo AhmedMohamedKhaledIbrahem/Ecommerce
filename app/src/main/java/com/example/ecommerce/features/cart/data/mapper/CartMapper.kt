@@ -7,6 +7,7 @@ object CartMapper {
     fun mapToEntity(cartResponseModel: CartResponseModel): CartEntity {
         return CartEntity(
             cartId = cartResponseModel.cartKey,
+            cartHash = cartResponseModel.cartHash
         )
 
     }

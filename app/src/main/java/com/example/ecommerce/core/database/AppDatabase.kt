@@ -37,7 +37,7 @@ import com.example.ecommerce.core.database.data.entities.user.UserEntity
         OrderItemEntity::class
 
     ],
-    version = 7,
+    version = 8,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {

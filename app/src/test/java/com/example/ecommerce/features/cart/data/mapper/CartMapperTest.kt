@@ -21,13 +21,15 @@ class CartMapperTest {
             imageItemLink = "test"
         )
     )
+    private val cartHash = "d24ac79a778cebf33b54bd7869146494"
 
 
     @Test
     fun `should map CartResponseModel to CartEntity `() {
         val cartResponseModel = CartResponseModel(
             cartKey = cartKey,
-            items = items
+            items = items,
+            cartHash = cartHash
         )
         val cartEntity = CartMapper.mapToEntity(cartResponseModel = cartResponseModel)
         assertEquals(dummyCartEntity, cartEntity)

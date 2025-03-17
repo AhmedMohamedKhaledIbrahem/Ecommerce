@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -22,18 +21,12 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
-import androidx.work.Constraints
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.example.ecommerce.core.app.AppLifecycleObserver
 import com.example.ecommerce.core.app.AppLifecycleViewModel
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.NetworkHelperViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -54,14 +47,6 @@ class MainNavigationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-//        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-//            if (task.isSuccessful) {
-//                val token = task.result
-//                Log.d("FCM Token", token)
-//            } else {
-//                Log.w("FCM Token", "Fetching FCM registration token failed", task.exception)
-//            }
-//        }
         requestNotificationPermission()
         setContentView(R.layout.activity_main_navigation)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -109,7 +94,7 @@ class MainNavigationActivity : AppCompatActivity() {
     }
 
     private fun toolbar(navController: NavController) {
-        var nameOfLabel: String? = null
+        var nameOfLabel: String?
         setSupportActionBar(profileToolbar)
 
         NavigationUI.setupActionBarWithNavController(this, navController)
@@ -139,6 +124,44 @@ class MainNavigationActivity : AppCompatActivity() {
 
     private fun navigationView(navController: NavController) {
         bottomNavigationView.setupWithNavController(navController)
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.productFragment -> {
+                    navController.apply {
+                        navigate(R.id.productFragment)
+                        popBackStack(R.id.productFragment, inclusive = false)
+                    }
+                    true
+                }
+
+                R.id.settingFragment -> {
+                    navController.apply {
+                        navigate(R.id.settingFragment)
+                        popBackStack(R.id.settingFragment, inclusive = false)
+                    }
+
+                    true
+                }
+
+                R.id.cartFragment -> {
+                    navController.apply {
+                        navigate(R.id.cartFragment)
+                        popBackStack(R.id.cartFragment, inclusive = false)
+                    }
+                    true
+                }
+
+                R.id.ordersFragment -> {
+                    navController.apply {
+                        navigate(R.id.ordersFragment)
+                        popBackStack(R.id.ordersFragment, inclusive = false)
+                    }
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
     private fun checkScrollEnd() {

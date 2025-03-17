@@ -6,5 +6,7 @@ import com.example.ecommerce.features.cart.data.models.CartResponseModel
 interface CartRemoteDataSource {
     suspend fun getCart():CartResponseModel
     suspend fun addItemCart(addItemRequestModel: AddItemRequestModel):CartResponseModel
-    suspend fun deleteItemFromCard(keyItem:String)
+    suspend fun removeItem(itemHash:String)
+    suspend fun clearCart()
+
 }

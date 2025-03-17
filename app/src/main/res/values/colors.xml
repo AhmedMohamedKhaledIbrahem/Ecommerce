@@ -11,4 +11,11 @@
     <color name="purple">#FF8A80</color>
     <color name="ripple_color">#FF6200EE</color>
     <color name="shimmer_color">#C2C2C2</color>
+    <color name="order_processing">#FFA500</color>  <!-- Orange -->
+    <color name="order_completed">#008000</color>   <!-- Green -->
+    <color name="order_pending">#0000FF</color>     <!-- Blue -->
+    <color name="order_on_hold">#FFFF00</color>     <!-- Yellow -->
+    <color name="order_cancelled">#808080</color>   <!-- Gray -->
+    <color name="order_refunded">#800080</color>    <!-- Purple -->
+    <color name="order_failed">#FF0000</color>      <!-- Red -->
 </resources>

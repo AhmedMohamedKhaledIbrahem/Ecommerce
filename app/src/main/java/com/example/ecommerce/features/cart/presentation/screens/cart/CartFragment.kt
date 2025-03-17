@@ -1,13 +1,11 @@
 package com.example.ecommerce.features.cart.presentation.screens.cart
 
 import android.annotation.SuppressLint
-import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -16,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -29,8 +26,8 @@ import com.example.ecommerce.core.decoration.BottomSpacingDecoration
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
-import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequestEntity
 import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
 import com.example.ecommerce.features.cart.data.data_soruce.local.calculateTotalPrice
@@ -45,7 +42,6 @@ import com.example.ecommerce.features.orders.presentation.viewmodel.IOrderViewMo
 import com.example.ecommerce.features.orders.presentation.viewmodel.OrderViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -97,9 +93,7 @@ class CartFragment : Fragment() {
         cartState()
         addressState()
         orderState()
-        swipeItem()
-        // onSwipeRefreshListener()
-        detectScrollEnd()
+        detectScrollEnd(cartRecyclerView)
 
     }
 
@@ -112,9 +106,24 @@ class CartFragment : Fragment() {
         }
         cartAdapter = CartAdapter(
             items,
-        ) { item, newQuantity ->
-            updateItemQuantity(items, item, newQuantity)
-        }
+            onCounterUpdate = { item, newQuantity ->
+                updateItemQuantity(items, item, newQuantity)
+            },
+            onDeleteItem = { item ->
+                val position = items.indexOf(item)
+                if (position != -1) {
+                    cartViewModel.removeItem(item.itemHashKey)
+                    items.removeAt(position)
+                    cartAdapter.notifyItemRemoved(position)
+                    val totalPrice = calculateTotalPrice(items)
+                    checkAdapter.updateTotalPrice(totalPrice)
+                    if (items.isEmpty()) {
+                        cartRecyclerView.adapter = cartAdapter
+                    }
+                }
+
+            }
+        )
         updateAdapter(items)
         val totalPrice = calculateTotalPrice(items)
         checkAdapter.updateTotalPrice(totalPrice)
@@ -136,11 +145,14 @@ class CartFragment : Fragment() {
     }
 
     private fun updateAdapter(items: MutableList<ItemCartEntity>) {
-        println(items)
-        if (items.isEmpty()) {
-            cartRecyclerView.adapter = cartAdapter
-        } else {
+
+        if (items.isNotEmpty()) {
             cartRecyclerView.adapter = ConcatAdapter(cartAdapter, checkAdapter)
+            Log.e("cartRecyclerView", "updateAdapter: items is not empty")
+        } else {
+            Log.e("cartRecyclerView", "updateAdapter: items is empty")
+            cartRecyclerView.adapter = cartAdapter
+
         }
 
     }
@@ -246,14 +258,13 @@ class CartFragment : Fragment() {
             "getAddressById" -> {
                 val address = state.data as? CustomerAddressEntity
                 if (address != null) {
-                    Log.e("is null??", "no")
+
                     val billingEntity = billingInfoRequestEntity(address)
-                    val shippingEntity = shippingInfoRequestEntity(address)
                     val lineItemRequestEntity: List<LineItemRequestEntity> =
                         lineItemRequestEntities()
                     val orderRequestEntity =
-                        orderRequestEntity(billingEntity, shippingEntity, lineItemRequestEntity)
-                    println(orderRequestEntity)
+                        orderRequestEntity(billingEntity, lineItemRequestEntity)
+
                     createOrder(orderRequestEntity)
                 }
 
@@ -293,6 +304,7 @@ class CartFragment : Fragment() {
 
             "saveOrderLocally" -> {
                 loadingDialog.dismissLoading()
+                cartViewModel.clearCart()
                 SnackBarCustom.showSnackbar(
                     view = root,
                     message = getString(R.string.order_has_been_created_successfully)
@@ -338,6 +350,7 @@ class CartFragment : Fragment() {
             "removeItem" -> {}
             "updateItemsCart" -> {}
             "updateQuantity" -> {}
+            "clearCart" -> {}
         }
     }
 
@@ -345,10 +358,14 @@ class CartFragment : Fragment() {
         when (state.source) {
             "getCart" -> {
                 val cartWithItems = state.data as? CartWithItems
+
+
                 if (cartWithItems != null) {
                     itemHashKeys = cartWithItems.items.toMutableList()
-                    initRecyclerView(itemHashKeys)
                 }
+                initRecyclerView(itemHashKeys)
+
+
             }
 
             "removeItem" -> {
@@ -363,6 +380,7 @@ class CartFragment : Fragment() {
             }
 
             "updateQuantity" -> {}
+            "clearCart" -> {}
 
         }
     }
@@ -400,12 +418,18 @@ class CartFragment : Fragment() {
                     message = state.message
                 )
             }
+
+            "clearCart" -> {
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = state.message
+                )
+            }
         }
     }
 
     private fun orderRequestEntity(
         billingEntity: BillingInfoRequestEntity,
-        shippingEntity: ShippingInfoRequestEntity,
         lineItemRequestEntity: List<LineItemRequestEntity>
     ): OrderRequestEntity {
         val orderRequestEntity = OrderRequestEntity(
@@ -413,7 +437,7 @@ class CartFragment : Fragment() {
             paymentMethodTitle = "Cash On Delivery",
             setPaid = false,
             billing = billingEntity,
-            shipping = shippingEntity,
+            //shipping = shippingEntity,
             lineItems = lineItemRequestEntity,
             customerId = customerManager.getCustomerId()
         )
@@ -431,19 +455,6 @@ class CartFragment : Fragment() {
         return lineItemRequestEntity
     }
 
-    private fun shippingInfoRequestEntity(address: CustomerAddressEntity): ShippingInfoRequestEntity {
-        val shippingEntity = ShippingInfoRequestEntity(
-            firstName = address.firstName,
-            lastName = address.lastName,
-            address = address.address,
-            city = address.city,
-            state = address.state,
-            country = address.country,
-            postCode = address.zipCode,
-
-            )
-        return shippingEntity
-    }
 
     private fun billingInfoRequestEntity(address: CustomerAddressEntity): BillingInfoRequestEntity {
         val billingEntity = BillingInfoRequestEntity(
@@ -473,128 +484,6 @@ class CartFragment : Fragment() {
     }
 
 
-    private fun swipeItem() {
-        val itemTouchHelper = object :
-            ItemTouchHelper.SimpleCallback(
-                0,
-                ItemTouchHelper.LEFT
-            ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean = false
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.bindingAdapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    when (direction) {
-                        ItemTouchHelper.LEFT -> {
-                            val key = itemHashKeys[position].itemHashKey
-                            cartViewModel.removeItem(keyItem = key)
-                            itemHashKeys.removeAt(position)
-                            cartAdapter.notifyItemRemoved(position)
-                            if (itemHashKeys.isEmpty()) {
-                                cartRecyclerView.adapter = cartAdapter
-                            }
-
-                        }
-
-
-                    }
-                }
-            }
-
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) {
-                val itemWidth = viewHolder.itemView.width
-                val maxSwipeDistance = itemWidth / 5f // Half of the item width
-                val limitedDx = dX.coerceIn(-maxSwipeDistance, maxSwipeDistance)
-
-                RecyclerViewSwipeDecorator.Builder(
-                    c,
-                    recyclerView,
-                    viewHolder,
-                    limitedDx,
-                    dY,
-                    actionState,
-                    isCurrentlyActive
-                )
-                    .addSwipeLeftBackgroundColor(
-                        ContextCompat.getColor(
-                            requireContext(),
-                            R.color.vermilion
-                        )
-                    ).addSwipeLeftActionIcon(R.drawable.baseline_block_flipped_24)
-                    .addCornerRadius(1, 30)
-
-                    .create()
-                    .decorate()
-
-                super.onChildDraw(
-                    c,
-                    recyclerView,
-                    viewHolder,
-                    limitedDx,
-                    dY,
-                    actionState,
-                    isCurrentlyActive
-                )
-
-
-            }
-
-        }
-        ItemTouchHelper(itemTouchHelper).attachToRecyclerView(cartRecyclerView)
-
-    }
-
-    private fun detectScrollEnd() {
-        cartRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val layoutManager =
-                    recyclerView.layoutManager as? LinearLayoutManager ?: return
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
-
-                if ((visibleItemCount + pastVisibleItems) >= totalItemCount && dy > 0) {
-                    recyclerView.post {
-                        val lastView =
-                            recyclerView.findViewHolderForAdapterPosition(totalItemCount - 1)?.itemView
-                        lastView?.let {
-                            val lastItemHeight = it.height
-                            println(lastItemHeight)
-                            removeItemDecoration(recyclerView)
-                            recyclerView.addItemDecoration(
-                                BottomSpacingDecoration(
-                                    lastItemHeight
-                                )
-                            )
-                            recyclerView.clipToPadding = false
-                        }
-                    }
-                }
-            }
-        })
-    }
-
-    private fun removeItemDecoration(recyclerView: RecyclerView) {
-        for (i in 0 until recyclerView.itemDecorationCount) {
-            val decoration = recyclerView.getItemDecorationAt(i)
-            if (decoration is BottomSpacingDecoration) {
-                recyclerView.removeItemDecoration(decoration)
-                break
-            }
-        }
-    }
 
 }

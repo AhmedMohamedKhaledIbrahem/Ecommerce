@@ -7,7 +7,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.example.ecommerce.core.database.data.entities.products.ProductEntity
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductDao {
@@ -20,7 +19,10 @@ interface ProductDao {
 
     @Transaction
     @Query("select * from product where name like :query LIMIT :pageSize OFFSET :offset *:pageSize")
-    fun searchProduct(query:String, pageSize: Int, offset: Int): List<ProductWithAllDetails>
+    fun searchProduct(query: String, pageSize: Int, offset: Int): List<ProductWithAllDetails>
+
+    @Query("select count(*) from product")
+    suspend fun getProductsCount(): Int
 
 
 }

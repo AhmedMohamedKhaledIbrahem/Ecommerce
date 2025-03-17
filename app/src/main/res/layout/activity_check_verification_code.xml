@@ -19,19 +19,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/otpVerificationParagraphTextView"
+        style="@style/paragraphStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/forgetPasswordTextView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        style="@style/paragraphStyle"
-        android:textColor="?attr/colorOnSecondary"
         android:text="@string/please_check_your_email_to_see_n_nthe_verification_code"
-        />
+        android:textColor="?attr/colorOnSecondary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/forgetPasswordTextView" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -39,9 +39,9 @@
         android:layout_marginHorizontal="8dp"
 
         android:text="@string/otp_code"
-        android:textStyle="bold"
-        android:textSize="20sp"
         android:textColor="?attr/colorSecondary"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/otpDigital1TextInputLayout"
         app:layout_constraintStart_toStartOf="parent"
 
@@ -56,18 +56,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/otpDigital2TextInputLayout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/otpDigital1TextInputEditText"
-            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:imeOptions="actionNext"
             android:inputType="number"
             android:maxLines="1"
-            android:gravity="center"
             android:textSize="14sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -84,13 +83,13 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/otpDigital2TextInputEditText"
-            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:imeOptions="actionNext"
             android:inputType="number"
             android:maxLines="1"
-            android:gravity="center"
             android:textSize="14sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -109,13 +108,13 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/otpDigital3TextInputEditText"
-            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:imeOptions="actionNext"
             android:inputType="number"
             android:maxLines="1"
-            android:gravity="center"
             android:textSize="14sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -128,16 +127,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/otpDigital5TextInputLayout"
         app:layout_constraintStart_toEndOf="@id/otpDigital3TextInputLayout"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+
+        >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/otpDigital4TextInputEditText"
-            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:imeOptions="actionNext"
-            android:inputType="number"
+            android:layout_gravity="center"
             android:gravity="center"
+            android:imeOptions="actionNext|flagNoFullscreen"
+            android:inputType="number"
             android:maxLines="1"
             android:textSize="14sp" />
 
@@ -155,12 +156,12 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/otpDigital5TextInputEditText"
-            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:imeOptions="actionNext"
-            android:inputType="number"
+            android:layout_gravity="center"
             android:gravity="center"
+            android:imeOptions="actionNext|flagNoFullscreen"
+            android:inputType="number"
             android:maxLines="1"
             android:textSize="14sp" />
 
@@ -178,11 +179,11 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/otpDigital6TextInputEditText"
-            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:imeOptions="actionDone"
+            android:layout_gravity="center"
             android:gravity="center"
+            android:imeOptions="actionDone|flagNoFullscreen"
             android:inputType="number"
             android:maxLines="1"
             android:textSize="14sp" />
@@ -192,31 +193,30 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="32dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@id/verifyCodeButton"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/otpDigital1TextInputLayout">
 
 
         <TextView
-            android:layout_marginStart="18dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
             android:text="@string/didnt_get_the_code"
-            android:textColor="?attr/colorOnSecondary"
-            />
+            android:textColor="?attr/colorOnSecondary" />
+
         <TextView
             android:id="@+id/resendCodeTextView"
-            android:layout_marginStart="6dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/clickToResend"
+            android:layout_marginStart="6dp"
             android:clickable="true"
-            android:textStyle="bold"
-            />
+            android:text="@string/clickToResend"
+            android:textStyle="bold" />
     </LinearLayout>
 
 
@@ -235,9 +235,7 @@
         app:layout_constraintHorizontal_bias="0.47"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.58000004"
-        />
-
+        app:layout_constraintVertical_bias="0.58000004" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

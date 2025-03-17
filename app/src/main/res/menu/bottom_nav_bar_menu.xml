@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/productFragment"
-        android:icon="@drawable/round_home_24"
+        android:icon="@drawable/home_icon_selector"
         android:title="@string/title_home" />
     <item
         android:id="@+id/cartFragment"
-        android:icon="@drawable/baseline_shopping_cart_24"
+        android:icon="@drawable/cart_icon_selector"
         android:title="@string/title_cart" />
     <item
         android:id="@+id/ordersFragment"
@@ -14,6 +14,6 @@
         android:title="@string/orders" />
     <item
         android:id="@+id/settingFragment"
-        android:icon="@drawable/filed_settings_2"
+        android:icon="@drawable/setting_icon_selector"
         android:title="@string/title_setting" />
 </menu>

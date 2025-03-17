@@ -1,5 +1,6 @@
 package com.example.ecommerce.features.product.presentation.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -18,10 +19,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProductSearchViewModel @Inject constructor(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val _searchQuery = MutableStateFlow("")
-    private val searchQuery = _searchQuery.asStateFlow()
+    companion object {
+        private const val SEARCH_QUERY_KEY = "search_query"
+    }
+
+    private val _searchQuery = MutableStateFlow(savedStateHandle[SEARCH_QUERY_KEY] ?: "")
+     val searchQuery = _searchQuery.asStateFlow()
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -33,6 +39,7 @@ class ProductSearchViewModel @Inject constructor(
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
+        savedStateHandle[SEARCH_QUERY_KEY] = query
 
     }
 

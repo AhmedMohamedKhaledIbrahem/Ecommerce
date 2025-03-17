@@ -3,7 +3,10 @@ package com.example.ecommerce.features.product.data.datasource.localdatasource
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
+import com.example.ecommerce.core.constants.EnablePlaceholders
+import com.example.ecommerce.core.constants.IpHost
+import com.example.ecommerce.core.constants.LocalHost
+import com.example.ecommerce.core.constants.PageSize
 import com.example.ecommerce.core.database.data.dao.category.CategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
@@ -12,13 +15,11 @@ import com.example.ecommerce.core.database.data.entities.category.CategoryEntity
 import com.example.ecommerce.core.database.data.entities.image.ImageEntity
 import com.example.ecommerce.core.database.data.entities.products.ProductCategoryCrossRefEntity
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
-import com.example.ecommerce.core.errors.Failures
+import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.product.data.mapper.ProductMapper
 import com.example.ecommerce.features.product.data.model.EcommerceResponseModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -31,11 +32,19 @@ class ProductLocalDataSourceImp @Inject constructor(
     override fun getProductsPaged(): Flow<PagingData<ProductWithAllDetails>> {
         return try {
             Pager(
-                config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+                config = PagingConfig(pageSize = PageSize, enablePlaceholders = EnablePlaceholders),
                 pagingSourceFactory = { ProductPagingSource(productDao) }
             ).flow
         } catch (e: Exception) {
-            throw Failures.CacheFailure("${e.message}")
+            throw FailureException("${e.message}")
+        }
+    }
+
+    override suspend fun isEmpty(): Boolean {
+        return try {
+            productDao.getProductsCount() == 0
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
         }
     }
 
@@ -55,7 +64,7 @@ class ProductLocalDataSourceImp @Inject constructor(
                         ImageEntity(
                             productId = product.id,
                             imageId = image.id,
-                            imageUrl = image.src.image.replace("localhost", "10.0.0.106")
+                            imageUrl = image.src.image.replace(LocalHost, IpHost)
                         )
                     }
                 }
@@ -81,7 +90,7 @@ class ProductLocalDataSourceImp @Inject constructor(
                 categoryDao.insertCategories(categoryEntity)
                 productCategoryDao.insertProductCategoryCrossRef(crossRefEntity)
             } catch (e: Exception) {
-                throw Failures.CacheFailure("${e.message}")
+                throw FailureException("${e.message}")
             }
         }
     }
@@ -89,14 +98,14 @@ class ProductLocalDataSourceImp @Inject constructor(
     override fun searchProduct(query: String): Flow<PagingData<ProductWithAllDetails>> {
         return try {
 
-                val pager = Pager(
-                    config = PagingConfig(pageSize = 20, enablePlaceholders = false),
-                    pagingSourceFactory = { ProductSearchPagingSource(productDao, query) }
-                )
-                pager.flow
+            val pager = Pager(
+                config = PagingConfig(pageSize = PageSize, enablePlaceholders = EnablePlaceholders),
+                pagingSourceFactory = { ProductSearchPagingSource(productDao, query) }
+            )
+            pager.flow
 
         } catch (e: Exception) {
-            throw Failures.CacheFailure("${e.message}")
+            throw FailureException("${e.message}")
         }
     }
 }

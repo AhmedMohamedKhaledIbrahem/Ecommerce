@@ -7,6 +7,7 @@ import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.features.cart.domain.entities.AddItemRequestEntity
 import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseCase
+import com.example.ecommerce.features.cart.domain.use_case.clear_cart.IClearCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.IGetCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.update_item_cart.IUpdateItemsCartUseCase
@@ -27,6 +28,7 @@ class CartViewModel @Inject constructor(
     private val removeItemUseCase: IRemoveItemUseCase,
     private val updateItemsCartUseCase: IUpdateItemsCartUseCase,
     private val updateQuantityUseCase: IUpdateQuantityUseCase,
+    private val clearCartUseCase: IClearCartUseCase
 ) : ViewModel(), ICartViewModel {
     private val _cartState = MutableSharedFlow<UiState<Any>>(replay = 0)
     override val cartState: SharedFlow<UiState<Any>> get() = _cartState.asSharedFlow()
@@ -70,7 +72,15 @@ class CartViewModel @Inject constructor(
         )
     }
 
-    private fun <T> cartUiState(
+    override fun clearCart() {
+        cartUiState(
+            operation = { clearCartUseCase() },
+            onSuccess = { result -> _cartState.emit(UiState.Success(result, "clearCart")) },
+            source = "clearCart"
+        )
+    }
+
+    override fun <T> cartUiState(
         operation: suspend () -> T,
         onSuccess: suspend (T) -> Unit,
         source: String

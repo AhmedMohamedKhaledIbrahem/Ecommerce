@@ -1,30 +1,28 @@
 package com.example.ecommerce.features.product.presentation.screen.product
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.WorkManager
 import com.example.ecommerce.R
+import com.example.ecommerce.core.constants.Page
+import com.example.ecommerce.core.constants.PerPage
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
-import com.example.ecommerce.core.decoration.BottomSpacingDecoration
 import com.example.ecommerce.core.state.UiState
-import com.example.ecommerce.features.notification.presentation.viewmodel.notification.NotificationViewModel
+import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductShimmerAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.SearchAdapter
@@ -40,25 +38,22 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProductFragment : Fragment() {
-    // private lateinit var productSearch: SearchView
+
     private lateinit var productAdapter: ProductAdapter
     private lateinit var productShimmerAdapter: ProductShimmerAdapter
     private lateinit var productShimmerRecyclerView: RecyclerView
-    private lateinit var productLinearLayout: LinearLayout
     private val productViewModel: ProductViewModel by viewModels()
-    private val notificationViewModel: NotificationViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var productShimmerLayout: ShimmerFrameLayout
-    private lateinit var swipeRefreshProductLayout: SwipeRefreshLayout
     private lateinit var detectViewModel: DetectScrollEndViewModel
     private var screenOrientation: Int = 0
     private val productSearchViewModel: ProductSearchViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         screenOrientation = resources.configuration.orientation
-        // initRecycleViewLayoutManger(screenOrientation)
     }
+
+    private lateinit var searchAdapter: SearchAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,7 +61,7 @@ class ProductFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_product, container, false)
         initView(view)
-        onSwipeRefreshListener()
+
         return view
     }
 
@@ -74,10 +69,7 @@ class ProductFragment : Fragment() {
     private fun initView(view: View) {
         recyclerView = view.findViewById(R.id.productRecyclerView)
         productShimmerLayout = view.findViewById(R.id.productShimmerFrameLayout)
-        swipeRefreshProductLayout = view.findViewById(R.id.productSwipeRefreshViewLayout)
         productShimmerRecyclerView = view.findViewById(R.id.productShimmerRecyclerView)
-        // productSearch = view.findViewById(R.id.searchProduct)
-        productLinearLayout = view.findViewById(R.id.productLinearLayout)
         detectViewModel =
             ViewModelProvider(requireActivity())[DetectScrollEndViewModel::class.java]
 
@@ -94,15 +86,23 @@ class ProductFragment : Fragment() {
         fetchData()
         getProduct()
         uiState()
-        detectScrollEnd2()
-        searchProduct()
+        detectScrollEnd(recyclerView, 3)
+        collectProduct()
         productAdapter.refresh()
+        productSearchViewModel.searchQuery.asLiveData().observe(viewLifecycleOwner) { query ->
+            searchAdapter.updateQuery(query)
+        }
 
     }
 
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        productAdapter.refresh()
+    }
 
     private fun initProductRecycleView() {
-        val searchAdapter = SearchAdapter { query ->
+        searchAdapter = SearchAdapter { query ->
+
             productSearchViewModel.updateSearchQuery(query)
 
         }
@@ -147,7 +147,7 @@ class ProductFragment : Fragment() {
     }
 
     private fun fetchData() {
-        productViewModel.fetchProductsFromRemote(page = 1, perPage = 20)
+        productViewModel.fetchProductsFromRemote(page = Page, perPage = PerPage)
     }
 
     private fun shimmerProducts(): List<ProductShimmerItem> {
@@ -243,8 +243,6 @@ class ProductFragment : Fragment() {
             productViewModel.productsPaged.collectLatest { paging ->
                 productAdapter.refresh()
                 productAdapter.submitData(paging)
-
-
             }
 
 
@@ -256,7 +254,7 @@ class ProductFragment : Fragment() {
             stopShimmer()
             visibility = View.GONE
         }
-        productLinearLayout.visibility = View.VISIBLE
+        recyclerView.visibility = View.VISIBLE
     }
 
     private fun shimmerStartWhenLoading() {
@@ -264,151 +262,18 @@ class ProductFragment : Fragment() {
             visibility = View.VISIBLE // Ensure the shimmer is visible
             startShimmer()            // Start the shimmer animation
         }
-        productLinearLayout.apply {
-            visibility = View.GONE
-        }
+        recyclerView.visibility = View.GONE
     }
 
-    private fun onSwipeRefreshListener() {
-        swipeRefreshProductLayout.setOnRefreshListener {
-            lifecycleScope.launch {
-                //delay(1000)
-                //addressViewModel.checkUpdateAddress()
-
-                swipeRefreshProductLayout.isRefreshing = false
-
-
-            }
-        }
-    }
-
-    @SuppressLint("RepeatOnLifecycleWrongUsage")
-    private fun notificationState() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                notificationViewModel.notificationState.collect { state ->
-                    notificationUiState(state)
-                }
-            }
-        }
-    }
-
-    private fun notificationUiState(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                when (state.source) {
-                    "connect" -> {}
-
-                }
-            }
-
-            is UiState.Success -> {
-                when (state.source) {
-                    "connect" -> {
-                        Log.e("notification", "notificationUiState: ${state.data}")
-                    }
-
-                }
-            }
-
-            is UiState.Error -> {
-                when (state.source) {
-                    "connect" -> {
-                        Log.e("notification", "notificationUiState: ${state.message}")
-
-                    }
-
-                }
-            }
-        }
-    }
-
-//    private fun setupSearchView() {
-//
-//        productSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-//            override fun onQueryTextSubmit(query: String?): Boolean {
-//                query?.let {
-//                    //Log.e("sds", it)
-//                    productSearchViewModel.updateSearchQuery(it)
-//                }
-//                return true
-//            }
-//
-//            override fun onQueryTextChange(newText: String?): Boolean {
-//                newText?.let { productSearchViewModel.updateSearchQuery(it) }
-//                return true
-//            }
-//        })
-//        productSearch.setOnClickListener {
-//            productSearch.isIconified = false
-//        }
-//
-//    }
-
-    private fun searchProduct() {
+    private fun collectProduct() {
         lifecycleScope.launch {
             productSearchViewModel.product.collectLatest { pagingData ->
                 productAdapter.submitData(pagingData)
             }
+
         }
     }
 
-    private fun detectScrollEnd() {
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val layoutManager = recyclerView.layoutManager as? GridLayoutManager
-                layoutManager?.let {
-                    val visibleItemCount = it.childCount
-                    val totalItemCount = it.itemCount
-                    val pastVisibleItemCount = it.findFirstVisibleItemPosition()
-                    if ((visibleItemCount + pastVisibleItemCount) >= totalItemCount && dy > 0) {
-                        detectViewModel.updateDetectScroll(true)
-                    } else {
-                        detectViewModel.updateDetectScroll(false)
-                    }
-                }
-            }
-        })
-    }
-
-    private fun detectScrollEnd2() {
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                val layoutManager = recyclerView.layoutManager as? GridLayoutManager ?: return
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
-
-                if ((visibleItemCount + pastVisibleItems) >= totalItemCount && dy > 0) {
-                    recyclerView.post {
-                        val lastView =
-                            recyclerView.findViewHolderForAdapterPosition(totalItemCount - 1)?.itemView
-                        lastView?.let {
-                            val lastItemHeight = it.height / 3
-                            println(lastItemHeight)
-                            removeItemDecoration(recyclerView)
-
-                            recyclerView.addItemDecoration(BottomSpacingDecoration(lastItemHeight))
-                            recyclerView.clipToPadding = false
-                        }
-                    }
-                }
-            }
-        })
-    }
-
-    private fun removeItemDecoration(recyclerView: RecyclerView) {
-        for (i in 0 until recyclerView.itemDecorationCount) {
-            val decoration = recyclerView.getItemDecorationAt(i)
-            if (decoration is BottomSpacingDecoration) {
-                recyclerView.removeItemDecoration(decoration)
-                break
-            }
-        }
-    }
 
     override fun onDestroy() {
         super.onDestroy()

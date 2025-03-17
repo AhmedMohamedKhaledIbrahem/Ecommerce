@@ -6,7 +6,7 @@ import androidx.core.app.NotificationCompat
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.CHANNEL_ID
 
-fun INotification.fcmNotificationBuilder(title:String , body:String , context: Context) :Notification{
+fun fcmNotificationBuilder(title:String , body:String , context: Context) :Notification{
     return NotificationCompat.Builder(context, CHANNEL_ID)
         .setSmallIcon(R.drawable.baseline_notifications_24)
         .setContentTitle(title)

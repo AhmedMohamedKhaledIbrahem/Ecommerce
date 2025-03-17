@@ -1,10 +1,10 @@
 package com.example.ecommerce.features.orders
 
+import com.example.ecommerce.core.database.data.entities.image.ImageEntity
 import com.example.ecommerce.core.database.data.entities.orders.OrderItemEntity
 import com.example.ecommerce.core.database.data.entities.orders.OrderTagEntity
 import com.example.ecommerce.core.database.data.entities.orders.OrderWithItems
 import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
-import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequestEntity
 import com.example.ecommerce.features.orders.data.mapper.OrderItemMapper
 import com.example.ecommerce.features.orders.data.mapper.OrderMapper
 import com.example.ecommerce.features.orders.data.mapper.OrderTagMapper
@@ -18,11 +18,27 @@ import com.google.gson.Gson
 val tCreateOrderResponseModelJson: OrderResponseModel = fixture("createdOrder.json").run {
     Gson().fromJson(this, OrderResponseModel::class.java)
 }
-
+val tOrdersResponse = listOf(
+    tCreateOrderResponseModelJson
+)
+val tImages = listOf(
+    ImageEntity(
+        imageId = 1,
+        productId = 123,
+        imageUrl = "test1.com"
+    ),
+    ImageEntity(
+        imageId = 2,
+        productId = 456,
+        imageUrl = "test2.com"
+    )
+)
 val tOrderTagEntityByMapper = OrderTagMapper.mapToEntity(tCreateOrderResponseModelJson)
+
 val tOrderResponseEntity = OrderMapper.mapModelToEntity(tCreateOrderResponseModelJson)
 val tOrderItemEntityByMapper = tCreateOrderResponseModelJson.lineItems.map {
-    OrderItemMapper.mapToEntity(it, tCreateOrderResponseModelJson.id)
+    val imageUrl = tImages.find { image -> image.productId == it.productId }?.imageUrl
+    OrderItemMapper.mapToEntity(it, tCreateOrderResponseModelJson.id, imageUrl!!)
 }
 val tOrderTagEntity = OrderTagEntity(
     orderId = 1,
@@ -32,7 +48,7 @@ val tOrderTagEntity = OrderTagEntity(
     paymentMethodTitle = "Cash on Delivery",
     orderTagNumber = "1",
     totalPrice = "57.50",
-    dateCreatedOrder = "2024-02-13T10:45:32",
+    dateCreatedOrder = "2024-02-13",
 )
 val tOrderItemEntity = listOf(
     OrderItemEntity(
@@ -58,16 +74,11 @@ val tOrderWithItems = OrderWithItems(
     order = tOrderTagEntity,
     items = tOrderItemEntity
 )
-
-val tShippingInfoRequestEntity = ShippingInfoRequestEntity(
-    firstName = "John",
-    lastName = "Doe",
-    address = "123 Main St",
-    city = "Springfield",
-    state = "IL",
-    postCode = "62701",
-    country = "US",
+val tOrdersWithItems = listOf(
+    tOrderWithItems
 )
+val tImagesId = listOf(123, 456)
+
 val tBillingInfoRequestEntity = BillingInfoRequestEntity(
     firstName = "John",
     lastName = "Doe",
@@ -99,7 +110,6 @@ val tCreateOrderRequestEntity = OrderRequestEntity(
     lineItems = tLineItemsRequestEntity,
     setPaid = false,
     billing = tBillingInfoRequestEntity,
-    shipping = tShippingInfoRequestEntity,
     customerId = customerId
 )
 
@@ -108,6 +118,7 @@ val tCreateOrderRequestModel = OrderMapper.mapEntityToModel(tCreateOrderRequestE
 val tCreateOrderRequestModelJson: OrderRequestModel = fixture("createOrder.json").run {
     Gson().fromJson(this, OrderRequestModel::class.java)
 }
+const val imageMessageError = "image is Null"
 
 
 

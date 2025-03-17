@@ -1,6 +1,7 @@
 package com.example.ecommerce.features.orders.modules
 
 import com.example.ecommerce.core.customer.CustomerManager
+import com.example.ecommerce.core.database.data.dao.image.ImageDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderItemDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
@@ -33,11 +34,13 @@ object DataModule {
     @Singleton
     fun provideOrderLocalDataSource(
         orderItemDao: OrderItemDao,
-        orderTagDao: OrderTagDao
+        orderTagDao: OrderTagDao,
+        imageDao: ImageDao
     ): OrderLocalDataSource {
         return OrderLocalDataSourceImp(
             orderItemDao = orderItemDao,
             orderTagDao = orderTagDao,
+            imageDao = imageDao,
         )
     }
 

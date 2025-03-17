@@ -26,6 +26,7 @@
                 android:id="@+id/firstNameAddressEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -45,6 +46,7 @@
                 android:id="@+id/lastNameAddressEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -64,6 +66,7 @@
                 android:id="@+id/emailNameAddressEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -83,6 +86,7 @@
                 android:id="@+id/phoneNumberAddressEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -112,6 +116,7 @@
                 android:id="@+id/streetAddressEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -131,6 +136,7 @@
                 android:id="@+id/cityAddressEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -150,6 +156,7 @@
                 android:id="@+id/postCodeAddressEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:imeOptions="actionDone|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>

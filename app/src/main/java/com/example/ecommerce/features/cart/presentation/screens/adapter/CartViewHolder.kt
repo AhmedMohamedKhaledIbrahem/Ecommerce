@@ -13,11 +13,13 @@ import com.google.android.material.imageview.ShapeableImageView
 class CartViewHolder(
     view: View,
     private val onCounterUpdate: (ItemCartEntity, Int) -> Unit,
+    private val onDeleteItem: (ItemCartEntity) -> Unit
 
-    ) : RecyclerView.ViewHolder(view) {
+) : RecyclerView.ViewHolder(view) {
     private val cartItemImage: ShapeableImageView = itemView.findViewById(R.id.cartItemImage)
     private val cartItemName: TextView = itemView.findViewById(R.id.nameItemCartText)
     private val cartItemPrice: TextView = itemView.findViewById(R.id.priceItemCartText)
+    private val cartDeleteImage: ImageView = itemView.findViewById(R.id.deleteImage)
     private val cartItemQuantity: TextView = itemView.findViewById(R.id.cartItemPriceTextView)
     private val cartItemIncrease: ImageView = itemView.findViewById(R.id.itemCartIncreaseCounter)
     private val cartItemDecrease: ImageView = itemView.findViewById(R.id.itemCartDecreaseCounter)
@@ -30,7 +32,6 @@ class CartViewHolder(
         cartItemQuantity.text = item.quantity.toString()
         cartItemIncrease.setOnClickListener {
             if (item.quantity < 10) {
-
                 val newQuantity = item.quantity + 1
                 item.quantity = newQuantity // Update the item quantity
                 cartItemQuantity.text = newQuantity.toString() // Update the UI
@@ -39,6 +40,7 @@ class CartViewHolder(
             }
 
         }
+        cartDeleteImage.setOnClickListener { onDeleteItem(item) }
         cartItemDecrease.setOnClickListener {
             if (item.quantity > 1) {
                 val newQuantity = item.quantity - 1

@@ -10,7 +10,7 @@ data class OrderRequestModel(
     @SerializedName("status") val status :String = "processing",
     @SerializedName("set_paid") val setPaid: Boolean,
     @SerializedName("billing") val billing: BillingInfoRequestEntity,
-    @SerializedName("shipping") val shipping: ShippingInfoRequestEntity,
+  //  @SerializedName("shipping") val shipping: ShippingInfoRequestEntity,
     @SerializedName("line_items") val lineItems: List<LineItemRequestModel>,
     @SerializedName("customer_id") val customerId: Int
 )

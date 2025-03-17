@@ -30,7 +30,6 @@ class OrderRemoteDataSourceTest {
     @Mock
     private lateinit var customerManager: CustomerManager
     private lateinit var remoteDataSource: OrderRemoteDataSourceImp
-    private val tCreateOrderResponses= listOf(tCreateOrderResponseModelJson)
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)

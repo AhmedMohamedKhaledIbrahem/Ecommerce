@@ -4,13 +4,13 @@ import com.example.ecommerce.core.database.data.entities.orders.OrderItemEntity
 import com.example.ecommerce.features.orders.data.models.LineItemResponseModel
 
 object OrderItemMapper {
-    fun mapToEntity(lineItemResponseModel: LineItemResponseModel, orderId: Int): OrderItemEntity {
+    fun mapToEntity(lineItemResponseModel: LineItemResponseModel, orderId: Int , imageUrl: String): OrderItemEntity {
         return OrderItemEntity(
             lineItemId = lineItemResponseModel.lineItemId,
             productId = lineItemResponseModel.productId,
             itemName = lineItemResponseModel.itemName,
             priceItem = lineItemResponseModel.totalPrice,
-            image = lineItemResponseModel.image.imagePath,
+            image = imageUrl,
             quantity = lineItemResponseModel.quantity,
             orderId = orderId
         )

@@ -11,4 +11,10 @@ interface ICartViewModel {
     fun updateItemsCart()
     fun updateQuantity(itemId: Int, newQuantity: Int)
     fun removeItem(keyItem: String)
+    fun clearCart()
+    fun <T> cartUiState(
+        operation: suspend () -> T,
+        onSuccess: suspend (T) -> Unit,
+        source: String
+    )
 }

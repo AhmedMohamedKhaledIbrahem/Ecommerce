@@ -18,6 +18,8 @@ import com.example.ecommerce.core.database.data.dao.product.ProductDao
 import com.example.ecommerce.core.database.data.dao.user.UserDao
 import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.manager.fcm.FcmDeviceTokenImp
+import com.example.ecommerce.core.manager.prdouct.ProductHandler
+import com.example.ecommerce.core.manager.prdouct.ProductHandlerImp
 import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.manager.token.TokenManagerImp
 import com.example.ecommerce.core.notification.INotification
@@ -117,9 +119,14 @@ object DataCoreModule {
 
     @Provides
     @Singleton
-    fun provideSocketManager(preferences: SharedPreferences): FcmDeviceToken {
+    fun provideFCMDeviceToken(preferences: SharedPreferences): FcmDeviceToken {
         return FcmDeviceTokenImp(sharedPreferences = preferences)
 
+    }
+    @Provides
+    @Singleton
+    fun provideProductHandler(preferences: SharedPreferences): ProductHandler {
+        return ProductHandlerImp(sharedPreferences = preferences)
     }
 
     @Provides

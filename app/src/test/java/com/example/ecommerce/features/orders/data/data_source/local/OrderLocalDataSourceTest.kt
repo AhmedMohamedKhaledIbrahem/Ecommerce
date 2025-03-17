@@ -1,10 +1,14 @@
 package com.example.ecommerce.features.orders.data.data_source.local
 
+import com.example.ecommerce.core.database.data.dao.image.ImageDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderItemDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
+import com.example.ecommerce.core.database.data.entities.image.ImageEntity
 import com.example.ecommerce.features.cacheFailureMessage
 import com.example.ecommerce.features.failureException
+import com.example.ecommerce.features.orders.imageMessageError
 import com.example.ecommerce.features.orders.tCreateOrderResponseModelJson
+import com.example.ecommerce.features.orders.tImages
 import com.example.ecommerce.features.orders.tOrderItemEntity
 import com.example.ecommerce.features.orders.tOrderTagEntity
 import com.example.ecommerce.features.orders.tOrderWithItems
@@ -26,6 +30,8 @@ class OrderLocalDataSourceTest {
     @Mock
     private lateinit var orderItemDao: OrderItemDao
 
+    @Mock
+    private lateinit var imageDao: ImageDao
     private lateinit var localDataSource: OrderLocalDataSource
     private val orderWithItems = listOf(tOrderWithItems)
 
@@ -34,7 +40,8 @@ class OrderLocalDataSourceTest {
         MockitoAnnotations.openMocks(this)
         localDataSource = OrderLocalDataSourceImp(
             orderTagDao = orderTagDao,
-            orderItemDao = orderItemDao
+            orderItemDao = orderItemDao,
+            imageDao = imageDao,
         )
 
     }
@@ -43,7 +50,10 @@ class OrderLocalDataSourceTest {
     fun `insertOrderWithItem should insert order and items into the database`() = runTest {
         `when`(orderTagDao.insertOrderTag(orderTag = tOrderTagEntity)).thenReturn(Unit)
         `when`(orderItemDao.insertOrderItem(orderItemEntity = tOrderItemEntity)).thenReturn(Unit)
-        localDataSource.insertOrderWithItem(orderResponseModel = tCreateOrderResponseModelJson)
+        localDataSource.insertOrderWithItem(
+            orderResponseModel = tCreateOrderResponseModelJson,
+            tImages
+        )
         verify(orderTagDao).insertOrderTag(orderTag = tOrderTagEntity)
         verify(orderItemDao).insertOrderItem(orderItemEntity = tOrderItemEntity)
     }
@@ -54,9 +64,26 @@ class OrderLocalDataSourceTest {
             RuntimeException(cacheFailureMessage)
         )
         val exception = failureException {
-            localDataSource.insertOrderWithItem(orderResponseModel = tCreateOrderResponseModelJson)
+            localDataSource.insertOrderWithItem(
+                orderResponseModel = tCreateOrderResponseModelJson,
+                tImages
+            )
         }
         assertEquals(cacheFailureMessage, exception.message)
+    }
+
+    @Test
+    fun `insertOrderWithItem should throw when the image is Null `() = runTest {
+        `when`(orderTagDao.insertOrderTag(orderTag = tOrderTagEntity)).thenReturn(Unit)
+        `when`(orderItemDao.insertOrderItem(orderItemEntity = tOrderItemEntity)).thenReturn(Unit)
+        val nullImage: List<ImageEntity> = emptyList()
+        val exception = failureException {
+            localDataSource.insertOrderWithItem(
+                orderResponseModel = tCreateOrderResponseModelJson,
+                nullImage
+            )
+        }
+        assertEquals(imageMessageError, exception.message)
     }
 
     @Test
@@ -65,7 +92,10 @@ class OrderLocalDataSourceTest {
             RuntimeException(cacheFailureMessage)
         )
         val exception = failureException {
-            localDataSource.insertOrderWithItem(orderResponseModel = tCreateOrderResponseModelJson)
+            localDataSource.insertOrderWithItem(
+                orderResponseModel = tCreateOrderResponseModelJson,
+                tImages
+            )
         }
         assertEquals(cacheFailureMessage, exception.message)
     }

@@ -4,55 +4,75 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/statusCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="8dp"
+        android:elevation="10dp"
+
+        >
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="10dp"
+            android:text=""
+            android:textStyle="bold"
+            android:textSize="14sp"
+            />
+
+
+    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/ordersCard"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginTop="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="8dp"
         android:clickable="true"
-        >
+        android:elevation="10dp">
+
         <LinearLayout
             android:id="@+id/orderLinearLayout"
-            android:paddingVertical="6dp"
-            android:paddingHorizontal="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            >
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp">
+
             <TextView
                 android:id="@+id/orderTagNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:text="Order: #219"
-                />
+                android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/orderDateCreate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:text="Data : February 11, 2025"
-                />
+                android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/orderStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:text="Status : Pending"
-                />
+<!--            <TextView-->
+<!--                android:id="@+id/orderStatus"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Status : Pending"-->
+<!--                android:textStyle="bold" />-->
+
             <TextView
                 android:id="@+id/orderTotal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Total : 30.00 EGP For 1 Item"
-                android:textStyle="bold"
-                />
+                android:textStyle="bold" />
 
         </LinearLayout>
-
 
 
     </com.google.android.material.card.MaterialCardView>

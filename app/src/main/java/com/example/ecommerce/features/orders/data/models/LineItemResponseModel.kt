@@ -8,5 +8,5 @@ data class LineItemResponseModel (
     @SerializedName("name") val itemName:String,
     @SerializedName("total") val totalPrice:String,
     @SerializedName("quantity") val quantity:Int,
-    @SerializedName("image") val image:ImageResponseModel
+    //@SerializedName("image") val image:ImageResponseModel
 )

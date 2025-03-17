@@ -8,5 +8,5 @@ data class LineItemResponseEntity(
     @SerializedName("name") val itemName: String,
     @SerializedName("total") val totalPrice: String,
     @SerializedName("quantity") val quantity: Int,
-    @SerializedName("image") val image: ImageResponseEntity
+    //@SerializedName("image") val image: ImageResponseEntity
 )
