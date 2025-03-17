@@ -17,6 +17,7 @@ import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.orders.OrderWithItems
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.features.orders.presentation.screens.adapter.order_adapter.OrderAdapter
 import com.example.ecommerce.features.orders.presentation.viewmodel.IOrderViewModel
 import com.example.ecommerce.features.orders.presentation.viewmodel.OrderViewModel
@@ -45,6 +46,7 @@ class OrdersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         orderViewModel.getOrders()
+        detectScrollEnd(recyclerView)
         orderState()
 
     }

@@ -21,8 +21,8 @@ import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.Page
 import com.example.ecommerce.core.constants.PerPage
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
-import com.example.ecommerce.core.decoration.BottomSpacingDecoration
 import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductShimmerAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.SearchAdapter
@@ -86,7 +86,7 @@ class ProductFragment : Fragment() {
         fetchData()
         getProduct()
         uiState()
-        detectScrollEnd()
+        detectScrollEnd(recyclerView, 3)
         collectProduct()
         productAdapter.refresh()
         productSearchViewModel.searchQuery.asLiveData().observe(viewLifecycleOwner) { query ->
@@ -274,44 +274,6 @@ class ProductFragment : Fragment() {
         }
     }
 
-
-    private fun detectScrollEnd() {
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                val layoutManager = recyclerView.layoutManager as? GridLayoutManager ?: return
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
-
-                if ((visibleItemCount + pastVisibleItems) >= totalItemCount && dy > 0) {
-                    recyclerView.post {
-                        val lastView =
-                            recyclerView.findViewHolderForAdapterPosition(totalItemCount - 1)?.itemView
-                        lastView?.let {
-                            val lastItemHeight = it.height / 3
-                            println(lastItemHeight)
-                            removeItemDecoration(recyclerView)
-
-                            recyclerView.addItemDecoration(BottomSpacingDecoration(lastItemHeight))
-                            recyclerView.clipToPadding = false
-                        }
-                    }
-                }
-            }
-        })
-    }
-
-    private fun removeItemDecoration(recyclerView: RecyclerView) {
-        for (i in 0 until recyclerView.itemDecorationCount) {
-            val decoration = recyclerView.getItemDecorationAt(i)
-            if (decoration is BottomSpacingDecoration) {
-                recyclerView.removeItemDecoration(decoration)
-                break
-            }
-        }
-    }
 
     override fun onDestroy() {
         super.onDestroy()
