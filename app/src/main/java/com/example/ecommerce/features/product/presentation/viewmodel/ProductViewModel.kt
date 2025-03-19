@@ -52,7 +52,7 @@ class ProductViewModel @Inject constructor(
         viewModelScope.launch {
             _productState.emit(UiState.Loading(source))
             try {
-                val result = withContext(Dispatchers.IO) { operation() }
+                val result = operation()
                 onSuccess(result)
             } catch (e: Exception) {
                 _productState.emit(UiState.Error(e.message ?: "Unknown Error", source))

@@ -411,7 +411,7 @@ class EditAddressFragment : Fragment() {
     }
 
     private fun updateAddress(addressRequestEntity: AddressRequestEntity) {
-        addressViewModel.updateAddress(updateAddressParams = addressRequestEntity)
+      //  addressViewModel.updateAddress(updateAddressParams = addressRequestEntity)
     }
 
     private fun addressState() {
@@ -577,7 +577,7 @@ class EditAddressFragment : Fragment() {
             postCodeAddressEditText.setText(it.zipCode)
             streetAddressEditText.setText(it.address)
             spinnerCountry.setSelection(countryStateMap.keys.indexOf(it.country))
-            spinnerState.setSelection(countryStateMap[it.country]?.indexOf(it.state) ?: 0)
+            //spinnerState.setSelection(countryStateMap[it.country]?.indexOf(it.state) ?: 0)
 
         }
 

@@ -1,10 +1,12 @@
 package com.example.ecommerce.features.address.module
 
 import com.example.ecommerce.features.address.domain.repositories.AddressRepository
-import com.example.ecommerce.features.address.domain.usecases.checkupdateaddress.CheckUpdateAddressUseCase
-import com.example.ecommerce.features.address.domain.usecases.checkupdateaddress.ICheckUpdateAddressUseCase
-import com.example.ecommerce.features.address.domain.usecases.getaddressbyid.GetAddressUseCase
-import com.example.ecommerce.features.address.domain.usecases.getaddressbyid.IGetAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.deleteaddress.DeleteAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.deleteaddress.IDeleteAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.getaddress.GetAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.getaddress.IGetAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.insertupdateaddress.IInsertAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.insertupdateaddress.InsertAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.updateaddress.IUpdateAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.updateaddress.UpdateAddressUseCase
 import dagger.Module
@@ -31,8 +33,15 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideCheckUpdateAddressUseCase(repository: AddressRepository): ICheckUpdateAddressUseCase {
-        return CheckUpdateAddressUseCase(repository = repository)
+    fun provideCheckUpdateAddressUseCase(repository: AddressRepository): IInsertAddressUseCase {
+        return InsertAddressUseCase(repository = repository)
     }
+
+    @Provides
+    @Singleton
+    fun provideDeleteAddressUseCase(repository: AddressRepository): IDeleteAddressUseCase {
+        return DeleteAddressUseCase(repository = repository)
+    }
+
 
 }

@@ -20,62 +20,58 @@ class OrderRepositoryImp @Inject constructor(
     private val internetConnectionChecker: InternetConnectionChecker,
 ) : OrderRepository {
     override suspend fun createOrder(orderRequestEntity: OrderRequestEntity): OrderResponseEntity {
-        return withContext(Dispatchers.IO) {
-            try {
-                if (internetConnectionChecker.hasConnection()) {
-                    val orderRequestModel =
-                        OrderMapper.mapEntityToModel(entity = orderRequestEntity)
-                    val orderResponseModel =
-                        remoteDataSource.createOrder(orderRequestModel = orderRequestModel)
-                    OrderMapper.mapModelToEntity(orderResponseModel)
+        return try {
+            if (internetConnectionChecker.hasConnection()) {
+                val orderRequestModel =
+                    OrderMapper.mapEntityToModel(entity = orderRequestEntity)
+                val orderResponseModel =
+                    remoteDataSource.createOrder(orderRequestModel = orderRequestModel)
+                OrderMapper.mapModelToEntity(orderResponseModel)
 
-                } else {
-                    throw Failures.ConnectionFailure("No Internet Connection")
-                }
-            } catch (failure: FailureException) {
-                throw Failures.ServerFailure("${failure.message}")
+            } else {
+                throw Failures.ConnectionFailure("No Internet Connection")
             }
+        } catch (failure: FailureException) {
+            throw Failures.ServerFailure("${failure.message}")
         }
+
     }
 
     override suspend fun getOrders(): List<OrderWithItems> {
-        return withContext(Dispatchers.IO) {
-            try {
-                localDataSource.getOrders()
-            } catch (failure: FailureException) {
-                throw Failures.CacheFailure("${failure.message}")
-            }
+        return try {
+            localDataSource.getOrders()
+        } catch (failure: FailureException) {
+            throw Failures.CacheFailure("${failure.message}")
         }
+
     }
 
     override suspend fun saveOrderLocally(orderResponseEntity: OrderResponseEntity) {
-        withContext(Dispatchers.IO) {
-            try {
-                val orderResponseModel = OrderMapper.mapEntityToModel(entity = orderResponseEntity)
-                val imagesId = mutableListOf<Int>()
-                orderResponseModel.lineItems.map { lineItem ->
-                    imagesId.add(lineItem.productId)
-                }
-                val images = localDataSource.getImagesByProductId(imagesId)
-
-                localDataSource.insertOrderWithItem(
-                    orderResponseModel = orderResponseModel,
-                    image = images
-                )
-            } catch (failure: FailureException) {
-                throw Failures.CacheFailure("${failure.message}")
+        try {
+            val orderResponseModel = OrderMapper.mapEntityToModel(entity = orderResponseEntity)
+            val imagesId = mutableListOf<Int>()
+            orderResponseModel.lineItems.map { lineItem ->
+                imagesId.add(lineItem.productId)
             }
+            val images = localDataSource.getImagesByProductId(imagesId)
+
+            localDataSource.insertOrderWithItem(
+                orderResponseModel = orderResponseModel,
+                image = images
+            )
+        } catch (failure: FailureException) {
+            throw Failures.CacheFailure("${failure.message}")
         }
 
     }
 
     override suspend fun clearOrders() {
-        withContext(Dispatchers.IO) {
-            try {
-                localDataSource.clearOrders()
-            } catch (failure: FailureException) {
-                throw Failures.CacheFailure("${failure.message}")
-            }
+
+        try {
+            localDataSource.clearOrders()
+        } catch (failure: FailureException) {
+            throw Failures.CacheFailure("${failure.message}")
         }
+
     }
 }

@@ -6,20 +6,20 @@ import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestE
 import com.example.ecommerce.features.address.domain.entites.BillingInfoResponseEntity
 
 object BillingInfoMapper {
-    fun mapToEntity(model: BillingInfoResponseModel):BillingInfoResponseEntity{
+    fun mapToEntity(model: BillingInfoResponseModel): BillingInfoResponseEntity {
         return BillingInfoResponseEntity(
             firstName = model.firstName,
             lastName = model.lastName,
             email = model.email,
             address = model.address,
             city = model.city,
-            state = model.state,
             postCode = model.postCode,
             country = model.country,
             phone = model.phone,
         )
     }
-    fun mapToModel(entity:BillingInfoRequestEntity):BillingInfoRequestModel{
+
+    fun mapToModel(entity: BillingInfoRequestEntity): BillingInfoRequestModel {
         return BillingInfoRequestModel(
             firstName = entity.firstName,
             lastName = entity.lastName,
@@ -27,9 +27,22 @@ object BillingInfoMapper {
             city = entity.city,
             postCode = entity.postCode,
             country = entity.country,
-            state = entity.state,
             email = entity.email,
             phone = entity.phone,
         )
+    }
+
+    fun mapBillingInfoResponseModelToBillingInfoRequestModel(model: BillingInfoResponseModel): BillingInfoRequestModel {
+        return BillingInfoRequestModel(
+            firstName = model.firstName,
+            lastName = model.lastName,
+            address = model.address,
+            city = model.city,
+            postCode = model.postCode,
+            country = model.country,
+            email = model.email,
+            phone = model.phone,
+
+            )
     }
 }

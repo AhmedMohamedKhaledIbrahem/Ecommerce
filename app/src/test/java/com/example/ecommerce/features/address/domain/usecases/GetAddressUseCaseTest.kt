@@ -2,7 +2,8 @@ package com.example.ecommerce.features.address.domain.usecases
 
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.features.address.domain.repositories.AddressRepository
-import com.example.ecommerce.features.address.domain.usecases.getaddressbyid.GetAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.getaddress.GetAddressUseCase
+import com.example.ecommerce.features.address.tListCustomerAddressEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -25,26 +26,14 @@ class GetAddressUseCaseTest {
         MockitoAnnotations.openMocks(this)
         getAddressUseCase = GetAddressUseCase(repository = repository)
     }
-    private val tCustomerAddressEntity = CustomerAddressEntity(
-        id = 0,
-        userId = 1 ,
-        firstName = "John" ,
-        lastName = "Doe" ,
-        email = "john.c.calhoun@examplepetstore.com" ,
-        phone = "1234567890" ,
-        address = "123 Main St" ,
-        country = "USA" ,
-        city = "New York" ,
-        state = "NY" ,
-        zipCode = "10001" ,
-    )
-   private val tId = 1
+
+
     @Test
-    fun`getAddressById should return CustomerAddressEntity from the repository`() = runTest {
-        `when`(repository.getAddressById(id = tId)).thenReturn(tCustomerAddressEntity)
-        val result = getAddressUseCase.invoke(id = tId)
-        assertEquals(tCustomerAddressEntity,result)
-        verify(repository).getAddressById(id = tId)
+    fun`invoke should return list CustomerAddressEntity from the repository`() = runTest {
+        `when`(repository.getAddress()).thenReturn(tListCustomerAddressEntity)
+        val result = getAddressUseCase.invoke()
+        assertEquals(tListCustomerAddressEntity, result)
+        verify(repository).getAddress()
         verifyNoMoreInteractions(repository)
     }
 }

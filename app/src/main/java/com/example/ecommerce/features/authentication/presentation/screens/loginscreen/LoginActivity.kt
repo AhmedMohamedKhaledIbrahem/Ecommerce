@@ -220,7 +220,10 @@ class LoginActivity : AppCompatActivity() {
                 val response = state.data as AuthenticationResponseEntity
                 when (response.verificationStatues) {
                     true -> {
-                        customerManager.setCustomerId(response.userId)
+                        lifecycleScope.launch {
+                            customerManager.setCustomerId(response.userId)
+                        }
+
                         notificationManagerViewModel.getFcmTokenDevice()
                         val intent = Intent(
                             this@LoginActivity,

@@ -5,6 +5,5 @@ import com.google.gson.annotations.SerializedName
 data class AddressDataResponseModel(
     @SerializedName("billing") val billing: BillingInfoResponseModel? = null
         ?: BillingInfoResponseModel(),
-    @SerializedName("shipping") val shipping: ShippingInfoResponseModel? = null
-        ?: ShippingInfoResponseModel()
+
 )

@@ -22,7 +22,6 @@ import com.example.ecommerce.core.customer.CustomerManager
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.database.data.entities.cart.CartWithItems
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
-import com.example.ecommerce.core.decoration.BottomSpacingDecoration
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
@@ -337,7 +336,7 @@ class CartFragment : Fragment() {
     }
 
     private fun getAddressByCustomerId() {
-        addressViewModel.getAddressById(id = customerManager.getCustomerId())
+        //addressViewModel.getAddress(id = customerManager.getCustomerId())
     }
 
     private fun createOrder(orderRequestEntity: OrderRequestEntity) {
@@ -432,14 +431,17 @@ class CartFragment : Fragment() {
         billingEntity: BillingInfoRequestEntity,
         lineItemRequestEntity: List<LineItemRequestEntity>
     ): OrderRequestEntity {
+        var customerId = 0
+        lifecycleScope.launch {
+            customerId = customerManager.getCustomerId()
+        }
         val orderRequestEntity = OrderRequestEntity(
             paymentMethod = "cod",
             paymentMethodTitle = "Cash On Delivery",
             setPaid = false,
             billing = billingEntity,
-            //shipping = shippingEntity,
             lineItems = lineItemRequestEntity,
-            customerId = customerManager.getCustomerId()
+            customerId = customerId
         )
         return orderRequestEntity
     }
@@ -462,7 +464,7 @@ class CartFragment : Fragment() {
             lastName = address.lastName,
             address = address.address,
             city = address.city,
-            state = address.state,
+            //state = address.state,
             country = address.country,
             postCode = address.zipCode,
             phone = address.phone,
@@ -482,8 +484,6 @@ class CartFragment : Fragment() {
             }
         }
     }
-
-
 
 
 }

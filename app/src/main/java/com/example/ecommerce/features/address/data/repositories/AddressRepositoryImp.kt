@@ -1,6 +1,7 @@
 package com.example.ecommerce.features.address.data.repositories
 
-import android.util.Log
+import android.content.Context
+import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.errors.Failures
@@ -9,73 +10,106 @@ import com.example.ecommerce.features.address.data.datasources.localdatasource.A
 import com.example.ecommerce.features.address.data.datasources.remotedatasource.AddressRemoteDataSource
 import com.example.ecommerce.features.address.data.mapper.AddressMapper
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
+import com.example.ecommerce.features.address.domain.entites.UpdateAddressResponseEntity
 import com.example.ecommerce.features.address.domain.repositories.AddressRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class AddressRepositoryImp @Inject constructor(
     private val remoteDataSource: AddressRemoteDataSource,
     private val localDataSource: AddressLocalDataSource,
-    private val internetConnectionChecker: InternetConnectionChecker
+    private val internetConnectionChecker: InternetConnectionChecker,
+    @ApplicationContext private val context: Context
 ) : AddressRepository {
+    override suspend fun updateAddress(
+        id: Int,
+        customerAddressParams: AddressRequestEntity
+    ): UpdateAddressResponseEntity {
+        return try {
+            if (!internetConnectionChecker.hasConnection()) {
+                throw Failures.ConnectionFailure(context.getString(R.string.no_internet_connection))
+            }
+            val updateAddressParams = AddressMapper.mapToModel(customerAddressParams)
+            try {
+                localDataSource.updateAddress(id = id, updateAddressParams)
+            } catch (e: FailureException) {
+                throw Failures.CacheFailure(
+                    e.localizedMessage ?: context.getString(R.string.unknown_error)
+                )
+            }
+            val updateAddressResponseModel = remoteDataSource.updateAddress(updateAddressParams)
+            AddressMapper.mapToEntity(updateAddressResponseModel)
+        } catch (e: FailureException) {
+            throw Failures.ServerFailure(
+                e.localizedMessage ?: context.getString(R.string.unknown_error)
+            )
+        }
 
+    }
 
-    override suspend fun updateAddress(customerAddressParams: AddressRequestEntity) {
+    override suspend fun getAddress(): List<CustomerAddressEntity> {
+        return try {
+            if (!internetConnectionChecker.hasConnection()) {
+                throw Failures.ConnectionFailure(context.getString(R.string.no_internet_connection))
+            }
+            if (!localDataSource.isAddressEmpty()) {
+                localDataSource.getAddress()
+            } else {
+                return try {
+                    val addressDataResponseModel = remoteDataSource.getAddress()
+                    val addressRequestModel = AddressMapper
+                        .mapAddressResponseModelToAddressRequestModel(
+                            addressDataResponseModel
+                        )
+                    localDataSource.insertAddress(addressRequestModel)
+                    localDataSource.getAddress()
+                } catch (e: FailureException) {
+                    throw Failures.ServerFailure(
+                        e.localizedMessage ?: context.getString(R.string.unknown_error)
+                    )
+                }
+            }
+        } catch (e: FailureException) {
+            throw Failures.CacheFailure(
+                e.localizedMessage ?: context.getString(R.string.unknown_error)
+            )
+        }
+
+    }
+
+    override suspend fun insertAddress(customerAddressParams: AddressRequestEntity) {
         try {
-            if (internetConnectionChecker.hasConnection()) {
-                val updateAddressParams = AddressMapper.mapToModel(customerAddressParams)
-                val updateAddressRemote = remoteDataSource.updateAddress(updateAddressParams)
-                localDataSource.updateAddress(updateAddressParams = updateAddressRemote)
-            } else {
-                throw Failures.ConnectionFailure("No Internet Connection")
+            if (!internetConnectionChecker.hasConnection()) {
+                throw Failures.ConnectionFailure(context.getString(R.string.no_internet_connection))
             }
+            val addressRequestModel = AddressMapper.mapToModel(customerAddressParams)
+            try {
+                localDataSource.insertAddress(addressRequestModel)
+            } catch (e: FailureException) {
+                throw Failures.CacheFailure(
+                    e.localizedMessage ?: context.getString(R.string.unknown_error)
+                )
+            }
+            remoteDataSource.updateAddress(addressRequestModel)
+
         } catch (e: FailureException) {
-            throw Failures.ServerFailure(e.message ?: " Unknown Error")
+            throw Failures.ServerFailure(
+                e.localizedMessage ?: context.getString(R.string.unknown_error)
+            )
         }
+
     }
 
-    override suspend fun getAddressById(id: Int): CustomerAddressEntity {
-        return try {
-            if (internetConnectionChecker.hasConnection()) {
-                localDataSource.checkAddressEntityById(id)?.let {
-                    Log.e("localDataSource","${localDataSource.getAddressById(id = id)}")
-                    localDataSource.getAddressById(id = id)
-                } ?: run {
-                    val remoteGetAddress = remoteDataSource.getAddress()
-                    localDataSource.updateAddress(updateAddressParams = remoteGetAddress)
-                    Log.e("getAddressById","${localDataSource.getAddressById(id = id)}")
-                    localDataSource.getAddressById(id = id)
-                }
-            } else {
-                throw Failures.ConnectionFailure("No Internet Connection")
-            }
+    override suspend fun deleteAddress() {
+        try {
+            localDataSource.deleteAddress()
         } catch (e: FailureException) {
-            throw Failures.CacheFailure(e.message ?: " Unknown Error")
+            throw Failures.CacheFailure(
+                e.localizedMessage ?: context.getString(R.string.unknown_error)
+            )
         }
+
     }
 
-    override suspend fun checkUpdateAddress(): CustomerAddressEntity {
-        return try {
-            if (internetConnectionChecker.hasConnection()) {
-
-                remoteDataSource.checkUpdateAddress()
-                    .takeIf { updateResponse -> updateResponse.isUpdate }?.let { updateResponse ->
-                        val remoteGetAddress = remoteDataSource.getAddress()
-                        try {
-                            localDataSource.updateAddress(updateAddressParams = remoteGetAddress)
-                            localDataSource.getAddressById(id = updateResponse.id)
-                        } catch (e: FailureException) {
-                            throw Failures.CacheFailure(e.message ?: " Unknown Error")
-                        }
-                    } ?: run {
-                    throw Failures.ServerFailure("there's not update")
-                }
-            } else {
-                throw Failures.ConnectionFailure("No Internet Connection")
-            }
-        } catch (e: FailureException) {
-            throw Failures.ServerFailure(e.message ?: "Unknown Error")
-
-        }
-    }
 
 }

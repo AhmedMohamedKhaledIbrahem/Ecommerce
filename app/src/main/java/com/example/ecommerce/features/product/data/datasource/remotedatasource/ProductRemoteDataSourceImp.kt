@@ -14,8 +14,7 @@ class ProductRemoteDataSourceImp @Inject constructor(
     private val productApi: ProductApi
 ) : ProductRemoteDataSource {
     override suspend fun getProducts(): EcommerceResponseModel {
-        return withContext(Dispatchers.IO) {
-            try {
+        return try {
                 val response = productApi.getProducts()
                 if (response.isSuccessful) {
                     Log.e("responseBody", "${response.body()?.products?.size ?: 0}")
@@ -30,6 +29,6 @@ class ProductRemoteDataSourceImp @Inject constructor(
             } catch (e: Exception) {
                 throw FailureException("${e.message}")
             }
-        }
+
     }
 }

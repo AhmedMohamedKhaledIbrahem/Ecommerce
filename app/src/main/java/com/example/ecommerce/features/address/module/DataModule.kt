@@ -1,5 +1,6 @@
 package com.example.ecommerce.features.address.module
 
+import android.content.Context
 import com.example.ecommerce.core.database.data.dao.address.AddressDao
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.features.address.data.datasources.AddressApi
@@ -12,6 +13,7 @@ import com.example.ecommerce.features.address.domain.repositories.AddressReposit
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -20,14 +22,20 @@ import javax.inject.Singleton
 object DataModule {
     @Provides
     @Singleton
-    fun provideAddressLocalDataSource(dao: AddressDao): AddressLocalDataSource {
-        return AddressLocalDataSourceImp(dao = dao)
+    fun provideAddressLocalDataSource(
+        dao: AddressDao,
+        @ApplicationContext context: Context
+    ): AddressLocalDataSource {
+        return AddressLocalDataSourceImp(dao = dao, context = context)
     }
 
     @Provides
     @Singleton
-    fun provideAddressRemoteDataSource(api: AddressApi): AddressRemoteDataSource {
-        return AddressRemoteDataSourceImp(api = api)
+    fun provideAddressRemoteDataSource(
+        api: AddressApi,
+        @ApplicationContext context: Context
+    ): AddressRemoteDataSource {
+        return AddressRemoteDataSourceImp(api = api, context = context)
     }
 
     @Provides
@@ -35,12 +43,14 @@ object DataModule {
     fun provideAddressRepository(
         localDataSource: AddressLocalDataSource,
         remoteDataSource: AddressRemoteDataSource,
-        internetConnectionChecker: InternetConnectionChecker
+        internetConnectionChecker: InternetConnectionChecker,
+        @ApplicationContext context: Context
     ): AddressRepository {
         return AddressRepositoryImp(
             localDataSource = localDataSource,
             remoteDataSource = remoteDataSource,
-            internetConnectionChecker = internetConnectionChecker
+            internetConnectionChecker = internetConnectionChecker,
+            context = context
         )
     }
 }

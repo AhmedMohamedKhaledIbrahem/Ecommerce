@@ -128,5 +128,11 @@
     <string name="empty_cart_message">عربة التسوق فارغة</string>
     <string name="empty_orders_message">لا توجد طلبات</string>
     <string name="search_products">Search Products</string>
+    <string name="edit_address">edit address</string>
+    <string name="delete_address">delete address</string>
+    <string name="add_address">add address</string>
+    <string name="no_address_found">No Address Found</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="no_internet_connection">No Internet Connection</string>
 
 </resources>

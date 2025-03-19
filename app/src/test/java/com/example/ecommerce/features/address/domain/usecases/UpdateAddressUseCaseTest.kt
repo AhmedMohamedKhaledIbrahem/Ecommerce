@@ -1,8 +1,10 @@
 package com.example.ecommerce.features.address.domain.usecases
 
-import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
 import com.example.ecommerce.features.address.domain.repositories.AddressRepository
 import com.example.ecommerce.features.address.domain.usecases.updateaddress.UpdateAddressUseCase
+import com.example.ecommerce.features.address.id
+import com.example.ecommerce.features.address.tAddressRequestEntity
+import com.example.ecommerce.features.address.tUpdateAddressResponseEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -13,6 +15,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
+import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class UpdateAddressUseCaseTest {
@@ -29,9 +32,10 @@ class UpdateAddressUseCaseTest {
 
     @Test
     fun `invoke should call updateAddress on the repository`() = runTest {
-        `when`(repository.updateAddress(any())).thenReturn(Unit)
-        updateAddressUseCase.invoke(customerAddressParams = AddressRequestEntity())
-        verify(repository).updateAddress(AddressRequestEntity())
+        `when`(repository.updateAddress(id = id, customerAddressParams = tAddressRequestEntity)).thenReturn(tUpdateAddressResponseEntity)
+        val result = updateAddressUseCase.invoke(customerAddressParams = tAddressRequestEntity, id = id)
+        assertEquals(tUpdateAddressResponseEntity, result)
+        verify(repository).updateAddress(id = id, customerAddressParams = tAddressRequestEntity)
         verifyNoMoreInteractions(repository)
     }
 }

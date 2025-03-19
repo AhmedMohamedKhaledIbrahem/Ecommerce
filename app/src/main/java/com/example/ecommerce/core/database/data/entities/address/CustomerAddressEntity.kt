@@ -2,19 +2,16 @@ package com.example.ecommerce.core.database.data.entities.address
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "customerAddress")
 data class CustomerAddressEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    @SerializedName("id") val userId: Int,
-    @SerializedName("first_name") var firstName: String? = null ?: "",
-    @SerializedName("last_name") var lastName: String? = null ?: "",
-    @SerializedName("email") var email: String? = null ?: "",
-    @SerializedName("phone") var phone: String? = null ?: "",
-    @SerializedName("address_1") var address: String? = null ?: "",
-    @SerializedName("country") var country: String? = null ?: "",
-    @SerializedName("city") var city: String? = null ?: "",
-    @SerializedName("state") var state: String? = null ?: "",
-    @SerializedName("postcode") var zipCode: String? = null ?: "",
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    var firstName: String? = null ?: "",
+    var lastName: String? = null ?: "",
+    var email: String? = null ?: "",
+    var phone: String? = null ?: "",
+    var address: String? = null ?: "",
+    var country: String? = null ?: "",
+    var city: String? = null ?: "",
+    var zipCode: String? = null ?: "",
 )

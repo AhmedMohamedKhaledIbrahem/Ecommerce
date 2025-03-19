@@ -3,15 +3,17 @@ package com.example.ecommerce.features.address.presentation.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.state.UiState
-import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
-import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
-import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequestEntity
-import com.example.ecommerce.features.address.domain.usecases.checkupdateaddress.ICheckUpdateAddressUseCase
-import com.example.ecommerce.features.address.domain.usecases.getaddressbyid.IGetAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.deleteaddress.IDeleteAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.getaddress.IGetAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.insertupdateaddress.IInsertAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.updateaddress.IUpdateAddressUseCase
+import com.example.ecommerce.features.address.id
+import com.example.ecommerce.features.address.tAddressRequestEntity
+import com.example.ecommerce.features.address.tListCustomerAddressEntity
+import com.example.ecommerce.features.address.tUpdateAddressResponseEntity
 import com.example.ecommerce.features.await
+import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.observerViewModelErrorState
 import com.example.ecommerce.features.observerViewModelSuccessState
 import com.example.ecommerce.features.removeObserverFromLiveData
@@ -26,9 +28,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 @ExperimentalCoroutinesApi
@@ -43,10 +45,13 @@ class AddressViewModelTest {
     private lateinit var getAddressUseCase: IGetAddressUseCase
 
     @Mock
-    private lateinit var checkUpdateAddressUseCase: ICheckUpdateAddressUseCase
-    private lateinit var viewModel: AddressViewModel
-    private val dispatcher = UnconfinedTestDispatcher()
+    private lateinit var insertAddressUseCase: IInsertAddressUseCase
 
+    @Mock
+    private lateinit var deleteAddressUseCase: IDeleteAddressUseCase
+    private lateinit var viewModel: IAddressViewModel
+    private val dispatcher = UnconfinedTestDispatcher()
+    private val latch = CountDownLatch(1)
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
@@ -54,7 +59,8 @@ class AddressViewModelTest {
         viewModel = AddressViewModel(
             updateAddressUseCase,
             getAddressUseCase,
-            checkUpdateAddressUseCase
+            insertAddressUseCase,
+            deleteAddressUseCase
         )
     }
 
@@ -67,56 +73,25 @@ class AddressViewModelTest {
         return viewModel.addressState.asLiveData()
     }
 
-    private val tShippingInfoRequestEntity = ShippingInfoRequestEntity(
-        firstName = "John",
-        lastName = "Doe",
-        address = "123 Main St",
-        city = "Springfield",
-        state = "IL",
-        postCode = "62701",
-        country = "US",
-    )
-    private val tBillingInfoRequestEntity = BillingInfoRequestEntity(
-        firstName = "John",
-        lastName = "Doe",
-        address = "123 Main St",
-        city = "Springfield",
-        state = "IL",
-        postCode = "62701",
-        country = "US",
-        email = "billing@example.com",
-        phone = "555-555-5555"
-    )
-    private val tAddressRequestEntity = AddressRequestEntity(
-        billing = tBillingInfoRequestEntity,
-        shipping = tShippingInfoRequestEntity
-    )
-    private val tCustomerAddressEntity = CustomerAddressEntity(
-        id = 0,
-        userId = 1,
-        firstName = "John",
-        lastName = "Doe",
-        address = "123 Main St",
-        city = "Springfield",
-        state = "IL",
-        zipCode = "62701",
-        country = "US",
-        email = "billing@example.com",
-        phone = "555-555-5555"
-    )
-    private val errorMessage = "Error message"
 
     @Test
     fun `updateAddress should emit success state when use case returns data`() = runTest {
-        val latch = CountDownLatch(1)
-        viewModel.updateAddress(updateAddressParams = tAddressRequestEntity)
+        `when`(
+            updateAddressUseCase(
+                id = id,
+                customerAddressParams = tAddressRequestEntity
+            )
+        ).thenReturn(
+            tUpdateAddressResponseEntity
+        )
+        viewModel.updateAddress(id = id, updateAddressParams = tAddressRequestEntity)
         val observer = observerViewModelSuccessState(
-            latch,
+            latch = latch,
             Unit,
             addressStateAsLiveData()
         )
-        verify(updateAddressUseCase).invoke(customerAddressParams = tAddressRequestEntity)
         await(latch = latch)
+        verify(updateAddressUseCase).invoke(id, customerAddressParams = tAddressRequestEntity)
         removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
     }
@@ -124,85 +99,120 @@ class AddressViewModelTest {
     @Test
     fun `updateAddress should emit error state when use case throws exception`() = runTest {
         val latch = CountDownLatch(1)
-        whenever(updateAddressUseCase.invoke(customerAddressParams = tAddressRequestEntity))
+        `when`(updateAddressUseCase.invoke(id =id,customerAddressParams = tAddressRequestEntity))
             .thenThrow(RuntimeException(errorMessage))
-        viewModel.updateAddress(updateAddressParams = tAddressRequestEntity)
+        viewModel.updateAddress(id = id,updateAddressParams = tAddressRequestEntity)
         val observer = observerViewModelErrorState(
             latch,
             errorMessage,
             addressStateAsLiveData()
         )
-        verify(updateAddressUseCase).invoke(customerAddressParams = tAddressRequestEntity)
         await(latch = latch)
+        verify(updateAddressUseCase).invoke(id = id,customerAddressParams = tAddressRequestEntity)
         removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
     }
     @Test
-    fun `getAddressById should emit success state when use case returns data`() = runTest {
+    fun `getAddress should emit success state when use case returns data`() = runTest {
         val latch = CountDownLatch(1)
-        whenever(getAddressUseCase.invoke(id = 1)).thenReturn(
-            tCustomerAddressEntity
+        `when`(getAddressUseCase.invoke()).thenReturn(
+            tListCustomerAddressEntity
         )
-        viewModel.getAddressById(1)
+        viewModel.getAddress()
         val observer = observerViewModelSuccessState(
             latch,
-            tCustomerAddressEntity,
+            tListCustomerAddressEntity,
             addressStateAsLiveData()
         )
-        verify(getAddressUseCase).invoke(id = 1)
         await(latch = latch)
+        verify(getAddressUseCase).invoke()
         removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
     }
 
     @Test
-    fun `getAddressById should emit error state when use case throws exception`() = runTest {
+    fun `getAddress should emit error state when use case throws exception`() = runTest {
         val latch = CountDownLatch(1)
-        whenever(getAddressUseCase.invoke(id = 1))
+        `when`(getAddressUseCase.invoke())
             .thenThrow(RuntimeException(errorMessage))
-        viewModel.getAddressById(1)
+        viewModel.getAddress()
         val observer = observerViewModelErrorState(
             latch,
             errorMessage,
             addressStateAsLiveData()
         )
-        verify(getAddressUseCase).invoke(id = 1)
         await(latch = latch)
+        verify(getAddressUseCase).invoke()
         removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
     }
+
     @Test
-    fun `checkUpdateAddress should emit success state when use case returns data`() = runTest {
+    fun `insertAddress should emit success state when use case insert address data`() = runTest {
         val latch = CountDownLatch(1)
-        whenever(checkUpdateAddressUseCase.invoke()).thenReturn(tCustomerAddressEntity)
-        viewModel.checkUpdateAddress()
+        `when`(insertAddressUseCase.invoke(tAddressRequestEntity)).thenReturn(
+            Unit
+        )
+        viewModel.insertAddress(tAddressRequestEntity)
         val observer = observerViewModelSuccessState(
             latch,
-            tCustomerAddressEntity,
+            Unit,
             addressStateAsLiveData()
         )
-        verify(checkUpdateAddressUseCase).invoke()
         await(latch = latch)
+        verify(insertAddressUseCase).invoke(tAddressRequestEntity)
         removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
     }
 
     @Test
-    fun `checkUpdateAddress should emit error state when use case throws exception`() = runTest {
+    fun `insertAddress should emit error state when use case throws exception`() = runTest {
         val latch = CountDownLatch(1)
-        whenever(checkUpdateAddressUseCase.invoke())
+        `when`(insertAddressUseCase.invoke(tAddressRequestEntity))
             .thenThrow(RuntimeException(errorMessage))
-        viewModel.checkUpdateAddress()
+        viewModel.insertAddress(tAddressRequestEntity)
         val observer = observerViewModelErrorState(
             latch,
             errorMessage,
             addressStateAsLiveData()
         )
-        verify(checkUpdateAddressUseCase).invoke()
         await(latch = latch)
+        verify(insertAddressUseCase).invoke(tAddressRequestEntity)
+        removeObserverFromLiveData(addressStateAsLiveData(), observer)
+
+    }
+    @Test
+    fun `deleteAddress should emit success state when use case delete All address data`() = runTest {
+        val latch = CountDownLatch(1)
+        `when`(deleteAddressUseCase.invoke()).thenReturn(
+            Unit
+        )
+        viewModel.deleteAddress()
+        val observer = observerViewModelSuccessState(
+            latch,
+            Unit,
+            addressStateAsLiveData()
+        )
+        await(latch = latch)
+        verify(deleteAddressUseCase).invoke()
         removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
     }
 
+    @Test
+    fun `deleteAddress should emit error state when use case throws exception`() = runTest {
+        val latch = CountDownLatch(1)
+        `when`(deleteAddressUseCase.invoke())
+            .thenThrow(RuntimeException(errorMessage))
+        viewModel.deleteAddress()
+        val observer = observerViewModelErrorState(
+            latch,
+            errorMessage,
+            addressStateAsLiveData()
+        )
+        await(latch = latch)
+        verify(deleteAddressUseCase).invoke()
+        removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
+    }
 }

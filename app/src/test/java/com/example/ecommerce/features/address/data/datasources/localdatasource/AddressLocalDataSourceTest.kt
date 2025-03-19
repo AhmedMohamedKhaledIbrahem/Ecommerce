@@ -1,18 +1,31 @@
 package com.example.ecommerce.features.address.data.datasources.localdatasource
 
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import com.example.ecommerce.core.database.data.dao.address.AddressDao
-import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.errors.FailureException
-import com.example.ecommerce.features.address.data.models.AddressResponseModel
-import com.example.ecommerce.resources.fixture
-import com.google.gson.Gson
+import com.example.ecommerce.features.address.addressError
+import com.example.ecommerce.features.address.id
+import com.example.ecommerce.features.address.noAddressFound
+import com.example.ecommerce.features.address.tAddressRequestModel
+import com.example.ecommerce.features.address.tCustomerAddressEntity
+import com.example.ecommerce.features.address.tCustomerAddressEntityUpdate
+import com.example.ecommerce.features.address.tListCustomerAddressEntity
+import com.example.ecommerce.features.address.unKnownError
+import com.example.ecommerce.features.address.unknownError
+import com.example.ecommerce.features.errorMessage
+import com.example.ecommerce.features.failureException
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import kotlin.test.assertEquals
@@ -23,118 +36,109 @@ class AddressLocalDataSourceTest {
 
     @Mock
     private lateinit var addressDao: AddressDao
+
+
+    private lateinit var context: Context
     private lateinit var localDataSource: AddressLocalDataSource
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        localDataSource = AddressLocalDataSourceImp(dao = addressDao)
+        context =  mockk(relaxed = true)
+        localDataSource = AddressLocalDataSourceImp(dao = addressDao, context = context)
+
     }
 
-    private val tAddressId = 1
-    private val tCustomerAddressEntity = CustomerAddressEntity(
-        id = 0,
-        userId = tAddressId,
-        firstName = "Old",
-        lastName = "Name",
-        address = "Old Address",
-        city = "Old City",
-        state = "Old State",
-        zipCode = "0000",
-        country = "Old Country",
-        email = "old@example.com",
-        phone = "000000"
-    )
-    private val updateAddressParams = fixture("address.json").run {
-        Gson().fromJson(this, AddressResponseModel::class.java)
+    private fun isAddressEmpty(isEmpty: Int) = runTest {
+        `when`(addressDao.getCount()).thenReturn(isEmpty)
     }
-    val tErrorString = "Database error"
+
 
     @Test
-    fun `UpdateAddressById should update the address in the database when the addressId exists`() =
+    fun `UpdateAddress should update the address in the database when the customerAddressEntity exist`() =
         runTest {
-            whenever(addressDao.getAddressById(tAddressId)).thenReturn(tCustomerAddressEntity)
+            isAddressEmpty(1)
 
+            `when`(addressDao.updateAddress(tCustomerAddressEntityUpdate)).thenReturn(Unit)
 
-            localDataSource.updateAddress(updateAddressParams)
-            val updatedAddressCaptor = argumentCaptor<CustomerAddressEntity>()
-            verify(addressDao).updateAddress(updatedAddressCaptor.capture())
+            localDataSource.updateAddress(id, tAddressRequestModel)
 
-            val updatedAddress = updatedAddressCaptor.firstValue
-            assertEquals("John", updatedAddress.firstName)
-            assertEquals("Doe", updatedAddress.lastName)
-            assertEquals("123 Main St", updatedAddress.address)
-            assertEquals("Springfield", updatedAddress.city)
-            assertEquals("IL", updatedAddress.state)
-            assertEquals("62701", updatedAddress.zipCode)
-            assertEquals("US", updatedAddress.country)
-            assertEquals("billing@example.com", updatedAddress.email)
-            assertEquals("555-555-5555", updatedAddress.phone)
+            verify(addressDao).updateAddress(tCustomerAddressEntityUpdate)
 
         }
 
     @Test
-    fun `updateAddressById should insert a new address in the database when the addressId not exist`() =
+    fun `updateAddress should throw a FailureException when getCount equal zero`() =
         runTest {
-            whenever(addressDao.getAddress(tAddressId)).thenReturn(null)
-            localDataSource.updateAddress(updateAddressParams = updateAddressParams)
-            val addressCaptor = argumentCaptor<CustomerAddressEntity>()
-            verify(addressDao).insertAddress(customerAddressEntity = addressCaptor.capture())
-            val insertedAddress = addressCaptor.firstValue
-            assertEquals("John", insertedAddress.firstName)
-            assertEquals("Doe", insertedAddress.lastName)
-            assertEquals("123 Main St", insertedAddress.address)
-            assertEquals("Springfield", insertedAddress.city)
-            assertEquals("IL", insertedAddress.state)
-            assertEquals("62701", insertedAddress.zipCode)
-            assertEquals("US", insertedAddress.country)
-            assertEquals("billing@example.com", insertedAddress.email)
-            assertEquals("555-555-5555", insertedAddress.phone)
-        }
-
-    @Test
-    fun `updateAddressById should throw a FailureException when an exception occurs`() = runTest {
-        whenever(addressDao.getAddressById(tAddressId)).thenThrow(RuntimeException(tErrorString))
-        val exception = assertFailsWith<FailureException> {
-            localDataSource.updateAddress(updateAddressParams = updateAddressParams)
+            `when`(addressDao.getCount()).thenThrow(RuntimeException(addressError))
+            val exception = failureException {
+                localDataSource.updateAddress(id, tAddressRequestModel)
+            }
+            assertEquals(addressError, exception.message)
 
         }
-        assertEquals(tErrorString, exception.message)
-
-    }
 
     @Test
-    fun `getAddressById should return the address when it exists`() = runTest {
-        whenever(addressDao.getAddress(tAddressId)).thenReturn(tCustomerAddressEntity)
-        val result = localDataSource.getAddressById(tAddressId)
-        assertEquals(tCustomerAddressEntity, result)
-
-    }
-
-    @Test
-    fun `getAddressById should throw a FailureException when an exception occurs`() = runTest {
-        whenever(addressDao.getAddress(tAddressId)).thenThrow(RuntimeException(tErrorString))
-        val exception = assertFailsWith<FailureException> {
-            localDataSource.getAddressById(tAddressId)
+    fun `updateAddress should throw a FailureException when unexpected error occurs`() = runTest {
+        isAddressEmpty(1)
+        `when`(addressDao.updateAddress(customerAddressEntity = tCustomerAddressEntityUpdate)).thenThrow(
+            RuntimeException(errorMessage)
+        )
+        val exception = failureException {
+            localDataSource.updateAddress(id, tAddressRequestModel)
         }
-        assertEquals(tErrorString, exception.message)
+        assertEquals(errorMessage, exception.message)
     }
 
     @Test
-    fun `checkAddressEntityById should return the address when it exists`() = runTest {
-        whenever(addressDao.getAddressById(tAddressId)).thenReturn(tCustomerAddressEntity)
-        val result = localDataSource.checkAddressEntityById(tAddressId)
-        assertEquals(tCustomerAddressEntity, result)
+    fun `getAddress should return the list of address when it exists`() = runTest {
+        `when`(addressDao.getAddress()).thenReturn(listOf(tCustomerAddressEntityUpdate))
+        val result = localDataSource.getAddress()
+        assertEquals(tListCustomerAddressEntity, result)
 
     }
 
     @Test
-    fun `checkAddressEntityById should throw a FailureException when an exception occurs`() = runTest {
-        whenever(addressDao.getAddressById(tAddressId)).thenThrow(RuntimeException(tErrorString))
-        val exception = assertFailsWith<FailureException> {
-            localDataSource.checkAddressEntityById(tAddressId)
+    fun `getAddress should throw a FailureException when unexpected error occurs`() = runTest {
+        whenever(addressDao.getAddress()).thenThrow(RuntimeException(errorMessage))
+        val exception = failureException {
+            localDataSource.getAddress()
         }
-        assertEquals(tErrorString, exception.message)
+        assertEquals(errorMessage, exception.message)
     }
 
+    @Test
+    fun `insertAddress should insert the address in the database`() = runTest {
+        `when`(addressDao.insertAddress(tCustomerAddressEntity)).thenReturn(Unit)
+        localDataSource.insertAddress(tAddressRequestModel)
+        verify(addressDao).insertAddress(eq(tCustomerAddressEntity))
+
+    }
+
+    @Test
+    fun `insertAddress should throw a FailureException when unexpected error occurs`() =
+        runTest {
+            `when`(addressDao.insertAddress(tCustomerAddressEntity)).thenThrow(RuntimeException(errorMessage))
+            val exception = failureException{
+                localDataSource.insertAddress(tAddressRequestModel)
+            }
+            assertEquals(errorMessage, exception.message)
+        }
+    @Test
+    fun `deleteAddress should delete the All address `() = runTest {
+        `when`(addressDao.deleteAllAddress()).thenReturn(Unit)
+        localDataSource.deleteAddress()
+        verify(addressDao).deleteAllAddress()
+
+    }
+
+    @Test
+    fun `deleteAddress should throw a FailureException when unexpected error occurs`() =
+        runTest {
+            `when`(addressDao.deleteAllAddress()).thenThrow(RuntimeException(errorMessage))
+            val exception = failureException{
+                localDataSource.deleteAddress()
+            }
+            assertEquals(errorMessage, exception.message)
+        }
 }

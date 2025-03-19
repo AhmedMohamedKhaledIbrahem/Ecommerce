@@ -58,7 +58,7 @@ class UserNameDetailsProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _userNameDetailsProfileState.emit(UiState.Loading(source))
             try {
-                val result = withContext(Dispatchers.IO) { operation() }
+                val result = operation()
                 onSuccess(result)
             } catch (failure: Failures) {
                 _userNameDetailsProfileState.emit(UiState.Error(mapFailureMessage(failure), source))

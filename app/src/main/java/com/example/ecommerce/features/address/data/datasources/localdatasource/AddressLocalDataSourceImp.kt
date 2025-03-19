@@ -1,64 +1,77 @@
 package com.example.ecommerce.features.address.data.datasources.localdatasource
 
-import android.util.Log
+import android.content.Context
+import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.dao.address.AddressDao
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.database.data.mapper.CustomerAddressMapper
 import com.example.ecommerce.core.errors.FailureException
-import com.example.ecommerce.features.address.data.models.AddressResponseModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.example.ecommerce.features.address.data.models.AddressRequestModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class AddressLocalDataSourceImp @Inject constructor(
-    private val dao: AddressDao
+    private val dao: AddressDao,
+    @ApplicationContext private val context: Context
 ) : AddressLocalDataSource {
 
-    override suspend fun updateAddress(updateAddressParams: AddressResponseModel) {
-        withContext(Dispatchers.IO) {
-            try {
-                val address = dao.getAddressById(updateAddressParams.userId)
-                if (address != null) {
-                    address.firstName = updateAddressParams.data?.billing?.firstName
-                    address.lastName = updateAddressParams.data?.billing?.lastName
-                    address.address = updateAddressParams.data?.billing?.address
-                    address.email = updateAddressParams.data?.billing?.email
-                    address.city = updateAddressParams.data?.billing?.city
-                    address.state = updateAddressParams.data?.billing?.state
-                    address.zipCode = updateAddressParams.data?.billing?.postCode
-                    address.country = updateAddressParams.data?.billing?.country
-                    address.phone = updateAddressParams.data?.billing?.phone
-                    dao.updateAddress(address)
-
-                } else {
-                    val customerAddressEntity =
-                        CustomerAddressMapper.mapToEntity(updateAddressParams)
-                    dao.insertAddress(customerAddressEntity = customerAddressEntity)
+    override suspend fun updateAddress(id: Int, addressRequestParams: AddressRequestModel) {
+        try {
+            val isAddressEmpty = isAddressEmpty()
+            when (isAddressEmpty) {
+                true -> {
+                    throw FailureException(context.getString(R.string.no_address_found))
                 }
-            } catch (e: Exception) {
-                throw FailureException("${e.message}")
+
+                false -> {
+                    val addressRequestEntity = CustomerAddressMapper.mapToEntity(
+                        id = id,
+                        model = addressRequestParams
+                    )
+                    dao.updateAddress(addressRequestEntity)
+                }
             }
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+
+    }
+
+    override suspend fun insertAddress(addressRequestParams: AddressRequestModel) {
+        try {
+            val customerAddressEntity =
+                CustomerAddressMapper.mapToEntity(addressRequestParams)
+            dao.insertAddress(customerAddressEntity = customerAddressEntity)
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+
+    }
+
+    override suspend fun getAddress(): List<CustomerAddressEntity> {
+        return try {
+            dao.getAddress()
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+
+    }
+
+    override suspend fun isAddressEmpty(): Boolean {
+        return try {
+            dao.getCount() == 0
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
         }
     }
 
-    override suspend fun getAddressById(id: Int): CustomerAddressEntity {
-        return withContext(Dispatchers.IO) {
-            try {
-                dao.getAddress(id)
-            } catch (e: Exception) {
-                throw FailureException("${e.message}")
-            }
+    override suspend fun deleteAddress() {
+        try {
+            dao.deleteAllAddress()
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
         }
     }
 
 
-    override suspend fun checkAddressEntityById(id: Int): CustomerAddressEntity? {
-        return withContext(Dispatchers.IO) {
-            try {
-                dao.getAddressById(id)
-            } catch (e: Exception) {
-                throw FailureException("${e.message}")
-            }
-        }
-    }
 }

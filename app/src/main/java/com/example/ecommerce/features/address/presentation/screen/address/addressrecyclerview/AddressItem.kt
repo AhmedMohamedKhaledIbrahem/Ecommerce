@@ -7,6 +7,6 @@ data class AddressItem(
     val streetAddress:String,
     val country:String,
     val city:String,
-    val state:String,
+   // val state:String,
     val postCode:String
 )
