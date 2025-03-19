@@ -15,7 +15,6 @@ class UserProfileLocalDataSourceImp @Inject constructor(
     override suspend fun updateUserNameDetails(
         updateUserNameDetailsParams: UpdateUserNameDetailsResponseModel
     ) {
-        withContext(Dispatchers.IO) {
             try {
                 val user = dao.getUserById(updateUserNameDetailsParams.id)
                 if (user != null) {
@@ -29,11 +28,10 @@ class UserProfileLocalDataSourceImp @Inject constructor(
             } catch (e: Exception) {
                 throw FailureException("${e.message}")
             }
-        }
+
     }
 
     override suspend fun updateImageUserProfile(image: String ,userId:Int) {
-        withContext(Dispatchers.IO){
             try {
                 val user = dao.getUserById(userId)
                 if (user != null){
@@ -45,17 +43,16 @@ class UserProfileLocalDataSourceImp @Inject constructor(
             }catch (e:Exception){
                 throw FailureException("${e.message}")
             }
-        }
+
     }
 
 
     override suspend fun getUserProfile(): UserEntity {
-        return withContext(Dispatchers.IO) {
-            try {
+        return try {
                 dao.getUser()
             } catch (e: Exception) {
                 throw FailureException("${e.message}")
             }
-        }
+
     }
 }

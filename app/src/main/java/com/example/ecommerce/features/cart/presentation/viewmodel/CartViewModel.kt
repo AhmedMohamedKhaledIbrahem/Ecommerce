@@ -88,7 +88,7 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
             _cartState.emit(UiState.Loading(source = source))
             try {
-                val result = withContext(Dispatchers.IO) { operation() }
+                val result = operation()
                 onSuccess(result)
             } catch (failure: Failures) {
                 _cartState.emit(

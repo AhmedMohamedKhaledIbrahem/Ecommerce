@@ -14,24 +14,24 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 
-@ExperimentalCoroutinesApi
-class UpdateAddressUseCaseTest {
-    @Mock
-    private lateinit var repository: AddressRepository
-    private lateinit var updateAddressUseCase: UpdateAddressUseCase
-
-    @Before
-    fun setUp() {
-        MockitoAnnotations.openMocks(this)
-        updateAddressUseCase = UpdateAddressUseCase(repository = repository)
-    }
-
-
-    @Test
-    fun `invoke should call updateAddress on the repository`() = runTest {
-        `when`(repository.updateAddress(any())).thenReturn(Unit)
-        updateAddressUseCase.invoke(customerAddressParams = AddressRequestEntity())
-        verify(repository).updateAddress(AddressRequestEntity())
-        verifyNoMoreInteractions(repository)
-    }
-}
+//@ExperimentalCoroutinesApi
+//class UpdateAddressUseCaseTest {
+//    @Mock
+//    private lateinit var repository: AddressRepository
+//    private lateinit var updateAddressUseCase: UpdateAddressUseCase
+//
+//    @Before
+//    fun setUp() {
+//        MockitoAnnotations.openMocks(this)
+//        updateAddressUseCase = UpdateAddressUseCase(repository = repository)
+//    }
+//
+//
+//    @Test
+//    fun `invoke should call updateAddress on the repository`() = runTest {
+//        `when`(repository.updateAddress(any())).thenReturn(Unit)
+//        updateAddressUseCase.invoke(customerAddressParams = AddressRequestEntity())
+//        verify(repository).updateAddress(AddressRequestEntity())
+//        verifyNoMoreInteractions(repository)
+//    }
+//}

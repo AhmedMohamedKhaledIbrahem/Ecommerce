@@ -1,6 +1,6 @@
 package com.example.ecommerce.core.customer
 
 interface CustomerManager {
-    fun getCustomerId():Int
-    fun setCustomerId(customerId:Int)
+   suspend fun getCustomerId():Int
+   suspend fun setCustomerId(customerId:Int)
 }

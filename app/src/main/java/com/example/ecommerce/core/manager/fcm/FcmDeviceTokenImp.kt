@@ -1,6 +1,8 @@
 package com.example.ecommerce.core.manager.fcm
 
 import android.content.SharedPreferences
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class FcmDeviceTokenImp @Inject constructor(
@@ -13,15 +15,24 @@ class FcmDeviceTokenImp @Inject constructor(
     }
 
     override suspend fun addFcmTokenDevice(token: String) {
-        sharedPreferences.edit().putString(FCM_DEVICE_TOKEN, token).apply()
+        withContext(Dispatchers.IO) {
+            sharedPreferences.edit().putString(FCM_DEVICE_TOKEN, token).apply()
+        }
+
     }
 
     override suspend fun getFcmTokenDevice(): String? {
-        return sharedPreferences.getString(FCM_DEVICE_TOKEN, null)
+        return withContext(Dispatchers.IO) {
+            sharedPreferences.getString(FCM_DEVICE_TOKEN, null)
+        }
+
 
     }
 
     override suspend fun deleteFcmTokenDevice() {
-        sharedPreferences.edit().remove(FCM_DEVICE_TOKEN).apply()
+        withContext(Dispatchers.IO) {
+            sharedPreferences.edit().remove(FCM_DEVICE_TOKEN).apply()
+        }
+
     }
 }

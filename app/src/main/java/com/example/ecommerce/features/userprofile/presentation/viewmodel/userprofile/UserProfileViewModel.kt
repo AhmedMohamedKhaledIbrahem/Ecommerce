@@ -7,12 +7,10 @@ import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofile.IGetUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,7 +39,7 @@ class UserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _userProfileState.emit(UiState.Loading(source))
             try {
-                val result = withContext(Dispatchers.IO) { operation() }
+                val result = operation()
                 onSuccess(result)
             } catch (failure: Failures) {
                 _userProfileState.emit(UiState.Error(mapFailureMessage(failure), source))

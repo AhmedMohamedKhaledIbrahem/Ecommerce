@@ -1,24 +1,14 @@
 {
-  "id": 1,
-  "message": "Address updated successfully.",
+
   "billing": {
     "first_name": "John",
     "last_name": "Doe",
     "address_1": "123 Main St",
     "city": "Springfield",
-    "state": "IL",
     "postcode": "62701",
     "country": "US",
     "email": "billing@example.com",
     "phone": "555-555-5555"
-  },
-  "shipping": {
-    "first_name": "John",
-    "last_name": "Doe",
-    "address_1": "123 Main St",
-    "city": "Springfield",
-    "state": "IL",
-    "postcode": "62701",
-    "country": "US"
   }
+
 }

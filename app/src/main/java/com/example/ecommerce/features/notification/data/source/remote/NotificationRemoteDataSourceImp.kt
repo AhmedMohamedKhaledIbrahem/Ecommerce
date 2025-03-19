@@ -7,7 +7,6 @@ import javax.inject.Inject
 class NotificationRemoteDataSourceImp @Inject constructor(
     private val api: FcmApi
 ) : NotificationRemoteDataSource {
-
     override suspend fun saveToken(token: String) {
         try {
             val response  = api.saveToken(mapOf("token" to token))

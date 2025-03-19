@@ -6,8 +6,8 @@ import javax.inject.Inject
 
 class UpdateAddressUseCase @Inject constructor(val repository: AddressRepository) :
     IUpdateAddressUseCase {
-    override suspend fun invoke(customerAddressParams: AddressRequestEntity) {
-        repository.updateAddress(customerAddressParams = customerAddressParams)
+    override suspend fun invoke(id: Int, customerAddressParams: AddressRequestEntity) {
+        repository.updateAddress(id = id, customerAddressParams = customerAddressParams)
     }
 
 

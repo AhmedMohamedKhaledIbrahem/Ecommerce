@@ -43,12 +43,11 @@ class NotificationManagerRepositoryImp @Inject constructor(
     }
 
     override suspend fun updateOrderStatus(orderId: Int, status: String) {
-        withContext(Dispatchers.IO) {
-            try {
-                localDataSource.updateOrderStatus(orderId = orderId, status = status)
-            } catch (failure: FailureException) {
-                throw Failures.CacheFailure("${failure.message}")
-            }
+        try {
+            localDataSource.updateOrderStatus(orderId = orderId, status = status)
+        } catch (failure: FailureException) {
+            throw Failures.CacheFailure("${failure.message}")
         }
+
     }
 }

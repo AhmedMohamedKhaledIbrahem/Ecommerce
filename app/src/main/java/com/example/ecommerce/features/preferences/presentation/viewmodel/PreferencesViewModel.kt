@@ -77,7 +77,7 @@ class PreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             _preferencesState.emit(UiState.Loading(source))
             try {
-                val result = withContext(Dispatchers.IO) { operation() }
+                val result =  operation()
                 onSuccess(result)
             } catch (failure: Failures) {
                 _preferencesState.emit(

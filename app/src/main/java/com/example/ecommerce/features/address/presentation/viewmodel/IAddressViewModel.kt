@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.SharedFlow
 
 interface IAddressViewModel {
     val addressState: SharedFlow<UiState<Any>>
-    fun updateAddress(updateAddressParams: AddressRequestEntity)
-    fun getAddressById(id: Int)
-    fun checkUpdateAddress()
+    fun updateAddress(id: Int,updateAddressParams: AddressRequestEntity)
+    fun getAddress()
+    fun insertAddress(addressParams: AddressRequestEntity)
     fun <T> addressUiState(
         operation: suspend () -> T,
         onSuccess: suspend (T) -> Unit,

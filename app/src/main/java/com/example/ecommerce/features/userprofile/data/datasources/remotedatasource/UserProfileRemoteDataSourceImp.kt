@@ -21,8 +21,7 @@ class UserProfileRemoteDataSourceImp @Inject constructor(
     private val api: UserProfileApi,
 ) : UserProfileRemoteDataSource {
     override suspend fun getImageProfileById(userId: Int): GetImageProfileResponseModel {
-        return withContext(Dispatchers.IO) {
-            try {
+        return try {
                 val response = api.getImageProfile(userId = userId)
                 if (response.isSuccessful) {
                     response.body() ?: throw FailureException("Empty Response Body")
@@ -36,7 +35,7 @@ class UserProfileRemoteDataSourceImp @Inject constructor(
             } catch (e: Exception) {
                 throw FailureException("${e.message}")
             }
-        }
+
     }
 
     override suspend fun getUserNameDetails(): UpdateUserNameDetailsResponseModel {

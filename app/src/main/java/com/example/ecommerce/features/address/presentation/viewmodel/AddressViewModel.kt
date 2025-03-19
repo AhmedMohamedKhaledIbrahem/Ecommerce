@@ -6,8 +6,8 @@ import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.state.UiState
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
-import com.example.ecommerce.features.address.domain.usecases.checkupdateaddress.ICheckUpdateAddressUseCase
-import com.example.ecommerce.features.address.domain.usecases.getaddressbyid.IGetAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.getaddress.IGetAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.insertupdateaddress.IInsertAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.updateaddress.IUpdateAddressUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,15 +23,15 @@ import javax.inject.Inject
 class AddressViewModel @Inject constructor(
     private val updateAddressUseCase: IUpdateAddressUseCase,
     private val getAddressUseCase: IGetAddressUseCase,
-    private val checkUpdateAddressUseCase: ICheckUpdateAddressUseCase,
+    private val insertAddressUseCase: IInsertAddressUseCase,
 ) : ViewModel(), IAddressViewModel {
 
     private val _addressState = MutableSharedFlow<UiState<Any>>(replay = 0)
     override val addressState: SharedFlow<UiState<Any>> get() = _addressState.asSharedFlow()
 
-    override fun updateAddress(updateAddressParams: AddressRequestEntity) {
+    override fun updateAddress(id: Int, updateAddressParams: AddressRequestEntity) {
         addressUiState(
-            operation = { updateAddressUseCase(updateAddressParams) },
+            operation = { updateAddressUseCase(id, updateAddressParams) },
             onSuccess = { result ->
                 _addressState.emit(UiState.Success(result, "updateAddress"))
             },
@@ -39,9 +39,9 @@ class AddressViewModel @Inject constructor(
         )
     }
 
-    override fun getAddressById(id: Int) {
+    override fun getAddress() {
         addressUiState(
-            operation = { getAddressUseCase(id = id) },
+            operation = { getAddressUseCase() },
             onSuccess = { result ->
                 _addressState.emit(UiState.Success(result, "getAddressById"))
             },
@@ -49,9 +49,9 @@ class AddressViewModel @Inject constructor(
         )
     }
 
-    override fun checkUpdateAddress() {
+    override fun insertAddress(addressParams: AddressRequestEntity) {
         addressUiState(
-            operation = { checkUpdateAddressUseCase() },
+            operation = { insertAddressUseCase(addressParams) },
             onSuccess = { result ->
                 _addressState.emit(UiState.Success(result, "checkUpdateAddress"))
             },
@@ -78,7 +78,7 @@ class AddressViewModel @Inject constructor(
         }
     }
 
-    override suspend fun setUiState(source:String) {
+    override suspend fun setUiState(source: String) {
         _addressState.emit(UiState.Loading(source))
     }
 

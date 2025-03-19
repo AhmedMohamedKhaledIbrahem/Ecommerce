@@ -18,9 +18,7 @@ import com.example.ecommerce.core.database.data.entities.relation.ProductWithAll
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.product.data.mapper.ProductMapper
 import com.example.ecommerce.features.product.data.model.EcommerceResponseModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ProductLocalDataSourceImp @Inject constructor(
@@ -51,14 +49,13 @@ class ProductLocalDataSourceImp @Inject constructor(
     override suspend fun insertProducts(
         page: Int,
         pageSize: Int,
-        product: EcommerceResponseModel
+        productResponse: EcommerceResponseModel
     ) {
-        withContext(Dispatchers.IO) {
             try {
-                val productEntity = product.products.map {
+                val productEntity = productResponse.products.map {
                     ProductMapper.toEntity(it)
                 }
-                val imageEntity = product.products.flatMap { product ->
+                val imageEntity = productResponse.products.flatMap { product ->
                     product.image.map { image ->
 
                         ImageEntity(
@@ -69,7 +66,7 @@ class ProductLocalDataSourceImp @Inject constructor(
                     }
                 }
 
-                val categoryEntity = product.products.flatMap { product ->
+                val categoryEntity = productResponse.products.flatMap { product ->
                     product.categories.map { category ->
                         CategoryEntity(
                             categoryIdJson = category.id,
@@ -77,7 +74,7 @@ class ProductLocalDataSourceImp @Inject constructor(
                         )
                     }
                 }
-                val crossRefEntity = product.products.flatMap { product ->
+                val crossRefEntity = productResponse.products.flatMap { product ->
                     product.categories.map { category ->
                         ProductCategoryCrossRefEntity(
                             productIdJson = product.id,
@@ -92,7 +89,7 @@ class ProductLocalDataSourceImp @Inject constructor(
             } catch (e: Exception) {
                 throw FailureException("${e.message}")
             }
-        }
+
     }
 
     override fun searchProduct(query: String): Flow<PagingData<ProductWithAllDetails>> {

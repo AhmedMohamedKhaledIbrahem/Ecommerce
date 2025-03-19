@@ -53,7 +53,7 @@ class ImageProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _imageProfileState.emit(UiState.Loading(source))
             try {
-                val result = withContext(Dispatchers.IO) { operation() }
+                val result = operation()
                 onSuccess(result)
             } catch (failure: Failures) {
                 _imageProfileState.emit(UiState.Error(mapFailureMessage(failure), source))

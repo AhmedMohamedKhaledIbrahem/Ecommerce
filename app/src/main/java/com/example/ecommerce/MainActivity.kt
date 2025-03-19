@@ -8,10 +8,12 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.lifecycleScope
 import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
 
@@ -19,6 +21,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var tokenManager: TokenManager
+
     @Inject
     lateinit var shardPreferences: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,9 +42,12 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     private fun isLogin(): Boolean {
-        return !tokenManager.getToken().isNullOrEmpty()
+        var isLogin = false
+        lifecycleScope.launch {
+            isLogin = !tokenManager.getToken().isNullOrEmpty()
+        }
+        return isLogin
     }
 
     override fun attachBaseContext(newBase: Context?) {

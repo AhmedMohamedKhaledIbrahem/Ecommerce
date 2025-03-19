@@ -23,7 +23,7 @@ class AddressAdapter(
         holder.streetAddressTextView.text = address.streetAddress
         holder.countryTextView.text = address.country
         holder.cityTextView.text = address.city
-        holder.stateTextView.text = address.state
+       // holder.stateTextView.text = address.state
         holder.postCodeTextView.text = address.postCode
         holder.addressCardView.setOnClickListener {
             onItemClickListener(address)
