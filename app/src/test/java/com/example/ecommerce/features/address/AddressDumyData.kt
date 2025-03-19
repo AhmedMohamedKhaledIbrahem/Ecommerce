@@ -10,11 +10,13 @@ import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestE
 import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequestEntity
 import com.example.ecommerce.resources.fixture
 import com.google.gson.Gson
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
 
-val tUpdateAddressResponseModel = fixture("addressMessage.json").run {
+val tUpdateAddressResponseModel: UpdateAddressResponseModel = fixture("addressMessage.json").run {
     Gson().fromJson(this, UpdateAddressResponseModel::class.java)
 }
-val tAddressDataResponseModel = fixture("address.json").run {
+val tAddressDataResponseModel: AddressDataResponseModel = fixture("address.json").run {
     Gson().fromJson(this, AddressDataResponseModel::class.java)
 }
 const val id = 1
@@ -49,6 +51,7 @@ val shippingInfoRequestEntity = ShippingInfoRequestEntity(
     city = "Springfield",
     postCode = "62701",
 )
+val tUpdateAddressResponseEntity = AddressMapper.mapToEntity(tUpdateAddressResponseModel)
 val tAddressRequestEntity = AddressRequestEntity(
     billing = billingInfoRequestEntity,
     shipping = shippingInfoRequestEntity
@@ -66,4 +69,5 @@ val tCustomerAddressEntityUpdate = CustomerAddressMapper.mapToEntity(
 const val addressError = "No address found"
 const val unknownError = "Unknown error"
 
-
+const val tErrorResponseAddressJson = """{"message": "error message"}"""
+val tErrorResponseAddressTokenBody = tErrorResponseAddressJson.toResponseBody("application/json".toMediaType())

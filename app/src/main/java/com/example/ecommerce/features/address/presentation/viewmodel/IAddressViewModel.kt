@@ -8,6 +8,7 @@ interface IAddressViewModel {
     val addressState: SharedFlow<UiState<Any>>
     fun updateAddress(id: Int,updateAddressParams: AddressRequestEntity)
     fun getAddress()
+    fun deleteAddress()
     fun insertAddress(addressParams: AddressRequestEntity)
     fun <T> addressUiState(
         operation: suspend () -> T,

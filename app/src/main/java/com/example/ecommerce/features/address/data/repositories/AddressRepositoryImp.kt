@@ -55,15 +55,20 @@ class AddressRepositoryImp @Inject constructor(
             if (!localDataSource.isAddressEmpty()) {
                 localDataSource.getAddress()
             } else {
-                val addressDataResponseModel = remoteDataSource.getAddress()
-                val addressRequestModel = AddressMapper
-                    .mapAddressResponseModelToAddressRequestModel(
-                        addressDataResponseModel
+                return try {
+                    val addressDataResponseModel = remoteDataSource.getAddress()
+                    val addressRequestModel = AddressMapper
+                        .mapAddressResponseModelToAddressRequestModel(
+                            addressDataResponseModel
+                        )
+                    localDataSource.insertAddress(addressRequestModel)
+                    localDataSource.getAddress()
+                } catch (e: FailureException) {
+                    throw Failures.ServerFailure(
+                        e.localizedMessage ?: context.getString(R.string.unknown_error)
                     )
-                localDataSource.insertAddress(addressRequestModel)
-                localDataSource.getAddress()
+                }
             }
-            localDataSource.getAddress()
         } catch (e: FailureException) {
             throw Failures.CacheFailure(
                 e.localizedMessage ?: context.getString(R.string.unknown_error)
