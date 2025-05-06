@@ -3,12 +3,18 @@ package com.example.ecommerce.features.address.presentation.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.features.address.domain.usecases.deleteaddress.IDeleteAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.deletealladdress.IDeleteAllAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.getaddress.IGetAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.getselectaddress.IGetSelectAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.insertupdateaddress.IInsertAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.selectaddress.ISelectAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.unselectaddress.IUnSelectAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.updateaddress.IUpdateAddressUseCase
 import com.example.ecommerce.features.address.id
+import com.example.ecommerce.features.address.presentation.viewmodel.address.AddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.address.IAddressViewModel
 import com.example.ecommerce.features.address.tAddressRequestEntity
 import com.example.ecommerce.features.address.tListCustomerAddressEntity
 import com.example.ecommerce.features.address.tUpdateAddressResponseEntity
@@ -48,10 +54,23 @@ class AddressViewModelTest {
     private lateinit var insertAddressUseCase: IInsertAddressUseCase
 
     @Mock
-    private lateinit var deleteAddressUseCase: IDeleteAddressUseCase
+    private lateinit var getSelectAddressUseCase: IGetSelectAddressUseCase
+
+    @Mock
+    lateinit var unSelectAddressUseCase: IUnSelectAddressUseCase
+
+    @Mock
+    lateinit var selectAddressUseCase: ISelectAddressUseCase
+
+    @Mock
+    lateinit var deleteAddressUseCase: IDeleteAddressUseCase
+
+    @Mock
+    private lateinit var deleteAllAddressUseCase: IDeleteAllAddressUseCase
     private lateinit var viewModel: IAddressViewModel
     private val dispatcher = UnconfinedTestDispatcher()
     private val latch = CountDownLatch(1)
+
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
@@ -60,7 +79,11 @@ class AddressViewModelTest {
             updateAddressUseCase,
             getAddressUseCase,
             insertAddressUseCase,
-            deleteAddressUseCase
+            deleteAllAddressUseCase,
+            deleteAddressUseCase,
+            selectAddressUseCase,
+            unSelectAddressUseCase,
+            getSelectAddressUseCase,
         )
     }
 
@@ -70,7 +93,7 @@ class AddressViewModelTest {
     }
 
     private fun addressStateAsLiveData(): LiveData<UiState<Any>> {
-        return viewModel.addressState.asLiveData()
+        return viewModel.addressEvent.asLiveData()
     }
 
 
@@ -99,19 +122,20 @@ class AddressViewModelTest {
     @Test
     fun `updateAddress should emit error state when use case throws exception`() = runTest {
         val latch = CountDownLatch(1)
-        `when`(updateAddressUseCase.invoke(id =id,customerAddressParams = tAddressRequestEntity))
+        `when`(updateAddressUseCase.invoke(id = id, customerAddressParams = tAddressRequestEntity))
             .thenThrow(RuntimeException(errorMessage))
-        viewModel.updateAddress(id = id,updateAddressParams = tAddressRequestEntity)
+        viewModel.updateAddress(id = id, updateAddressParams = tAddressRequestEntity)
         val observer = observerViewModelErrorState(
             latch,
             errorMessage,
             addressStateAsLiveData()
         )
         await(latch = latch)
-        verify(updateAddressUseCase).invoke(id = id,customerAddressParams = tAddressRequestEntity)
+        verify(updateAddressUseCase).invoke(id = id, customerAddressParams = tAddressRequestEntity)
         removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
     }
+
     @Test
     fun `getAddress should emit success state when use case returns data`() = runTest {
         val latch = CountDownLatch(1)
@@ -181,37 +205,39 @@ class AddressViewModelTest {
         removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
     }
-    @Test
-    fun `deleteAddress should emit success state when use case delete All address data`() = runTest {
-        val latch = CountDownLatch(1)
-        `when`(deleteAddressUseCase.invoke()).thenReturn(
-            Unit
-        )
-        viewModel.deleteAddress()
-        val observer = observerViewModelSuccessState(
-            latch,
-            Unit,
-            addressStateAsLiveData()
-        )
-        await(latch = latch)
-        verify(deleteAddressUseCase).invoke()
-        removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
-    }
+    @Test
+    fun `deleteAddress should emit success state when use case delete All address data`() =
+        runTest {
+            val latch = CountDownLatch(1)
+            `when`(deleteAllAddressUseCase.invoke()).thenReturn(
+                Unit
+            )
+            viewModel.deleteAllAddress()
+            val observer = observerViewModelSuccessState(
+                latch,
+                Unit,
+                addressStateAsLiveData()
+            )
+            await(latch = latch)
+            verify(deleteAllAddressUseCase).invoke()
+            removeObserverFromLiveData(addressStateAsLiveData(), observer)
+
+        }
 
     @Test
     fun `deleteAddress should emit error state when use case throws exception`() = runTest {
         val latch = CountDownLatch(1)
-        `when`(deleteAddressUseCase.invoke())
+        `when`(deleteAllAddressUseCase.invoke())
             .thenThrow(RuntimeException(errorMessage))
-        viewModel.deleteAddress()
+        viewModel.deleteAllAddress()
         val observer = observerViewModelErrorState(
             latch,
             errorMessage,
             addressStateAsLiveData()
         )
         await(latch = latch)
-        verify(deleteAddressUseCase).invoke()
+        verify(deleteAllAddressUseCase).invoke()
         removeObserverFromLiveData(addressStateAsLiveData(), observer)
 
     }

@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -17,18 +16,17 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkManager
-import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.Page
 import com.example.ecommerce.core.constants.PerPage
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.core.utils.detectScrollEnd
+import com.example.ecommerce.databinding.FragmentProductBinding
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductShimmerAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.SearchAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.item.ProductShimmerItem
 import com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetails
-import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.ProductSearchViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.ProductViewModel
 import com.facebook.shimmer.ShimmerFrameLayout
@@ -38,18 +36,19 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProductFragment : Fragment() {
-
+    private var _binding: FragmentProductBinding? = null
+    private val binding get() = _binding!!
     private lateinit var productAdapter: ProductAdapter
     private lateinit var productShimmerAdapter: ProductShimmerAdapter
     private lateinit var productShimmerRecyclerView: RecyclerView
     private val productViewModel: ProductViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var productShimmerLayout: ShimmerFrameLayout
-    private lateinit var detectViewModel: DetectScrollEndViewModel
     private var screenOrientation: Int = 0
     private val productSearchViewModel: ProductSearchViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         screenOrientation = resources.configuration.orientation
     }
 
@@ -59,28 +58,21 @@ class ProductFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_product, container, false)
-        initView(view)
-
-        return view
+        _binding = FragmentProductBinding.inflate(layoutInflater)
+        initView()
+        return binding.root
     }
 
 
-    private fun initView(view: View) {
-        recyclerView = view.findViewById(R.id.productRecyclerView)
-        productShimmerLayout = view.findViewById(R.id.productShimmerFrameLayout)
-        productShimmerRecyclerView = view.findViewById(R.id.productShimmerRecyclerView)
-        detectViewModel =
-            ViewModelProvider(requireActivity())[DetectScrollEndViewModel::class.java]
-
-
+    private fun initView() {
+        recyclerView = binding.productRecyclerView
+        productShimmerLayout = binding.productShimmerFrameLayout
+        productShimmerRecyclerView = binding.productShimmerInclude.productShimmerRecyclerView
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
         initProductRecycleView()
         initShimmerRecycleView()
         fetchData()
@@ -278,6 +270,11 @@ class ProductFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         WorkManager.getInstance(requireContext()).cancelAllWork()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

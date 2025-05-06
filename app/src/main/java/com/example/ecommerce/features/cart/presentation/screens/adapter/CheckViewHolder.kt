@@ -1,25 +1,33 @@
 package com.example.ecommerce.features.cart.presentation.screens.adapter
 
-import android.annotation.SuppressLint
-import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
+import com.example.ecommerce.core.constants.Currency
+import com.example.ecommerce.databinding.ItemCheckOutBinding
 import com.google.android.material.button.MaterialButton
+import java.util.Locale
 
 class CheckViewHolder(
-    view: View,
+    binding: ItemCheckOutBinding,
     private val onCheckOutClicked: () -> Unit
 ) :
-    RecyclerView.ViewHolder(view) {
+    RecyclerView.ViewHolder(binding.root) {
+    private val totalPriceTextView: TextView = binding.totalTextView
+    private val checkOutButton: MaterialButton = binding.buttonCheckOut
 
-    private val totalPriceTextView: TextView = view.findViewById(R.id.totalTextView)
-    private val checkOutButton: MaterialButton = view.findViewById(R.id.buttonCheckOut)
-     @SuppressLint("SetTextI18n", "DefaultLocale")
-     fun bind(totalPrice: Double){
-        totalPriceTextView.text = "Total Price: ${String.format("%.2f", totalPrice)} EG"
-         checkOutButton.setOnClickListener {
-             onCheckOutClicked.invoke()
-         }
-     }
+
+    fun bind(totalPrice: Double) {
+        val context = itemView.context
+        val formattedText = String.format(
+            Locale.getDefault(),
+            context.getString(R.string.total_price_format),
+            totalPrice,
+            Currency
+        )
+        totalPriceTextView.text = formattedText
+        checkOutButton.setOnClickListener {
+            onCheckOutClicked.invoke()
+        }
+    }
 }

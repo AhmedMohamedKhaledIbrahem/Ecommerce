@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
 
     android:background="@color/white"
-    tools:context=".MainNavigationActivity">
+    tools:context=".core.navigation.MainNavigationActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/profileToolbar"

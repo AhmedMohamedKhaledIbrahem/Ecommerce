@@ -3,7 +3,7 @@ package com.example.ecommerce.features.product.presentation.screen.product.adapt
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.ecommerce.R
+import com.example.ecommerce.databinding.ItemProductShimmerBinding
 import com.example.ecommerce.features.product.presentation.screen.product.holder.ProductShimmerViewHolder
 import com.example.ecommerce.features.product.presentation.screen.product.item.ProductShimmerItem
 
@@ -11,9 +11,9 @@ class ProductShimmerAdapter(
     private val shimmerItems: List<ProductShimmerItem>,
 ) : RecyclerView.Adapter<ProductShimmerViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductShimmerViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_product_shimmer, parent, false)
-        return ProductShimmerViewHolder(view)
+        val binding =
+            ItemProductShimmerBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ProductShimmerViewHolder(binding)
     }
 
     override fun getItemCount(): Int = shimmerItems.size

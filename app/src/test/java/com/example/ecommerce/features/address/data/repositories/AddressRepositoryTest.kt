@@ -10,6 +10,8 @@ import com.example.ecommerce.features.address.id
 import com.example.ecommerce.features.address.tAddressDataResponseModel
 import com.example.ecommerce.features.address.tAddressRequestEntity
 import com.example.ecommerce.features.address.tAddressRequestModel
+import com.example.ecommerce.features.address.tCustomerAddressEntity
+import com.example.ecommerce.features.address.tCustomerId
 import com.example.ecommerce.features.address.tListCustomerAddressEntity
 import com.example.ecommerce.features.address.tUpdateAddressResponseEntity
 import com.example.ecommerce.features.address.tUpdateAddressResponseModel
@@ -246,18 +248,109 @@ class AddressRepositoryTest {
         }
 
     @Test
-    fun `deleteAddress should delete all address `() = runTest {
-        `when`(localDataSource.deleteAddress()).thenReturn(Unit)
-        repository.deleteAddress()
-        verify(localDataSource).deleteAddress()
+    fun `deleteAllAddress should delete all address `() = runTest {
+        `when`(localDataSource.deleteAllAddress()).thenReturn(Unit)
+        repository.deleteAllAddress()
+        verify(localDataSource).deleteAllAddress()
+    }
+
+    @Test
+    fun `deleteAllAddress should throw cache failure when localDataSource throw exception `() =
+        runTest {
+            `when`(localDataSource.deleteAllAddress()).thenThrow(
+                FailureException(
+                    cacheFailureMessage
+                )
+            )
+            val exception = cacheFailure {
+                repository.deleteAllAddress()
+            }
+            assertEquals(cacheFailureMessage, exception.message)
+
+        }
+
+    @Test
+    fun `deleteAddress should delete  address `() = runTest {
+        `when`(localDataSource.deleteAddress(tCustomerAddressEntity)).thenReturn(Unit)
+        repository.deleteAddress(tCustomerAddressEntity)
+        verify(localDataSource).deleteAddress(tCustomerAddressEntity)
     }
 
     @Test
     fun `deleteAddress should throw cache failure when localDataSource throw exception `() =
         runTest {
-            `when`(localDataSource.deleteAddress()).thenThrow(FailureException(cacheFailureMessage))
+            `when`(localDataSource.deleteAddress(tCustomerAddressEntity)).thenThrow(
+                FailureException(
+                    cacheFailureMessage
+                )
+            )
             val exception = cacheFailure {
-                repository.deleteAddress()
+                repository.deleteAddress(tCustomerAddressEntity)
+            }
+            assertEquals(cacheFailureMessage, exception.message)
+
+        }
+
+    @Test
+    fun `getSelectAddress should select address only the is selected equal 1 `() = runTest {
+        `when`(localDataSource.getSelectAddress(tCustomerId)).thenReturn(tCustomerAddressEntity)
+        val result = repository.getSelectAddress(tCustomerId)
+        assertEquals(tCustomerAddressEntity, result)
+    }
+
+    @Test
+    fun `getSelectAddress should throw cache failure when localDataSource throw exception `() =
+        runTest {
+            `when`(localDataSource.getSelectAddress(tCustomerId)).thenThrow(
+                FailureException(
+                    cacheFailureMessage
+                )
+            )
+            val exception = cacheFailure {
+                repository.getSelectAddress(tCustomerId)
+            }
+            assertEquals(cacheFailureMessage, exception.message)
+
+        }
+
+    @Test
+    fun `selectAddress should select address `() = runTest {
+        `when`(localDataSource.selectAddress(tCustomerId)).thenReturn(Unit)
+        repository.selectAddress(tCustomerId)
+        verify(localDataSource).selectAddress(tCustomerId)
+    }
+
+    @Test
+    fun `selectAddress should throw cache failure when localDataSource throw exception `() =
+        runTest {
+            `when`(localDataSource.selectAddress(tCustomerId)).thenThrow(
+                FailureException(
+                    cacheFailureMessage
+                )
+            )
+            val exception = cacheFailure {
+                repository.selectAddress(tCustomerId)
+            }
+            assertEquals(cacheFailureMessage, exception.message)
+
+        }
+    @Test
+    fun `unSelectAddress should unselect address unless the selected address `() = runTest {
+        `when`(localDataSource.unSelectAddress(tCustomerId)).thenReturn(Unit)
+        repository.unSelectAddress(tCustomerId)
+        verify(localDataSource).unSelectAddress(tCustomerId)
+    }
+
+    @Test
+    fun `unselectAddress should throw cache failure when localDataSource throw exception `() =
+        runTest {
+            `when`(localDataSource.unSelectAddress(tCustomerId)).thenThrow(
+                FailureException(
+                    cacheFailureMessage
+                )
+            )
+            val exception = cacheFailure {
+                repository.unSelectAddress(tCustomerId)
             }
             assertEquals(cacheFailureMessage, exception.message)
 

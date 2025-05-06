@@ -3,7 +3,7 @@ package com.example.ecommerce.features.userprofile.presentation.viewmodel.userna
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.features.await
 import com.example.ecommerce.features.observerViewModelErrorState
 import com.example.ecommerce.features.observerViewModelSuccessState
@@ -13,7 +13,6 @@ import com.example.ecommerce.features.userprofile.domain.usecases.getusernamedet
 import com.example.ecommerce.features.userprofile.domain.usecases.updateusernamedetails.IUpdateUserNameDetailsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest

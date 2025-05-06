@@ -100,15 +100,55 @@ class AddressRepositoryImp @Inject constructor(
 
     }
 
-    override suspend fun deleteAddress() {
+    override suspend fun deleteAllAddress() {
         try {
-            localDataSource.deleteAddress()
+            localDataSource.deleteAllAddress()
         } catch (e: FailureException) {
             throw Failures.CacheFailure(
                 e.localizedMessage ?: context.getString(R.string.unknown_error)
             )
         }
 
+    }
+
+    override suspend fun deleteAddress(customerAddressEntity: CustomerAddressEntity) {
+        try {
+            localDataSource.deleteAddress(customerAddressEntity)
+        } catch (e: FailureException) {
+            throw Failures.CacheFailure(
+                e.localizedMessage ?: context.getString(R.string.unknown_error)
+            )
+        }
+    }
+
+    override suspend fun getSelectAddress(customerId: Int): CustomerAddressEntity {
+        return try {
+            localDataSource.getSelectAddress(customerId = customerId)
+        } catch (e: FailureException) {
+            throw Failures.CacheFailure(
+                e.localizedMessage ?: context.getString(R.string.unknown_error)
+            )
+        }
+    }
+
+    override suspend fun unSelectAddress(customerId: Int) {
+        try {
+            localDataSource.unSelectAddress(customerId = customerId)
+        } catch (e: FailureException) {
+            throw Failures.CacheFailure(
+                e.localizedMessage ?: context.getString(R.string.unknown_error)
+            )
+        }
+    }
+
+    override suspend fun selectAddress(customerId: Int) {
+        try {
+            localDataSource.selectAddress(customerId = customerId)
+        } catch (e: FailureException) {
+            throw Failures.CacheFailure(
+                e.localizedMessage ?: context.getString(R.string.unknown_error)
+            )
+        }
     }
 
 

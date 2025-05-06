@@ -9,6 +9,8 @@ import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.features.product.data.datasource.localdatasource.ProductLocalDataSource
 import com.example.ecommerce.features.product.data.datasource.remotedatasource.ProductRemoteDataSource
 import com.example.ecommerce.features.product.domain.repository.ProductRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -18,15 +20,16 @@ class ProductRepositoryImp @Inject constructor(
     private val productHandler: ProductHandler,
     private val checkInternetConnection: InternetConnectionChecker
 ) : ProductRepository {
-    override suspend fun fetchProduct(page: Int, perPage: Int) {
+    override suspend fun fetchProduct(page: Int, perPage: Int) = coroutineScope {
         try {
             if (checkInternetConnection.hasConnection()) {
                 if (productLocalDataSource.isEmpty() || productHandler.isProductUpdate()) {
-                    val remote = productRemoteDataSource.getProducts()
-                    productLocalDataSource.insertProducts(page, perPage, remote)
+
+                    val remote = async {  productRemoteDataSource.getProducts()}
+                    productLocalDataSource.insertProducts(page, perPage, remote.await())
                     productHandler.deleteProductUpdate()
                 } else {
-                    return
+                    return@coroutineScope
                 }
             } else {
                 throw Failures.ConnectionFailure("No Internet Connection")

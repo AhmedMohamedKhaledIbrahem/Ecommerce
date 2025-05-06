@@ -113,7 +113,6 @@
     <string name="order_has_been_created_successfully">Order Has Been Created Successfully</string>
     <string name="order_tag_number">OrderTagNumber:</string>
     <string name="order_date_create">orderDateCreate:</string>
-    <string name="order_status">orderStatus:</string>
     <string name="order_total">orderTotal</string>
     <string name="orders">Orders</string>
     <string name="products_amount">Products Amount:</string>
@@ -134,5 +133,13 @@
     <string name="no_address_found">No Address Found</string>
     <string name="unknown_error">Unknown Error</string>
     <string name="no_internet_connection">No Internet Connection</string>
+    <string name="fullname">"FullName: "</string>
+    <string name="country">"Country: "</string>
+    <string name="total_price_format">Total Price: %.2f %s</string>
+    <string name="status">Status: %1$s</string>
+    <string name="status_stock">Status Stock:%1$s</string>
+    <string name="product_name">Product:%1$s</string>
+    <string name="price_eg">Price:%1$s EG</string>
+    <string name="category">Category:%1$s</string>
 
 </resources>

@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.preferences.presentation.viewmodel
 
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import kotlinx.coroutines.flow.SharedFlow
 
 interface IPreferencesViewModel {

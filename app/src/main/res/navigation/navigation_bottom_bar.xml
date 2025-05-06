@@ -9,7 +9,7 @@
         android:id="@+id/productFragment"
         android:name="com.example.ecommerce.features.product.presentation.screen.product.ProductFragment"
         android:label="fragment_product"
-        tools:layout="@layout/fragment_product" >
+        tools:layout="@layout/fragment_product">
         <action
             android:id="@+id/action_productFragment_to_productDetailsFragment"
             app:destination="@id/productDetailsFragment"
@@ -22,7 +22,7 @@
         android:id="@+id/settingFragment"
         android:name="com.example.ecommerce.features.userprofile.presentation.screens.settingscreen.SettingFragment"
         android:label="fragment_setting"
-        tools:layout="@layout/fragment_setting" >
+        tools:layout="@layout/fragment_setting">
         <action
             android:id="@+id/action_settingFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment"
@@ -54,7 +54,7 @@
         android:id="@+id/addressFragment"
         android:name="com.example.ecommerce.features.address.presentation.screen.address.AddressFragment"
         android:label="fragment_address"
-        tools:layout="@layout/fragment_address" >
+        tools:layout="@layout/fragment_address">
         <action
             android:id="@+id/action_addressFragment_to_editAddressFragment"
             app:destination="@id/editAddressFragment"
@@ -62,12 +62,13 @@
             app:exitAnim="@android:anim/fade_out"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+
     </fragment>
     <fragment
         android:id="@+id/editAddressFragment"
         android:name="com.example.ecommerce.features.address.presentation.screen.editaddress.EditAddressFragment"
         android:label="fragment_edit_address"
-        tools:layout="@layout/fragment_edit_address" />
+        tools:layout="@layout/fragment_edit_address"/>
     <dialog
         android:id="@+id/languageFragment"
         android:name="com.example.ecommerce.features.preferences.presentation.screen.LanguageFragment"
@@ -77,7 +78,7 @@
         android:id="@+id/productDetailsFragment"
         android:name="com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetailsFragment"
         android:label="Product Details"
-        tools:layout="@layout/fragment_product_details" >
+        tools:layout="@layout/fragment_product_details">
         <argument
             android:name="product"
             app:argType="com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetails" />
@@ -98,7 +99,7 @@
         android:id="@+id/ordersFragment"
         android:name="com.example.ecommerce.features.orders.presentation.screens.orders.OrdersFragment"
         android:label="orders"
-        tools:layout="@layout/fragment_orders" >
+        tools:layout="@layout/fragment_orders">
         <action
             android:id="@+id/action_ordersFragment_to_orderDetailsFragment"
             app:destination="@id/orderDetailsFragment"
@@ -111,7 +112,7 @@
         android:id="@+id/orderDetailsFragment"
         android:name="com.example.ecommerce.features.orders.presentation.screens.orders.OrderDetailsFragment"
         android:label="fragment_order_details"
-        tools:layout="@layout/fragment_order_details" >
+        tools:layout="@layout/fragment_order_details">
         <argument
             android:name="orderDetailsArgs"
             app:argType="com.example.ecommerce.core.database.data.entities.orders.OrderItemEntity[]" />

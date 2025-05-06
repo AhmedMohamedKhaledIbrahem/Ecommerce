@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.features.cart.domain.entities.AddItemRequestEntity
 import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.clear_cart.IClearCartUseCase
@@ -13,12 +13,10 @@ import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveIt
 import com.example.ecommerce.features.cart.domain.use_case.update_item_cart.IUpdateItemsCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.update_quantity.IUpdateQuantityUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel

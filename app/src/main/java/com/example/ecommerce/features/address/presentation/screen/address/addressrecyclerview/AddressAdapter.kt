@@ -4,30 +4,29 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
+import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 
 class AddressAdapter(
-    private val addressItems: List<AddressItem>,
-    private val onItemClickListener: (AddressItem) -> Unit
+    private val addressItems: List<CustomerAddressEntity>,
+    private val onDeleteClickListener: (CustomerAddressEntity) -> Unit,
+    private val onEditClickListener: (CustomerAddressEntity) -> Unit,
+    private val onCardClickListener: () -> Unit,
 
-) : RecyclerView.Adapter<AddressViewHolder>() {
+    ) : RecyclerView.Adapter<AddressViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AddressViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_address, parent, false)
-        return AddressViewHolder(view)
+        return AddressViewHolder(
+            view,
+            onDeleteClickListener,
+            onEditClickListener,
+            onCardClickListener
+        )
     }
 
     override fun onBindViewHolder(holder: AddressViewHolder, position: Int) {
         val address = addressItems[position]
-        holder.fullNameAddressTextView.text = address.fullName
-        holder.emailAddressTextView.text = address.emailAddress
-        holder.phoneNumberTextView.text = address.phoneNumber
-        holder.streetAddressTextView.text = address.streetAddress
-        holder.countryTextView.text = address.country
-        holder.cityTextView.text = address.city
-       // holder.stateTextView.text = address.state
-        holder.postCodeTextView.text = address.postCode
-        holder.addressCardView.setOnClickListener {
-            onItemClickListener(address)
-        }
+        holder.bind(address)
+
     }
 
 

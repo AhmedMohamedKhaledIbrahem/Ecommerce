@@ -2,7 +2,7 @@ package com.example.ecommerce.features
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import java.util.concurrent.CountDownLatch
 import kotlin.test.assertEquals
 

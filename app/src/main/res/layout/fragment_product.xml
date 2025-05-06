@@ -20,7 +20,9 @@
         app:layout_constraintVertical_bias="0.0"
         app:shimmer_base_alpha="0.2">
 
-        <include layout="@layout/product_shimmer_recycle_view" />
+        <include
+            android:id="@+id/productShimmerInclude"
+            layout="@layout/product_shimmer_recycle_view" />
     </com.facebook.shimmer.ShimmerFrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView

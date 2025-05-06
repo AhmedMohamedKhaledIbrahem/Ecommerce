@@ -3,7 +3,7 @@ package com.example.ecommerce.features.cart.presentation.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.features.await
 import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.clear_cart.IClearCartUseCase

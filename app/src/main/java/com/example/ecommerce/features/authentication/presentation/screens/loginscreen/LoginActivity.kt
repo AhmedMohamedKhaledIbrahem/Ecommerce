@@ -6,8 +6,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -15,14 +13,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.ecommerce.MainNavigationActivity
+import com.example.ecommerce.core.navigation.MainNavigationActivity
 import com.example.ecommerce.R
 import com.example.ecommerce.core.customer.CustomerManager
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.databinding.ActivityLoginBinding
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationResponseEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
@@ -35,8 +34,6 @@ import com.example.ecommerce.features.notification.presentation.viewmodel.notifi
 import com.example.ecommerce.features.notification.presentation.viewmodel.notification.NotificationViewModel
 import com.example.ecommerce.features.notification.presentation.viewmodel.notificationmanager.INotificationManagerViewModel
 import com.example.ecommerce.features.notification.presentation.viewmodel.notificationmanager.NotificationManagerViewModel
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -44,13 +41,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
-    private lateinit var userNameOrEmailEditText: TextInputEditText
-    private lateinit var passwordEditText: TextInputEditText
-    private lateinit var userNameOrEmailTextFieldLayout: TextInputLayout
-    private lateinit var passwordTextFieldLayout: TextInputLayout
-    private lateinit var signUpTextView: TextView
-    private lateinit var forgetPasswordTextView: TextView
-    private lateinit var loginButton: Button
+    private lateinit var binding: ActivityLoginBinding
     private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
     private val authenticationViewModel: IAuthenticationViewModel by viewModels<AuthenticationViewModel>()
     private val notificationViewModel: INotificationViewModel by viewModels<NotificationViewModel>()
@@ -58,14 +49,14 @@ class LoginActivity : AppCompatActivity() {
 
     @Inject
     lateinit var customerManager: CustomerManager
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance(supportFragmentManager)
-    }
+    private lateinit var loadingDialog: LoadingDialogFragment
     private lateinit var rootView: View
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_login)
+        setContentView(binding.root)
+        loadingDialog = LoadingDialogFragment.getInstance(supportFragmentManager)
         initView()
         checkInternetStatus()
         textWatchers()
@@ -80,14 +71,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        userNameOrEmailEditText = findViewById(R.id.userNameOrEmailEditText)
-        userNameOrEmailTextFieldLayout = findViewById(R.id.userNameOrEmailTextFieldInputLayout)
-        passwordEditText = findViewById(R.id.passwordLoginEditText)
-        passwordTextFieldLayout = findViewById(R.id.passwordLoginTextFieldInputLayout)
-        signUpTextView = findViewById(R.id.SignUpTextView)
-        loginButton = findViewById(R.id.loginButton)
-        forgetPasswordTextView = findViewById(R.id.forgetPasswordTextView)
-        rootView = findViewById(android.R.id.content)
+        rootView = binding.root
     }
 
     private fun checkInternetStatus() {
@@ -101,9 +85,9 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginWithUserNameOrEmailAndPassword() {
-        loginButton.setOnClickListener {
-            val username = userNameOrEmailEditText.text.toString()
-            val password = passwordEditText.text.toString()
+        binding.loginButton.setOnClickListener {
+            val username = binding.userNameOrEmailEditText.text.toString()
+            val password = binding.passwordLoginEditText.text.toString()
             if (validateInputs()) {
                 val loginRequestEntity =
                     AuthenticationRequestEntity(
@@ -203,16 +187,19 @@ class LoginActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun notificationManagerLoadingState(state: UiState.Loading) {
         when (state.source) {
             "getFcmTokenDevice" -> {}
         }
     }
+
     private fun notificationLoadingState(state: UiState.Loading) {
         when (state.source) {
             "addFcmTokenDevice" -> {}
         }
     }
+
     private fun loginAuthenticationSuccessState(state: UiState.Success<Any>) {
         when (state.source) {
             "login" -> {
@@ -282,8 +269,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-
-
     private fun loginAuthenticationErrorState(state: UiState.Error) {
         when (state.source) {
             "login" -> {
@@ -321,23 +306,25 @@ class LoginActivity : AppCompatActivity() {
 
     private fun validateInputs(): Boolean {
         var isValid = true
-        val userName = userNameOrEmailEditText.text.toString()
+        val userName = binding.userNameOrEmailEditText.text.toString()
         if (userName.isBlank()) {
 
-            userNameOrEmailTextFieldLayout.error = getString(R.string.usernameOrEmailisRequired)
-            userNameOrEmailTextFieldLayout.errorIconDrawable = null
+            binding.userNameOrEmailTextFieldInputLayout.error =
+                getString(R.string.usernameOrEmailisRequired)
+            binding.userNameOrEmailTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else {
-            userNameOrEmailTextFieldLayout.error = null
+            binding.userNameOrEmailTextFieldInputLayout.error = null
         }
 
-        val password = passwordEditText.text.toString()
+        val password = binding.passwordLoginEditText.text.toString()
         if (password.isBlank()) {
-            passwordTextFieldLayout.error = getString(R.string.password_is_required)
-            passwordTextFieldLayout.errorIconDrawable = null
+            binding.passwordLoginTextFieldInputLayout.error =
+                getString(R.string.password_is_required)
+            binding.passwordLoginTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else {
-            passwordTextFieldLayout.error = null
+            binding.passwordLoginTextFieldInputLayout.error = null
         }
         return isValid
     }
@@ -352,19 +339,19 @@ class LoginActivity : AppCompatActivity() {
                 validateInputs()
             }
         }
-        userNameOrEmailEditText.addTextChangedListener(textWatcher)
-        passwordEditText.addTextChangedListener(textWatcher)
+        binding.userNameOrEmailEditText.addTextChangedListener(textWatcher)
+        binding.passwordLoginEditText.addTextChangedListener(textWatcher)
     }
 
     private fun navigateToSignUpActivity() {
-        signUpTextView.setOnClickListener {
+        binding.SignUpTextView.setOnClickListener {
             val intent = Intent(this@LoginActivity, SignUpActivity::class.java)
             startActivity(intent)
         }
     }
 
     private fun navigateToForgetPasswordActivity() {
-        forgetPasswordTextView.setOnClickListener {
+        binding.forgetPasswordTextView.setOnClickListener {
             val intent = Intent(this@LoginActivity, ForgetPasswordActivity::class.java)
             startActivity(intent)
         }

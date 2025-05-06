@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.ecommerce.R
+import com.example.ecommerce.databinding.ItemSettingBinding
 
 class SettingAdapter(
     private var settingItems: List<SettingItem>,
@@ -12,11 +12,10 @@ class SettingAdapter(
     private val onSwitchChangeListener: (SettingItem, Boolean) -> Unit
 ) : RecyclerView.Adapter<SettingViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettingViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_setting, parent, false)
-        return SettingViewHolder(view)
+        val binding = ItemSettingBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return SettingViewHolder(binding)
     }
-    val items:List<SettingItem> get() = settingItems
-
+    val items: List<SettingItem> get() = settingItems
     override fun getItemCount(): Int = settingItems.size
 
     override fun onBindViewHolder(holder: SettingViewHolder, position: Int) {
@@ -39,10 +38,11 @@ class SettingAdapter(
         }
 
     }
+
     fun updateItemCheckedState(position: Int, isChecked: Boolean) {
         val setting = settingItems[position]
-        if (setting.isChecked != isChecked){
-            val updatedItems  = settingItems.toMutableList().apply {
+        if (setting.isChecked != isChecked) {
+            val updatedItems = settingItems.toMutableList().apply {
                 this[position] = this[position].copy(isChecked = isChecked)
             }
             settingItems = updatedItems

@@ -65,9 +65,41 @@ class AddressLocalDataSourceImp @Inject constructor(
         }
     }
 
-    override suspend fun deleteAddress() {
+    override suspend fun deleteAllAddress() {
         try {
             dao.deleteAllAddress()
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+    }
+
+    override suspend fun deleteAddress(customerAddressEntity: CustomerAddressEntity) {
+        try {
+            dao.deleteAddress(customerAddressEntity = customerAddressEntity)
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+    }
+
+    override suspend fun getSelectAddress(customerId: Int): CustomerAddressEntity {
+        return try {
+            dao.getSelectAddress(customerId = customerId)
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+    }
+
+    override suspend fun unSelectAddress(customerId: Int) {
+        try {
+            dao.unSelectAddress(customerId = customerId)
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+    }
+
+    override suspend fun selectAddress(customerId: Int) {
+        try {
+            dao.selectAddress(customerId = customerId)
         } catch (e: Exception) {
             throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
         }

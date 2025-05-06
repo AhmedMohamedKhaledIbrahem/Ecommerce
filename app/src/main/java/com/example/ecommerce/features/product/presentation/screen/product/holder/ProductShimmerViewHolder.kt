@@ -4,11 +4,12 @@ import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
+import com.example.ecommerce.databinding.ItemProductShimmerBinding
 import com.google.android.material.imageview.ShapeableImageView
 
-class ProductShimmerViewHolder(view: View): RecyclerView.ViewHolder(view) {
-    val imageProductShimmer: ShapeableImageView = itemView.findViewById(R.id.imageProductShimmer)
-    val priceProductShimmerText: TextView = itemView.findViewById(R.id.priceProductShimmerText)
-    val nameProductShimmerText: TextView = itemView.findViewById(R.id.nameProductShimmerText)
+class ProductShimmerViewHolder(binding: ItemProductShimmerBinding): RecyclerView.ViewHolder(binding.root) {
+    val imageProductShimmer: ShapeableImageView = binding.imageProductShimmer
+    val priceProductShimmerText: TextView = binding.priceProductShimmerText
+    val nameProductShimmerText: TextView = binding.nameProductShimmerText
 
 }

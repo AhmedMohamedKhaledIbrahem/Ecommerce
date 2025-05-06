@@ -17,7 +17,7 @@ import com.example.ecommerce.features.authentication.domain.usecases.restpasswor
 import com.example.ecommerce.features.authentication.domain.usecases.sendverificationcode.ISendVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.signup.ISignUpUseCase
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.features.await
 import com.example.ecommerce.features.observerViewModelErrorState
 import com.example.ecommerce.features.observerViewModelSuccessState

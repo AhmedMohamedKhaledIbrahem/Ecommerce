@@ -15,20 +15,19 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.ecommerce.R
 import com.example.ecommerce.core.customer.CustomerManager
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.database.data.entities.cart.CartWithItems
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.detectScrollEnd
+import com.example.ecommerce.databinding.FragmentCartBinding
 import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
-import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
-import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.address.AddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.address.IAddressViewModel
 import com.example.ecommerce.features.cart.data.data_soruce.local.calculateTotalPrice
 import com.example.ecommerce.features.cart.presentation.screens.adapter.CartAdapter
 import com.example.ecommerce.features.cart.presentation.screens.adapter.CheckAdapter
@@ -41,14 +40,13 @@ import com.example.ecommerce.features.orders.presentation.viewmodel.IOrderViewMo
 import com.example.ecommerce.features.orders.presentation.viewmodel.OrderViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class CartFragment : Fragment() {
-    private lateinit var cartRecyclerView: RecyclerView
-    private lateinit var cartSwipeRefreshLayout: SwipeRefreshLayout
+    private var _binding: FragmentCartBinding? = null
+    private val binding get() = _binding!!
     private lateinit var cartAdapter: CartAdapter
     private lateinit var checkAdapter: CheckAdapter
 
@@ -60,25 +58,17 @@ class CartFragment : Fragment() {
     private val cartViewModel: ICartViewModel by viewModels<CartViewModel>()
     private val addressViewModel: IAddressViewModel by viewModels<AddressViewModel>()
     private val orderViewModel: IOrderViewModel by viewModels<OrderViewModel>()
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance(parentFragmentManager)
-    }
-
+    private lateinit var loadingDialog: LoadingDialogFragment
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_cart, container, false)
-        initView(view)
-        initViewModel()
-        return view
-    }
+        _binding = FragmentCartBinding.inflate(inflater, container, false)
+        root = binding.root
 
-    private fun initView(view: View) {
-        cartRecyclerView = view.findViewById(R.id.cartRecyclerView)
-        cartSwipeRefreshLayout = view.findViewById(R.id.cartSwipeRefreshViewLayout)
-        root = view
+        initViewModel()
+        return root
     }
 
     private fun initViewModel() {
@@ -88,18 +78,19 @@ class CartFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         getCartWithItems()
         cartState()
         addressState()
         orderState()
-        detectScrollEnd(cartRecyclerView)
+        detectScrollEnd(binding.cartRecyclerView)
 
     }
 
 
     @SuppressLint("SetTextI18n", "DefaultLocale")
     private fun initRecyclerView(items: MutableList<ItemCartEntity>) {
-        cartRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.cartRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         checkAdapter = CheckAdapter {
             getAddressByCustomerId()
         }
@@ -117,7 +108,7 @@ class CartFragment : Fragment() {
                     val totalPrice = calculateTotalPrice(items)
                     checkAdapter.updateTotalPrice(totalPrice)
                     if (items.isEmpty()) {
-                        cartRecyclerView.adapter = cartAdapter
+                        binding.cartRecyclerView.adapter = cartAdapter
                     }
                 }
 
@@ -146,11 +137,9 @@ class CartFragment : Fragment() {
     private fun updateAdapter(items: MutableList<ItemCartEntity>) {
 
         if (items.isNotEmpty()) {
-            cartRecyclerView.adapter = ConcatAdapter(cartAdapter, checkAdapter)
-            Log.e("cartRecyclerView", "updateAdapter: items is not empty")
+            binding.cartRecyclerView.adapter = ConcatAdapter(cartAdapter, checkAdapter)
         } else {
-            Log.e("cartRecyclerView", "updateAdapter: items is empty")
-            cartRecyclerView.adapter = cartAdapter
+            binding.cartRecyclerView.adapter = cartAdapter
 
         }
 
@@ -177,7 +166,7 @@ class CartFragment : Fragment() {
     private fun addressState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                addressViewModel.addressState.collect { state ->
+                addressViewModel.addressEvent.collect { state ->
                     addressUiState(state)
                 }
             }
@@ -464,7 +453,6 @@ class CartFragment : Fragment() {
             lastName = address.lastName,
             address = address.address,
             city = address.city,
-            //state = address.state,
             country = address.country,
             postCode = address.zipCode,
             phone = address.phone,
@@ -473,16 +461,9 @@ class CartFragment : Fragment() {
         return billingEntity
     }
 
-    private fun onSwipeRefreshListener() {
-        cartSwipeRefreshLayout.setOnRefreshListener {
-            lifecycleScope.launch {
-                delay(1000)
-                cartViewModel.updateItemsCart()
-                cartSwipeRefreshLayout.isRefreshing = false
-
-
-            }
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 

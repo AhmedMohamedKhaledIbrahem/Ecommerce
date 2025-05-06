@@ -5,9 +5,6 @@ import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.RadioButton
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -19,16 +16,15 @@ import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.databinding.FragmentEditProfileBinding
 import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
 import com.example.ecommerce.features.userprofile.presentation.screens.settingscreen.UpdateDisplayNameViewModel
 import com.example.ecommerce.features.userprofile.presentation.viewmodel.usernamedetailsprofile.IUserNameDetailsProfileViewModel
 import com.example.ecommerce.features.userprofile.presentation.viewmodel.usernamedetailsprofile.UserNameDetailsProfileViewModel
 import com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile.IUserProfileViewModel
 import com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile.UserProfileViewModel
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
@@ -36,99 +32,73 @@ import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class EditProfileFragment : DialogFragment() {
-    private lateinit var radioEditName: RadioButton
-    private lateinit var radioChangePassword: RadioButton
-    private lateinit var layoutEditName: LinearLayout
-    private lateinit var layoutChangePassword: LinearLayout
-    private lateinit var firstNameTextFieldLayout: TextInputLayout
-    private lateinit var lastNameTextFieldLayout: TextInputLayout
-    private lateinit var newPasswordTextFieldLayout: TextInputLayout
-    private lateinit var confirmPasswordTextFieldLayout: TextInputLayout
-    private lateinit var firstNameTextField: TextInputEditText
-    private lateinit var lastNameTextField: TextInputEditText
-    private lateinit var newPasswordTextField: TextInputEditText
-    private lateinit var confirmPasswordTextField: TextInputEditText
-    private lateinit var editButton: Button
-    private lateinit var cancelEditButton: Button
-    private lateinit var changeButton: Button
-    private lateinit var cancelChangeButton: Button
     private lateinit var root: View
+    private var _binding: FragmentEditProfileBinding? = null
+    private val binding get() = _binding!!
     private var idUser by Delegates.notNull<Int>()
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance(parentFragmentManager)
-    }
+    private lateinit var loadingDialog: LoadingDialogFragment
+
     private val userNameDetailsViewModel: IUserNameDetailsProfileViewModel by
     viewModels<UserNameDetailsProfileViewModel>()
     private val userProfileViewModel: IUserProfileViewModel by viewModels<UserProfileViewModel>()
-    private lateinit var updateDisplayNameViewModel :UpdateDisplayNameViewModel
+    private lateinit var updateDisplayNameViewModel: UpdateDisplayNameViewModel
 
 
     override fun onStart() {
         super.onStart()
         dialog?.window?.setLayout(
-            ViewGroup.LayoutParams.WRAP_CONTENT, // Adjust width as needed
+            ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         dialog?.window?.setBackgroundDrawableResource(R.drawable.dialog_background)
-        dialog?.window?.decorView?.setPadding(0, 0, 0, 0) // Remove default padding
+        dialog?.window?.decorView?.setPadding(0, 0, 0, 0)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = requireActivity().layoutInflater
-        val view = inflater.inflate(R.layout.fragment_edit_profile, null, false)
-        initView(view)
-        builder.setView(view)
+        _binding = FragmentEditProfileBinding.inflate(inflater, null, false)
+        root = binding.root
+        builder.setView(root)
+        return builder.create()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         radioOnCheckedChangeListener()
         buttonCancelOnClickListener()
-        updateDisplayNameViewModel = ViewModelProvider(requireActivity())[UpdateDisplayNameViewModel::class.java]
         getUserProfile()
         getUserProfileState()
         updateUserNameDetailsProfile()
         updateUserNameDetailsState()
-        return builder.create()
+        updateDisplayNameViewModel =
+            ViewModelProvider(requireActivity())[UpdateDisplayNameViewModel::class.java]
     }
 
-    private fun initView(view: View) {
-        radioEditName = view.findViewById(R.id.radioEditName)
-        radioChangePassword = view.findViewById(R.id.radioChangePassword)
-        layoutEditName = view.findViewById(R.id.layoutEditName)
-        layoutChangePassword = view.findViewById(R.id.layoutChangePassword)
-        firstNameTextFieldLayout = view.findViewById(R.id.firstNameTextFieldInputLayout)
-        lastNameTextFieldLayout = view.findViewById(R.id.lastNameTextFieldInputLayout)
-        newPasswordTextFieldLayout = view.findViewById(R.id.newPasswordTextFieldInputLayout)
-        confirmPasswordTextFieldLayout = view.findViewById(R.id.confirmPasswordTextFieldInputLayout)
-        firstNameTextField = view.findViewById(R.id.firstNameEditText)
-        lastNameTextField = view.findViewById(R.id.lastNameEditText)
-        newPasswordTextField = view.findViewById(R.id.newPasswordEditText)
-        confirmPasswordTextField = view.findViewById(R.id.confirmPasswordEditText)
-        editButton = view.findViewById(R.id.buttonEdit)
-        cancelEditButton = view.findViewById(R.id.buttonCancelEdit)
-        changeButton = view.findViewById(R.id.buttonChangePassword)
-        cancelChangeButton = view.findViewById(R.id.buttonCancelChange)
-        root = view
-    }
 
     private fun radioOnCheckedChangeListener() {
-        radioEditName.setOnCheckedChangeListener { _, isChecked ->
+        binding.radioEditName.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                layoutEditName.visibility = View.VISIBLE
-                layoutChangePassword.visibility = View.GONE
+                binding.layoutEditName.visibility = View.VISIBLE
+                binding.layoutChangePassword.visibility = View.GONE
             }
         }
-        radioChangePassword.setOnCheckedChangeListener { _, isChecked ->
+        binding.radioChangePassword.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                layoutEditName.visibility = View.GONE
-                layoutChangePassword.visibility = View.VISIBLE
+                binding.layoutEditName.visibility = View.GONE
+                binding.layoutChangePassword.visibility = View.VISIBLE
             }
         }
     }
 
 
     private fun buttonCancelOnClickListener() {
-        cancelEditButton.setOnClickListener { dialog?.dismiss()
+        binding.buttonCancelEdit.setOnClickListener {
+            dialog?.dismiss()
         }
-        cancelChangeButton.setOnClickListener { dialog?.dismiss()
+        binding.buttonCancelChange.setOnClickListener {
+            dialog?.dismiss()
         }
     }
 
@@ -155,12 +125,13 @@ class EditProfileFragment : DialogFragment() {
                 }
 
             }
+
             is UiState.Success -> {
                 when (state.source) {
                     "getUserProfile" -> {
                         val userProfile = state.data as UserEntity
-                        firstNameTextField.setText(userProfile.firstName)
-                        lastNameTextField.setText(userProfile.lastName)
+                        binding.firstNameEditText.setText(userProfile.firstName)
+                        binding.lastNameEditText.setText(userProfile.lastName)
                         idUser = userProfile.userId
                     }
                 }
@@ -170,11 +141,12 @@ class EditProfileFragment : DialogFragment() {
 
     private fun updateUserNameDetailsProfile() {
 
-        editButton.setOnClickListener {
-            val firstName = firstNameTextField.text.toString()
-            val lastName = lastNameTextField.text.toString()
+        binding.buttonEdit.setOnClickListener {
+            val firstName = binding.firstNameEditText.text.toString()
+            val lastName = binding.lastNameEditText.text.toString()
             val userUpdateDisplayName =
-                firstNameTextField.text.toString() + lastNameTextField.text.toString()
+                binding.firstNameEditText.text.toString()
+                    .plus(binding.lastNameEditText.text.toString())
             if (firstName.isNotEmpty() && lastName.isNotEmpty()) {
                 val updateUserNameDetailsParams = UpdateUserNameDetailsRequestEntity(
                     id = idUser,
@@ -227,7 +199,7 @@ class EditProfileFragment : DialogFragment() {
                             "Edit Name successfully",
                             Toast.LENGTH_SHORT
                         ).show()
-                }
+                    }
                 }
             }
 
@@ -247,7 +219,8 @@ class EditProfileFragment : DialogFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        lifecycleScope.coroutineContext.cancelChildren() // Cancel all child coroutines
+        lifecycleScope.coroutineContext.cancelChildren()
+        _binding = null
     }
 
 }

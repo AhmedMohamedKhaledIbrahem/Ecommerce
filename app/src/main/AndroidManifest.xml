@@ -30,7 +30,7 @@
         tools:targetApi="tiramisu">
 
         <activity
-            android:name=".MainNavigationActivity"
+            android:name=".core.navigation.MainNavigationActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"
             />

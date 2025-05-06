@@ -10,5 +10,10 @@ const val PageSize = 20
 const val EnablePlaceholders = false
 const val LocalHost = "localhost"
 const val IpHost = "10.0.0.106"
+const val EditAddress = "editAddress"
+const val InsertAddress = "insertAddress"
+const val Currency = "EG"
+const val XLatter = "x"
+const val InvalidViewType = "Invalid view type"
 
 

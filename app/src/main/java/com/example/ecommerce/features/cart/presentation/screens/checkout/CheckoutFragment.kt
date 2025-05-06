@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.example.ecommerce.R
+import com.example.ecommerce.databinding.FragmentCheckoutBinding
 
 
 class CheckoutFragment : DialogFragment() {
@@ -21,8 +22,8 @@ class CheckoutFragment : DialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_checkout, container, false)
-        return view
+        val binding = FragmentCheckoutBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
 

@@ -1,16 +1,16 @@
 package com.example.ecommerce.features.orders.presentation.screens.adapter.order_details_adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.ecommerce.R
+import com.example.ecommerce.core.constants.InvalidViewType
 import com.example.ecommerce.core.database.data.entities.orders.OrderItemEntity
 import com.example.ecommerce.core.viewholder.EmptyViewHolder
+import com.example.ecommerce.databinding.EmptyScreenBinding
+import com.example.ecommerce.databinding.ItemOrderDetailsBinding
 
 class OrderDetailsAdapter(
     private val orderWithItems: List<OrderItemEntity>,
-    private val context: Context
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -21,19 +21,23 @@ class OrderDetailsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             TYPE_EMPTY -> {
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.empty_cart, parent, false)
-                EmptyViewHolder(view)
+                val binding =
+                    EmptyScreenBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                EmptyViewHolder(binding)
             }
 
             TYPE_ITEM -> {
-                val view =
-                    LayoutInflater.from(parent.context).inflate(R.layout.item_order_details, parent, false)
-                OrderDetailsViewHolder(view,context)
+                val binding =
+                    ItemOrderDetailsBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
+                OrderDetailsViewHolder(binding)
             }
 
             else -> {
-                throw IllegalArgumentException("Invalid view type")
+                throw IllegalArgumentException(InvalidViewType)
             }
         }
     }

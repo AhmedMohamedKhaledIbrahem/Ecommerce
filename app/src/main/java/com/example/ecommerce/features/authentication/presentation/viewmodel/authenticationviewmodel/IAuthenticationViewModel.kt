@@ -4,7 +4,7 @@ import com.example.ecommerce.features.authentication.domain.entites.Authenticati
 import com.example.ecommerce.features.authentication.domain.entites.CheckVerificationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import kotlinx.coroutines.flow.StateFlow
 
 interface IAuthenticationViewModel {

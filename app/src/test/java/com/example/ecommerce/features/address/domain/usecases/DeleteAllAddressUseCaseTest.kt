@@ -1,8 +1,8 @@
 package com.example.ecommerce.features.address.domain.usecases
 
 import com.example.ecommerce.features.address.domain.repositories.AddressRepository
-import com.example.ecommerce.features.address.domain.usecases.deleteaddress.DeleteAddressUseCase
-import com.example.ecommerce.features.address.domain.usecases.deleteaddress.IDeleteAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.deletealladdress.DeleteAllAddressUseCase
+import com.example.ecommerce.features.address.domain.usecases.deletealladdress.IDeleteAllAddressUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -14,22 +14,22 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 
 @ExperimentalCoroutinesApi
-class DeleteAddressUseCaseTest {
+class DeleteAllAddressUseCaseTest {
     @Mock
     private lateinit var repository: AddressRepository
-    private lateinit var deleteAddressUseCase: IDeleteAddressUseCase
+    private lateinit var deleteAddressUseCase: IDeleteAllAddressUseCase
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        deleteAddressUseCase = DeleteAddressUseCase(repository)
+        deleteAddressUseCase = DeleteAllAddressUseCase(repository)
     }
 
     @Test
     fun `invoke should call on repository deleteAddress`() = runTest {
-        `when`(repository.deleteAddress()).thenReturn(Unit)
+        `when`(repository.deleteAllAddress()).thenReturn(Unit)
         deleteAddressUseCase.invoke()
-        verify(repository).deleteAddress()
+        verify(repository).deleteAllAddress()
         verifyNoMoreInteractions(repository)
     }
 }

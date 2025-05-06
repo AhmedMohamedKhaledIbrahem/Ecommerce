@@ -5,47 +5,41 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.ecommerce.R
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.databinding.ActivityForgetPasswordBinding
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginActivity
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.IAuthenticationViewModel
-import com.example.ecommerce.core.state.UiState
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ForgetPasswordActivity : AppCompatActivity() {
-    private lateinit var emailForgetPasswordEditText: TextInputEditText
-    private lateinit var emailForgetPasswordTextFieldLayout: TextInputLayout
-    private lateinit var forgetPasswordButton: Button
     private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
     private val authenticationViewModel: IAuthenticationViewModel by viewModels<AuthenticationViewModel>()
-    private lateinit var authenticationObserver: Observer<UiState<Any>>
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance(supportFragmentManager)
-    }
+    private lateinit var loadingDialog: LoadingDialogFragment
+    private lateinit var binding: ActivityForgetPasswordBinding
     private lateinit var rootView: View
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityForgetPasswordBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_forget_password)
+        setContentView(binding.root)
+        loadingDialog = LoadingDialogFragment.getInstance(supportFragmentManager)
         initView()
         checkInternetStatus()
         textWatchers()
@@ -55,11 +49,7 @@ class ForgetPasswordActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        emailForgetPasswordTextFieldLayout =
-            findViewById(R.id.emailForgetPasswordTextFieldInputLayout)
-        emailForgetPasswordEditText = findViewById(R.id.emailForgetPasswordEditText)
-        forgetPasswordButton = findViewById(R.id.forgetPasswordButton)
-        rootView = findViewById(android.R.id.content)
+        rootView = binding.root
     }
 
     private fun checkInternetStatus() {
@@ -73,8 +63,8 @@ class ForgetPasswordActivity : AppCompatActivity() {
     }
 
     private fun forgetPasswordWithEmail() {
-        forgetPasswordButton.setOnClickListener {
-            val email = emailForgetPasswordEditText.text.toString()
+        binding.forgetPasswordButton.setOnClickListener {
+            val email = binding.emailForgetPasswordEditText.text.toString()
             if (validateInputs()) {
                 val resetPasswordParams = EmailRequestEntity(email = email)
                 authenticationViewModel.resetPassword(resetPasswordParams = resetPasswordParams)
@@ -94,7 +84,11 @@ class ForgetPasswordActivity : AppCompatActivity() {
 
                         is UiState.Success -> {
                             loadingDialog.dismissLoading()
-                            Toast.makeText(this@ForgetPasswordActivity, "${state.data}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@ForgetPasswordActivity,
+                                "${state.data}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             lifecycleScope.launch {
                                 delay(1000)
                                 naiveteToLoginActivity()
@@ -119,17 +113,19 @@ class ForgetPasswordActivity : AppCompatActivity() {
     private fun validateInputs(): Boolean {
         var isValid = true
         val emailPattern = android.util.Patterns.EMAIL_ADDRESS
-        val email = emailForgetPasswordEditText.text.toString()
+        val email = binding.emailForgetPasswordEditText.text.toString()
         if (email.isBlank()) {
-            emailForgetPasswordTextFieldLayout.error = getString(R.string.usernameOrEmailisRequired)
-            emailForgetPasswordTextFieldLayout.errorIconDrawable = null
+            binding.emailForgetPasswordTextFieldInputLayout.error =
+                getString(R.string.usernameOrEmailisRequired)
+            binding.emailForgetPasswordTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else if (!emailPattern.matcher(email).matches()) {
-            emailForgetPasswordTextFieldLayout.error = getString(R.string.invalid_email_format)
-            emailForgetPasswordTextFieldLayout.errorIconDrawable = null
+            binding.emailForgetPasswordTextFieldInputLayout.error =
+                getString(R.string.invalid_email_format)
+            binding.emailForgetPasswordTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else {
-            emailForgetPasswordTextFieldLayout.error = null
+            binding.emailForgetPasswordTextFieldInputLayout.error = null
         }
 
 
@@ -146,7 +142,7 @@ class ForgetPasswordActivity : AppCompatActivity() {
                 validateInputs()
             }
         }
-        emailForgetPasswordEditText.addTextChangedListener(textWatcher)
+        binding.emailForgetPasswordEditText.addTextChangedListener(textWatcher)
 
     }
 

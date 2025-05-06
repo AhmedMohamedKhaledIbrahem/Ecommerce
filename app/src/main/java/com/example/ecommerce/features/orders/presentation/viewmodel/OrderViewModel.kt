@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.core.database.data.entities.orders.OrderWithItems
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.features.orders.domain.entities.OrderRequestEntity
 import com.example.ecommerce.features.orders.domain.entities.OrderResponseEntity
 import com.example.ecommerce.features.orders.domain.use_case.clear_orders.IClearOrderUseCase

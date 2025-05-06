@@ -14,7 +14,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,18 +27,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
-import com.example.ecommerce.MainActivity
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.core.utils.AddressUtil
 import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.databinding.FragmentSettingBinding
 import com.example.ecommerce.features.preferences.presentation.viewmodel.IPreferencesViewModel
 import com.example.ecommerce.features.preferences.presentation.viewmodel.PreferencesViewModel
 import com.example.ecommerce.features.userprofile.presentation.screens.settingscreen.settingrecyclerview.SettingAdapter
@@ -48,8 +45,6 @@ import com.example.ecommerce.features.userprofile.presentation.viewmodel.imagepr
 import com.example.ecommerce.features.userprofile.presentation.viewmodel.imageprofile.ImageProfileViewModel
 import com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile.IUserProfileViewModel
 import com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile.UserProfileViewModel
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.imageview.ShapeableImageView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,21 +53,16 @@ import java.io.File
 
 @AndroidEntryPoint
 class SettingFragment : Fragment() {
-    private lateinit var settingRecyclerView: RecyclerView
+    private var _binding: FragmentSettingBinding? = null
+    private val binding get() = _binding!!
     private lateinit var settingAdapter: SettingAdapter
-    private lateinit var userSettingCardView: MaterialCardView
-    private lateinit var userSettingImageView: ShapeableImageView
-    private lateinit var userSettingNameTextView: TextView
-    private lateinit var userSettingEmailTextView: TextView
     private lateinit var pickImageResult: ActivityResultLauncher<Intent>
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var rootView: View
     private val userProfileViewModel: IUserProfileViewModel by viewModels<UserProfileViewModel>()
     private val updateImageProfileViewModel: IImageProfileViewModel by viewModels<ImageProfileViewModel>()
     private lateinit var updateDisplayNameViewModel: UpdateDisplayNameViewModel
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance(parentFragmentManager)
-    }
+    private lateinit var loadingDialog: LoadingDialogFragment
     private var isAdapterInitialized = false
     private val preferencesViewModel: IPreferencesViewModel by viewModels<PreferencesViewModel>()
 
@@ -93,30 +83,18 @@ class SettingFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_setting, container, false)
-        settingRecyclerView = view.findViewById(R.id.settingRecyclerView)
-        settingRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-        initView(view)
+        _binding = FragmentSettingBinding.inflate(inflater, container, false)
+        rootView = binding.root
         if (!isReadStoragePermissionGranted()) {
             onImageSettingClickListener(pickImageResult)
         }
-        return view
+        return rootView
     }
 
-
-    private fun initView(view: View) {
-        userSettingCardView = view.findViewById(R.id.userSettingCardView)
-        userSettingImageView = view.findViewById(R.id.userImageView)
-        userSettingNameTextView = view.findViewById(R.id.userNameTextView)
-        userSettingEmailTextView = view.findViewById(R.id.userEmailTextView)
-        rootView = view
-
-
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         getUserProfile()
         getUserProfileState()
         getDarkMode()
@@ -302,10 +280,10 @@ class SettingFragment : Fragment() {
         when (state.source) {
             "getUserProfile" -> {
                 val userProfile = state.data as UserEntity
-                userSettingNameTextView.text = userProfile.displayName
+                binding.userNameTextView.text = userProfile.displayName
 
                 val userEmail = userProfile.userEmail
-                userSettingEmailTextView.text = userEmail
+                binding.userEmailTextView.text = userEmail
                 userProfile.imagePath?.let { imagePath ->
                     userImageProfileView(imagePath.toUri())
                 }
@@ -328,8 +306,7 @@ class SettingFragment : Fragment() {
     private fun updateUserDisplayName() {
 
         updateDisplayNameViewModel.displayName.observe(viewLifecycleOwner) { value ->
-            userSettingNameTextView.text = value
-            Log.e("displayName", "displayName: $value")
+            binding.userNameTextView.text = value
         }
     }
 
@@ -350,7 +327,7 @@ class SettingFragment : Fragment() {
                 }
 
             )
-            settingRecyclerView.adapter = settingAdapter
+            binding.settingRecyclerView.adapter = settingAdapter
             isAdapterInitialized = true
             val position = findDarkModeItemPosition()
             position?.let {
@@ -434,7 +411,7 @@ class SettingFragment : Fragment() {
 
     private fun onImageSettingClickListener(pickImageResult: ActivityResultLauncher<Intent>) {
 
-        userSettingImageView.setOnClickListener {
+        binding.userImageView.setOnClickListener {
             openGallery(pickImageResult)
         }
     }
@@ -447,7 +424,7 @@ class SettingFragment : Fragment() {
 
 
     private fun userImageProfileView(imagePath: Uri) {
-        userSettingImageView.load(imagePath) {
+        binding.userImageView.load(imagePath) {
             error(R.drawable.round_placeholder_24)
             transformations(CircleCropTransformation())
         }
@@ -499,21 +476,9 @@ class SettingFragment : Fragment() {
         return requestPermissionLauncher
     }
 
-    private fun convertUriToFile(imageUri: Uri, context: Context): File {
-        val tempFile = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
-        val inputStream = context.contentResolver.openInputStream(imageUri)
-        val outputStream = tempFile.outputStream()
-        inputStream?.use { input ->
-            outputStream.use { output ->
-                input.copyTo(output)
-            }
-        }
-        return tempFile
-
-    }
 
     private fun getImagePathFromUri(uri: Uri): String {
-        var path: String = ""
+        var path = ""
         val context: Context = requireContext()
         val contentResolver: ContentResolver = context.contentResolver
         val projection = arrayOf(MediaStore.Images.Media.DATA)
@@ -527,15 +492,6 @@ class SettingFragment : Fragment() {
         return path
     }
 
-    private fun updateDarkMode() {
-        val intent =
-            Intent(requireContext(), MainActivity::class.java)
-        intent.apply {
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-
-        context?.startActivity(intent)
-    }
 
     private fun getDarkMode() {
         preferencesViewModel.isDarkModeEnabled()
@@ -556,6 +512,11 @@ class SettingFragment : Fragment() {
             if (toggle) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
         )
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 

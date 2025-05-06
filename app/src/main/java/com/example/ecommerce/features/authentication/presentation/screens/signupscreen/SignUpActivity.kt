@@ -4,10 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -18,17 +15,16 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.ecommerce.R
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.core.utils.NetworkStatus
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.databinding.ActivitySignUpBinding
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
 import com.example.ecommerce.features.authentication.presentation.screens.checkverificationcodescreen.CheckVerificationCodeActivity
 import com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginActivity
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.IAuthenticationViewModel
-import com.example.ecommerce.core.state.UiState
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -39,36 +35,20 @@ class SignUpActivity : AppCompatActivity() {
     private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
     private val authenticationViewModel: IAuthenticationViewModel by viewModels<AuthenticationViewModel>()
     private lateinit var rootView: View
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance(supportFragmentManager)
-    }
+    private lateinit var loadingDialog: LoadingDialogFragment
     private var emailFromSignUp = ""
-    private lateinit var loginNow: TextView
-    private lateinit var userNameEditText: TextInputEditText
-    private lateinit var firstNameEditText: TextInputEditText
-    private lateinit var lastNameEditText: TextInputEditText
-    private lateinit var emailEditText: TextInputEditText
-    private lateinit var passwordEditText: TextInputEditText
-    private lateinit var confirmPasswordEditText: TextInputEditText
-    private lateinit var userNameTextFieldLayout: TextInputLayout
-    private lateinit var firstNameTextFieldLayout: TextInputLayout
-    private lateinit var lastNameTextFieldLayout: TextInputLayout
-    private lateinit var emailTextFieldLayout: TextInputLayout
-    private lateinit var passwordTextFieldLayout: TextInputLayout
-    private lateinit var confirmPasswordTextFieldLayout: TextInputLayout
-    private lateinit var signUpButton: Button
+    private lateinit var binding: ActivitySignUpBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_sign_up)
-        initView()
+        binding = ActivitySignUpBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        loadingDialog = LoadingDialogFragment.getInstance(supportFragmentManager)
         navigateToLoginActivity()
         checkInternetConnection()
         textWatchers()
         submitUser()
         signUpAuthentication()
-
-
     }
 
     private fun signUpAuthentication() {
@@ -80,6 +60,7 @@ class SignUpActivity : AppCompatActivity() {
                         is UiState.Loading -> {
                             loadingDialog.showLoading(fragmentManager = supportFragmentManager)
                         }
+
                         is UiState.Success -> {
                             loadingDialog.dismissLoading()
                             Toast.makeText(
@@ -128,35 +109,16 @@ class SignUpActivity : AppCompatActivity() {
         )
     }
 
-    private fun initView() {
-        userNameEditText = findViewById(R.id.userNameEditText)
-        firstNameEditText = findViewById(R.id.firstNameEditText)
-        lastNameEditText = findViewById(R.id.lastNameEditText)
-        emailEditText = findViewById(R.id.emailEditText)
-        passwordEditText = findViewById(R.id.passwordEditText)
-        confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText)
-        userNameTextFieldLayout = findViewById(R.id.userNameTextFieldInputLayout)
-        firstNameTextFieldLayout = findViewById(R.id.firstNameTextFieldInputLayout)
-        lastNameTextFieldLayout = findViewById(R.id.lastNameTextFieldInputLayout)
-        emailTextFieldLayout = findViewById(R.id.emailTextFieldInputLayout)
-        passwordTextFieldLayout = findViewById(R.id.passwordTextFieldInputLayout)
-        confirmPasswordTextFieldLayout = findViewById(R.id.ConfirmPasswordTextFieldInputLayout)
-
-        loginNow = findViewById(R.id.loginTextView)
-        signUpButton = findViewById(R.id.signUpButton)
-    }
 
     private fun submitUser() {
 
-        signUpButton.setOnClickListener {
-            val username = userNameEditText.text.toString()
-            val firsName = firstNameEditText.text.toString()
-            val lastName = lastNameEditText.text.toString()
-            val email = emailEditText.text.toString()
+        binding.signUpButton.setOnClickListener {
+            val username = binding.userNameEditText.text.toString()
+            val firsName = binding.firstNameEditText.text.toString()
+            val lastName = binding.lastNameEditText.text.toString()
+            val email = binding.emailEditText.text.toString()
             emailFromSignUp = email
-            val password = passwordEditText.text.toString()
-            // val confirmPassword = confirmPasswordEditText.text.toString()
-            Log.e("userName", "submitUser:${username} ")
+            val password = binding.passwordEditText.text.toString()
             if (validateInputs()) {
                 val signUpRequestEntity =
                     SignUpRequestEntity(
@@ -173,80 +135,75 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun validateInputs(): Boolean {
         var isValid = true
-        // Username validation (not starting with a number or special character)
         val usernamePattern = Regex("^[a-zA-Z][a-zA-Z0-9_]*$")
-        val userName = userNameEditText.text.toString()
+        val userName = binding.userNameEditText.text.toString()
         if (userName.isBlank()) {
-            //userNameEditText.error = "Username is required"
-            userNameTextFieldLayout.error = getString(R.string.username_is_required)
-            userNameTextFieldLayout.errorIconDrawable = null
+            binding.userNameTextFieldInputLayout.error = getString(R.string.username_is_required)
+            binding.userNameTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else if (!usernamePattern.matches(userName)) {
-            userNameTextFieldLayout.error =
+            binding.userNameTextFieldInputLayout.error =
                 getString(R.string.username_must_start_with_a_letter_and_contain_only_letters_numbers_or_underscores)
-            userNameTextFieldLayout.errorIconDrawable = null
+            binding.userNameTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else {
-            userNameTextFieldLayout.error = null
+            binding.userNameTextFieldInputLayout.error = null
         }
-        // First Name validation
-        if (firstNameEditText.text.toString().isBlank()) {
-            firstNameTextFieldLayout.error = getString(R.string.first_name_is_required)
-            firstNameTextFieldLayout.errorIconDrawable = null
+        if (binding.firstNameEditText.text.toString().isBlank()) {
+            binding.firstNameTextFieldInputLayout.error = getString(R.string.first_name_is_required)
+            binding.firstNameTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else {
-            firstNameTextFieldLayout.error = null
+            binding.firstNameTextFieldInputLayout.error = null
         }
-        // Last Name validation
-        if (lastNameEditText.text.toString().isBlank()) {
-            lastNameTextFieldLayout.error = getString(R.string.last_name_is_required)
-            lastNameTextFieldLayout.errorIconDrawable = null
+        if (binding.lastNameEditText.text.toString().isBlank()) {
+            binding.lastNameTextFieldInputLayout.error = getString(R.string.last_name_is_required)
+            binding.lastNameTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else {
-            lastNameTextFieldLayout.error = null
+            binding.lastNameTextFieldInputLayout.error = null
         }
-        // Email validation
         val emailPattern = android.util.Patterns.EMAIL_ADDRESS
-        val email = emailEditText.text.toString()
+        val email = binding.emailEditText.text.toString()
         if (email.isBlank()) {
-            emailTextFieldLayout.error = getString(R.string.email_is_required)
-            emailTextFieldLayout.errorIconDrawable = null
+            binding.emailTextFieldInputLayout.error = getString(R.string.email_is_required)
+            binding.emailTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else if (!emailPattern.matcher(email).matches()) {
-            emailTextFieldLayout.error = getString(R.string.invalid_email_format)
-            emailTextFieldLayout.errorIconDrawable = null
+            binding.emailTextFieldInputLayout.error = getString(R.string.invalid_email_format)
+            binding.emailTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else {
-            emailTextFieldLayout.error = null
+            binding.emailTextFieldInputLayout.error = null
         }
-        // Password validation (minimum length)
-        val password = passwordEditText.text.toString()
+        val password = binding.passwordEditText.text.toString()
         if (password.isBlank()) {
-            passwordTextFieldLayout.error = getString(R.string.password_is_required)
-            passwordTextFieldLayout.errorIconDrawable = null
+            binding.passwordTextFieldInputLayout.error = getString(R.string.password_is_required)
+            binding.passwordTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else if (password.length < 6) {
-            passwordTextFieldLayout.error =
+            binding.passwordTextFieldInputLayout.error =
                 getString(R.string.password_must_be_at_least_6_characters_long)
-            passwordTextFieldLayout.errorIconDrawable = null
+            binding.passwordTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else {
-            passwordTextFieldLayout.error = null
+            binding.passwordTextFieldInputLayout.error = null
         }
 
-        // Confirm Password validation
-        val confirmPassword = confirmPasswordEditText.text.toString()
+        val confirmPassword = binding.confirmPasswordEditText.text.toString()
         if (confirmPassword.isBlank()) {
-            confirmPasswordTextFieldLayout.error = getString(R.string.please_confirm_your_password)
-            confirmPasswordTextFieldLayout.errorIconDrawable = null
+            binding.ConfirmPasswordTextFieldInputLayout.error =
+                getString(R.string.please_confirm_your_password)
+            binding.ConfirmPasswordTextFieldInputLayout.errorIconDrawable = null
             isValid = false
 
         } else if (password != confirmPassword) {
-            confirmPasswordTextFieldLayout.error = getString(R.string.passwords_do_not_match)
-            confirmPasswordTextFieldLayout.errorIconDrawable = null
+            binding.ConfirmPasswordTextFieldInputLayout.error =
+                getString(R.string.passwords_do_not_match)
+            binding.ConfirmPasswordTextFieldInputLayout.errorIconDrawable = null
             isValid = false
         } else {
-            confirmPasswordTextFieldLayout.error = null
+            binding.ConfirmPasswordTextFieldInputLayout.error = null
         }
 
         return isValid
@@ -264,16 +221,16 @@ class SignUpActivity : AppCompatActivity() {
         }
 
 
-        userNameEditText.addTextChangedListener(textWatcher)
-        firstNameEditText.addTextChangedListener(textWatcher)
-        lastNameEditText.addTextChangedListener(textWatcher)
-        emailEditText.addTextChangedListener(textWatcher)
-        passwordEditText.addTextChangedListener(textWatcher)
-        confirmPasswordEditText.addTextChangedListener(textWatcher)
+        binding.userNameEditText.addTextChangedListener(textWatcher)
+        binding.firstNameEditText.addTextChangedListener(textWatcher)
+        binding.lastNameEditText.addTextChangedListener(textWatcher)
+        binding.emailEditText.addTextChangedListener(textWatcher)
+        binding.passwordEditText.addTextChangedListener(textWatcher)
+        binding.confirmPasswordEditText.addTextChangedListener(textWatcher)
     }
 
     private fun navigateToLoginActivity() {
-        loginNow.setOnClickListener {
+        binding.loginTextView.setOnClickListener {
             val intent = Intent(this@SignUpActivity, LoginActivity::class.java)
             startActivity(intent)
         }
@@ -282,6 +239,5 @@ class SignUpActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        //authenticationViewModel.authenticationState.removeObserver(authenticationObserver)
     }
 }

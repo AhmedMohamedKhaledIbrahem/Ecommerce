@@ -1,11 +1,11 @@
 package com.example.ecommerce.features.address.presentation.screen.address
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,20 +14,22 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
+import com.example.ecommerce.core.constants.EditAddress
+import com.example.ecommerce.core.constants.InsertAddress
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
-import com.example.ecommerce.core.state.UiState
-import com.example.ecommerce.core.utils.AddressUtil
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressAdapter
-import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressItem
-import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
-import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.address.AddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.address.IAddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.AddressActionViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.IAddressActionViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.customer.CustomerViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.customer.ICustomerViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class AddressFragment : Fragment() {
@@ -35,18 +37,14 @@ class AddressFragment : Fragment() {
     private lateinit var addressAdapter: AddressAdapter
     private lateinit var rootView: View
     private lateinit var floatingActionButtonAddAddress: FloatingActionButton
-
-
-    //    private lateinit var addressShimmerLayout: ShimmerFrameLayout
-//    private lateinit var swipeRefreshAddressLayout: SwipeRefreshLayout
     private val addressViewModel: IAddressViewModel by viewModels<AddressViewModel>()
-
+    private val customerViewModel: ICustomerViewModel by activityViewModels<CustomerViewModel>()
+    private val addressActionViewModel: IAddressActionViewModel by activityViewModels<AddressActionViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("onCreateView", "yes: ")
         val view = inflater.inflate(R.layout.fragment_address, container, false)
         initView(view)
 
@@ -55,40 +53,35 @@ class AddressFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        getAddress()
+        addressEvent()
         addressState()
-        getAddressById(AddressUtil.addressId)
-        floatingActionButtonAddAddress.setOnClickListener {
-            clickNav()
-        }
-
-        //  onSwipeRefreshListener()
-//        editAddressIconImageView.setOnClickListener {
-//            clickNav()
-//        }
+        floatingActionButtonAddAddressOnClickListener()
         detectScrollEnd(addressRecyclerView)
-        Log.d("onViewCreated", "yes: ")
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d("onResume", "yes: ")
-    }
 
     private fun initView(view: View) {
         addressRecyclerView = view.findViewById(R.id.addressRecyclerView)
         addressRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         floatingActionButtonAddAddress = view.findViewById(R.id.floatingActionButtonAddAddress)
-
-//        addressShimmerLayout = view.findViewById(R.id.addressShimmerFrameLayout)
-//        swipeRefreshAddressLayout = view.findViewById(R.id.addressSwipeRefreshViewLayout)
         rootView = view
     }
-
 
     private fun addressState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 addressViewModel.addressState.collect { state ->
+                    initRecyclerView(state)
+                }
+            }
+        }
+    }
+
+    private fun addressEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                addressViewModel.addressEvent.collect { state ->
                     addressUiStates(state)
                 }
             }
@@ -112,128 +105,62 @@ class AddressFragment : Fragment() {
         }
     }
 
-    private fun addressUiSourceStateError(state: UiState.Error) {
+    private fun addressUiSourceStateLoading(state: UiState.Loading) {
         when (state.source) {
-            "getAddressById" -> {
-                // shimmerStopWhenDataSuccess()
-                SnackBarCustom.showSnackbar(
-                    view = rootView,
-                    message = state.message
-                )
-            }
-
-            "checkUpdateAddress" -> {
-                //  shimmerStopWhenDataSuccess()
-                SnackBarCustom.showSnackbar(
-                    view = rootView,
-                    message = state.message
-                )
-
+            "getAddress" -> {
             }
         }
     }
-
 
     private fun addressUiSourceStateSuccess(state: UiState.Success<Any>) {
         when (state.source) {
-            "getAddressById" -> {
-                // shimmerStopWhenDataSuccess()
-                val addressData = state.data as CustomerAddressEntity
-                Log.e("address", "$addressData")
-                AddressUtil.addressEntity = addressData
-                initRecyclerView(addressData)
-            }
-
-            "checkUpdateAddress" -> {
-               // addressViewModel.getAddress(AddressUtil.addressId)
-                //shimmerStopWhenDataSuccess()
-
-            }
+            "getAddress" -> {}
         }
     }
 
-//    private fun shimmerStopWhenDataSuccess() {
-//        addressShimmerLayout.apply {
-//            stopShimmer()
-//            visibility = View.GONE
-//        }
-//        addressRecyclerView.visibility = View.VISIBLE
-//    }
 
-    private fun addressUiSourceStateLoading(state: UiState.Loading) {
+    private fun addressUiSourceStateError(state: UiState.Error) {
         when (state.source) {
-            "getAddressById" -> {
-                // shimmerStartWhenLoading()
-
+            "getAddress" -> {
+                SnackBarCustom.showSnackbar(
+                    view = rootView,
+                    message = state.message
+                )
             }
-
-            "checkUpdateAddress" -> {
-                Log.d("addressUiSourceStateLoading?", "yes")
-                //  shimmerStartWhenLoading()
-            }
-
         }
     }
 
-//    private fun shimmerStartWhenLoading() {
-//        addressShimmerLayout.apply {
-//            visibility = View.VISIBLE // Ensure the shimmer is visible
-//            startShimmer()            // Start the shimmer animation
-//        }
-//        addressRecyclerView.apply {
-//            visibility = View.GONE
-//        }
-//    }
-
-    private fun getAddressById(id: Int) {
-       // addressViewModel.getAddress(id = id)
+    private fun getAddress() {
+        addressViewModel.getAddress()
     }
 
-    private fun clickNav() {
-
+    private fun navigate() {
         val navController = findNavController()
         navController.navigate(R.id.editAddressFragment)
-
-
     }
 
-//    private fun onSwipeRefreshListener() {
-//        swipeRefreshAddressLayout.setOnRefreshListener {
-//            lifecycleScope.launch {
-//                delay(1000)
-//                addressViewModel.checkUpdateAddress()
-//
-//                swipeRefreshAddressLayout.isRefreshing = false
-//
-//
-//            }
-//        }
-//    }
-
-    private fun initRecyclerView(addressData: CustomerAddressEntity) {
-        lifecycleScope.launch {
-            val data = withContext(Dispatchers.IO) { setData(addressData) }
-            addressAdapter = AddressAdapter(data) {
-
-            }
-            addressRecyclerView.adapter = addressAdapter
+    private fun floatingActionButtonAddAddressOnClickListener() {
+        floatingActionButtonAddAddress.setOnClickListener {
+            addressActionViewModel.setAddressAction(InsertAddress)
+            navigate()
         }
     }
 
-    private fun setData(addressData: CustomerAddressEntity): List<AddressItem> {
-        val addressItem = listOf(
-            AddressItem(
-                fullName = "FullName: " + addressData.firstName + " " + addressData.lastName,
-                emailAddress = "Email: " + addressData.email,
-                phoneNumber = "PhoneNumber: " + addressData.phone,
-                country = "Country: " + addressData.country,
-                city = "City: " + addressData.city,
-               // state = "State:" + addressData.state,
-                streetAddress = "Street Address: " + addressData.address,
-                postCode = "Post Code: " + addressData.zipCode,
-            ),
-        )
-        return addressItem
+
+    private fun initRecyclerView(addressData: List<CustomerAddressEntity>) {
+        lifecycleScope.launch {
+            addressAdapter = AddressAdapter(
+                addressData,
+                onCardClickListener = {},
+                onDeleteClickListener = {},
+                onEditClickListener = {
+                    customerViewModel.setCustomerEntity(customerEntity = it)
+                    addressActionViewModel.setAddressAction(EditAddress)
+                    navigate()
+                },
+            )
+            addressRecyclerView.adapter = addressAdapter
+        }
     }
 
 

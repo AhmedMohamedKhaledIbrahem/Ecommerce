@@ -33,7 +33,7 @@ val countryStateMap = mapOf(
         "Suez"
     )
 )
- val regionCodeMap = mapOf(
+val regionCodeMap = mapOf(
     "Cairo" to "EGC",
     "Aswan" to "EGS",
     "Asyut" to "EGY",
@@ -60,4 +60,8 @@ val countryStateMap = mapOf(
     "Sohag" to "EGO",
     "South Sinai" to "EGJ",
     "Suez" to "EGS"
+)
+
+val countryCode = mapOf(
+    "Egypt" to "EG"
 )

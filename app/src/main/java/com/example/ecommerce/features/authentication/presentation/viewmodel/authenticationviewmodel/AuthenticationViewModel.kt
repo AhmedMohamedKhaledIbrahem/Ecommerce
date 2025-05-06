@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.CheckVerificationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity

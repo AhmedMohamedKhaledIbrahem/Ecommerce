@@ -1,22 +1,24 @@
 package com.example.ecommerce.features.product.presentation.screen.product.adapter
 
 import android.content.Context
-import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.ecommerce.R
+import com.example.ecommerce.databinding.ItemSearchBarBinding
 
-class SearchViewHolder(private val view: View, private val onSearchQueryChanged: (String) -> Unit) :
-    RecyclerView.ViewHolder(view) {
-    private val searchEditText: SearchView = view.findViewById(R.id.searchProduct)
+class SearchViewHolder(
+    private val binding: ItemSearchBarBinding,
+    private val onSearchQueryChanged: (String) -> Unit
+) :
+    RecyclerView.ViewHolder(binding.root) {
+    private val searchEditText: SearchView = binding.searchProduct
 
     fun bind(query: String) {
         searchEditText.setQuery(query, false)
         searchEditText.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query.isNullOrEmpty()) {
-                    hideKeyboard(view)
+                    hideKeyboard()
                 } else {
                     onSearchQueryChanged(query)
                 }
@@ -38,7 +40,7 @@ class SearchViewHolder(private val view: View, private val onSearchQueryChanged:
 
 
         searchEditText.setOnCloseListener {
-            hideKeyboard(view)
+            hideKeyboard()
             searchEditText.clearFocus()
             searchEditText.clearAnimation()
 
@@ -46,10 +48,10 @@ class SearchViewHolder(private val view: View, private val onSearchQueryChanged:
         }
     }
 
-    private fun hideKeyboard(view: View) {
+    private fun hideKeyboard() {
         val inputMethodManager =
-            view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+            binding.root.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(binding.root.windowToken, 0)
     }
 
 }

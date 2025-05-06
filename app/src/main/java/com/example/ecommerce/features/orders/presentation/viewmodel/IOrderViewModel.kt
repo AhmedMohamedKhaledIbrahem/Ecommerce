@@ -1,7 +1,7 @@
 package com.example.ecommerce.features.orders.presentation.viewmodel
 
 import com.example.ecommerce.core.database.data.entities.orders.OrderWithItems
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.features.orders.domain.entities.OrderRequestEntity
 import com.example.ecommerce.features.orders.domain.entities.OrderResponseEntity
 import kotlinx.coroutines.flow.SharedFlow

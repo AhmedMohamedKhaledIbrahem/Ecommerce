@@ -19,6 +19,8 @@ import com.example.ecommerce.features.authentication.domain.entites.EmailRequest
 import com.example.ecommerce.features.authentication.domain.entites.MessageResponseEntity
 import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
 import com.example.ecommerce.features.authentication.domain.repositories.AuthenticationRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 class AuthenticationRepositoryImp @Inject constructor(
@@ -27,12 +29,14 @@ class AuthenticationRepositoryImp @Inject constructor(
     private val preferences: AuthenticationSharedPreferencesDataSource,
     private val networkInfo: InternetConnectionChecker
 ) : AuthenticationRepository {
-    override suspend fun login(loginParams: AuthenticationRequestEntity): AuthenticationResponseEntity {
-        return try {
+    override suspend fun login(loginParams: AuthenticationRequestEntity): AuthenticationResponseEntity = coroutineScope {
+        return@coroutineScope try {
             if (networkInfo.hasConnection()) {
                 val loginRequestModel = AuthenticationMapper.mapToModel(entity = loginParams)
-                val login = remoteDataSource.login(loginParams = loginRequestModel)
+                val loginDeferred = async {  remoteDataSource.login(loginParams = loginRequestModel)}
+                val login = loginDeferred.await()
                 try {
+
                     val existingUser = localDataSource.checkUserEntityById(login.userId)
                     if (existingUser == null) {
                         preferences.saveToken(login.token)

@@ -18,6 +18,8 @@ import com.example.ecommerce.core.database.data.entities.relation.ProductWithAll
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.product.data.mapper.ProductMapper
 import com.example.ecommerce.features.product.data.model.EcommerceResponseModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -50,45 +52,50 @@ class ProductLocalDataSourceImp @Inject constructor(
         page: Int,
         pageSize: Int,
         productResponse: EcommerceResponseModel
-    ) {
-            try {
-                val productEntity = productResponse.products.map {
-                    ProductMapper.toEntity(it)
-                }
-                val imageEntity = productResponse.products.flatMap { product ->
-                    product.image.map { image ->
-
-                        ImageEntity(
-                            productId = product.id,
-                            imageId = image.id,
-                            imageUrl = image.src.image.replace(LocalHost, IpHost)
-                        )
-                    }
-                }
-
-                val categoryEntity = productResponse.products.flatMap { product ->
-                    product.categories.map { category ->
-                        CategoryEntity(
-                            categoryIdJson = category.id,
-                            categoryName = category.name
-                        )
-                    }
-                }
-                val crossRefEntity = productResponse.products.flatMap { product ->
-                    product.categories.map { category ->
-                        ProductCategoryCrossRefEntity(
-                            productIdJson = product.id,
-                            categoryIdJson = category.id
-                        )
-                    }
-                }
-                productDao.insertProducts(productEntity)
-                imageDao.insertImages(imageEntity)
-                categoryDao.insertCategories(categoryEntity)
-                productCategoryDao.insertProductCategoryCrossRef(crossRefEntity)
-            } catch (e: Exception) {
-                throw FailureException("${e.message}")
+    ) = coroutineScope {
+        try {
+            val productEntity = productResponse.products.map {
+                ProductMapper.toEntity(it)
             }
+            val imageEntity = productResponse.products.flatMap { product ->
+                product.image.map { image ->
+
+                    ImageEntity(
+                        productId = product.id,
+                        imageId = image.id,
+                        imageUrl = image.src.image.replace(LocalHost, IpHost)
+                    )
+                }
+            }
+
+            val categoryEntity = productResponse.products.flatMap { product ->
+                product.categories.map { category ->
+                    CategoryEntity(
+                        categoryIdJson = category.id,
+                        categoryName = category.name
+                    )
+                }
+            }
+            val crossRefEntity = productResponse.products.flatMap { product ->
+                product.categories.map { category ->
+                    ProductCategoryCrossRefEntity(
+                        productIdJson = product.id,
+                        categoryIdJson = category.id
+                    )
+                }
+            }
+            val insertProductsDeferred = async { productDao.insertProducts(productEntity) }
+            val insertImagesDeferred = async { imageDao.insertImages(imageEntity) }
+            val insertCategoriesDeferred = async { categoryDao.insertCategories(categoryEntity) }
+            val insertCrossRefDeferred =
+                async { productCategoryDao.insertProductCategoryCrossRef(crossRefEntity) }
+            insertProductsDeferred.await()
+            insertImagesDeferred.await()
+            insertCategoriesDeferred.await()
+            insertCrossRefDeferred.await()
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
+        }
 
     }
 

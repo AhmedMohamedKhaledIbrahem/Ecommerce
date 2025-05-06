@@ -1,4 +1,4 @@
-package com.example.ecommerce.core.state
+package com.example.ecommerce.core.ui
 
 interface UiState<out T > {
     data object Ideal : UiState<Nothing>

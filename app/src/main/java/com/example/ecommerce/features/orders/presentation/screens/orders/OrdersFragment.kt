@@ -10,57 +10,50 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.orders.OrderWithItems
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.detectScrollEnd
+import com.example.ecommerce.databinding.FragmentOrdersBinding
 import com.example.ecommerce.features.orders.presentation.screens.adapter.order_adapter.OrderAdapter
 import com.example.ecommerce.features.orders.presentation.viewmodel.IOrderViewModel
 import com.example.ecommerce.features.orders.presentation.viewmodel.OrderViewModel
-import com.example.ecommerce.features.product.presentation.screen.product.ProductFragmentDirections
-import com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetailsFragmentArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class OrdersFragment : Fragment() {
 
-    private lateinit var recyclerView: RecyclerView
     private lateinit var orderAdapter: OrderAdapter
     private val orderViewModel: IOrderViewModel by viewModels<OrderViewModel>()
     private lateinit var root: View
+    private var _binding: FragmentOrdersBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_orders, container, false)
-        initView(view)
-        return view
+        _binding = FragmentOrdersBinding.inflate(inflater, container, false)
+        root = binding.root
+        return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         orderViewModel.getOrders()
-        detectScrollEnd(recyclerView)
+        detectScrollEnd(binding.ordersRecyclerView)
         orderState()
 
     }
 
-    private fun initView(view: View) {
-        root = view
-        recyclerView = view.findViewById(R.id.ordersRecyclerView)
-    }
+
 
     private fun orderRecyclerView(orderWithItems: List<OrderWithItems>) {
         println(orderWithItems)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.ordersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         orderAdapter = OrderAdapter(
-            context = requireContext(),
             orderWithItems = orderWithItems
         ) {
             val action = OrdersFragmentDirections.actionOrdersFragmentToOrderDetailsFragment(
@@ -69,7 +62,7 @@ class OrdersFragment : Fragment() {
             )
             findNavController().navigate(action)
         }
-        recyclerView.adapter = orderAdapter
+        binding.ordersRecyclerView.adapter = orderAdapter
     }
 
     private fun orderState() {
@@ -134,6 +127,11 @@ class OrdersFragment : Fragment() {
                 )
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 

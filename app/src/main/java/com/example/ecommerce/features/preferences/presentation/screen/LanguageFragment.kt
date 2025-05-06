@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -16,8 +15,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.ecommerce.MainActivity
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.languageCodeMap
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.core.utils.PreferencesUtils
+import com.example.ecommerce.databinding.FragmentLanguageBinding
 import com.example.ecommerce.features.preferences.presentation.viewmodel.IPreferencesViewModel
 import com.example.ecommerce.features.preferences.presentation.viewmodel.PreferencesViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -27,9 +27,10 @@ import java.util.Locale
 
 @AndroidEntryPoint
 class LanguageFragment : DialogFragment() {
-    private lateinit var languageRadioGroup: RadioGroup
+
     private val preferencesViewModel: IPreferencesViewModel by viewModels<PreferencesViewModel>()
-    private var code: String = ""
+    private var _binding: FragmentLanguageBinding? = null
+    private val binding get() = _binding!!
     private var isUpdatingRadioGroup = false
     override fun onStart() {
         super.onStart()
@@ -44,29 +45,26 @@ class LanguageFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = requireActivity().layoutInflater
-        val view = inflater.inflate(R.layout.fragment_language, null, false)
-        initView(view)
-        builder.setView(view)
-        preferencesStates()
-        getLanguage()
-
-        languageRadioGroupOnCheckedChangeListener()
-
-
+        _binding = FragmentLanguageBinding.inflate(inflater, null, false)
+        builder.setView(binding.root)
 
         return builder.create()
     }
 
-    private fun initView(view: View) {
-        languageRadioGroup = view.findViewById(R.id.radio_group_language)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        preferencesStates()
+        getLanguage()
+        languageRadioGroupOnCheckedChangeListener()
     }
+
 
     private fun languageRadioGroupOnCheckedChangeListener() {
 
-        languageRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            if(isUpdatingRadioGroup) return@setOnCheckedChangeListener
+        binding.radioGroupLanguage.setOnCheckedChangeListener { _, checkedId ->
+            if (isUpdatingRadioGroup) return@setOnCheckedChangeListener
             val selectedLanguageCode = languageCodeMap[checkedId]
-            Log.e(selectedLanguageCode, "$selectedLanguageCode: ", )
+            Log.e(selectedLanguageCode, "$selectedLanguageCode: ")
             preferencesViewModel.setLanguage(
                 selectedLanguageCode ?: Locale.getDefault().language
             )
@@ -124,8 +122,8 @@ class LanguageFragment : DialogFragment() {
                     languageCodeMap.entries.find { it.value == languageCode }?.key
                 isUpdatingRadioGroup = true
                 selectedRadioButtonId?.let {
-                    if (languageRadioGroup.checkedRadioButtonId != it) {
-                        languageRadioGroup.check(it)
+                    if (binding.radioGroupLanguage.checkedRadioButtonId != it) {
+                        binding.radioGroupLanguage.check(it)
                         Log.e("RadioButton", "select:${languageCode}")
                     }
                 } ?: run {
@@ -133,8 +131,8 @@ class LanguageFragment : DialogFragment() {
                     val radioButtonId =
                         languageCodeMap.entries.find { it.value == defaultLanguageCode }?.key
                     if (radioButtonId != null) {
-                        if (languageRadioGroup.checkedRadioButtonId != radioButtonId) {
-                            languageRadioGroup.check(radioButtonId)
+                        if (binding.radioGroupLanguage.checkedRadioButtonId != radioButtonId) {
+                            binding.radioGroupLanguage.check(radioButtonId)
                         }
                     }
                 }
@@ -179,5 +177,8 @@ class LanguageFragment : DialogFragment() {
         context?.startActivity(intent)
     }
 
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

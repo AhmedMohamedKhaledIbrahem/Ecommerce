@@ -4,7 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.UiState
 import com.example.ecommerce.features.await
 import com.example.ecommerce.features.observerViewModelErrorState
 import com.example.ecommerce.features.observerViewModelSuccessState

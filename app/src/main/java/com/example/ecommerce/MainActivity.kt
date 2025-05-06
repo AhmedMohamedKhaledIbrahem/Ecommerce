@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import com.example.ecommerce.core.manager.token.TokenManager
+import com.example.ecommerce.core.navigation.MainNavigationActivity
 import com.example.ecommerce.core.utils.PreferencesUtils
+import com.example.ecommerce.databinding.ActivityMainBinding
 import com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -26,28 +28,30 @@ class MainActivity : AppCompatActivity() {
     lateinit var shardPreferences: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         defaultNightMode()
-        if (isLogin()) {
-            val intent = Intent(this@MainActivity, MainNavigationActivity::class.java)
-            startActivity(intent)
-            finish()
-        } else {
-            val intent = Intent(this@MainActivity, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
+        lifecycleScope.launch {
+            when (isLogin()) {
+                true -> {
+                    val intent = Intent(this@MainActivity, MainNavigationActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+                false -> {
+                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+            }
         }
 
 
     }
 
 
-    private fun isLogin(): Boolean {
-        var isLogin = false
-        lifecycleScope.launch {
-            isLogin = !tokenManager.getToken().isNullOrEmpty()
-        }
-        return isLogin
+    private suspend fun isLogin(): Boolean {
+        return !tokenManager.getToken().isNullOrEmpty()
     }
 
     override fun attachBaseContext(newBase: Context?) {
@@ -65,7 +69,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun defaultNightMode() {
-        Log.e("defaultNightMode", "defaultNightMode: ${PreferencesUtils.isDarkMode}")
         PreferencesUtils.isDarkMode = shardPreferences.getBoolean("dark_mode", false)
         AppCompatDelegate.setDefaultNightMode(
             if (PreferencesUtils.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
