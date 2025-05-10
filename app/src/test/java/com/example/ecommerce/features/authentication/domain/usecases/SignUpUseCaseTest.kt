@@ -33,7 +33,7 @@ class SignUpUseCaseTest {
            lastName = "pero",
            password = "123456",
        )
-       val tSignUpResponse = MessageResponseEntity(message = "sign up successful")
+       val tSignUpResponse = MessageResponseEntity(message = "sign up successful",true)
        `when`(repository.signUp(singUpParams = tSignUpParams)).thenReturn(tSignUpResponse)
        val result = signUpUseCase(signUpParams = tSignUpParams)
        assertEquals(tSignUpResponse,result)

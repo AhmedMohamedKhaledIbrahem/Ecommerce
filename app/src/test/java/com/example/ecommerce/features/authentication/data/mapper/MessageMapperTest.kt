@@ -8,8 +8,8 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class MessageMapperTest {
-   private val tMessageResponseModel = MessageResponseModel(message = "test")
-   private val tMessageResponseEntity = MessageResponseEntity(message = "test")
+   private val tMessageResponseModel = MessageResponseModel(message = "test",true)
+   private val tMessageResponseEntity = MessageResponseEntity(message = "test",true)
 
     @Test
     fun`should json parse as MessageResponseModel`(){

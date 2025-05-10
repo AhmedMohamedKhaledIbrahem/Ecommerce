@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.features.preferences.domain.usecase.getlanguage.IGetLanguageUseCase
 import com.example.ecommerce.features.preferences.domain.usecase.isdarkmodeenabled.IIsDarkModeEnableUseCase
 import com.example.ecommerce.features.preferences.domain.usecase.setdarkmodeenable.ISetDarkModeEnableUseCase

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
 import com.example.ecommerce.features.address.domain.usecases.deleteaddress.IDeleteAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.deletealladdress.IDeleteAllAddressUseCase

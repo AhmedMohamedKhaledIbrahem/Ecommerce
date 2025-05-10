@@ -16,7 +16,7 @@ class NotificationManagerRepositoryImp @Inject constructor(
             try {
                 localDataSource.addFcmTokenDevice(token = token)
             } catch (failure: FailureException) {
-                throw Failures.CacheFailure("${failure.message}")
+                throw Failures.CacheFailure(failure.message ?: "Unknown server error")
             }
 
         }
@@ -27,7 +27,7 @@ class NotificationManagerRepositoryImp @Inject constructor(
             try {
                 localDataSource.getFcmTokenDevice()
             } catch (failure: FailureException) {
-                throw Failures.CacheFailure("${failure.message}")
+                throw Failures.CacheFailure(failure.message ?: "Unknown server error")
             }
         }
     }

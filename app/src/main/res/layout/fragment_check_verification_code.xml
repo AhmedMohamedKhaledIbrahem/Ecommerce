@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    tools:context=".features.authentication.presentation.screens.checkverificationcodescreen.CheckVerificationCodeActivity">
+    tools:context=".features.authentication.presentation.screens.checkverificationcodescreen.CheckVerificationCodeFragment">
 
     <TextView
         android:id="@+id/forgetPasswordTextView"
@@ -196,7 +196,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="32dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@id/verifyCodeButton"
+        app:layout_constraintBottom_toTopOf="@id/verifyCodeButtonContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/otpDigital1TextInputLayout">
@@ -219,23 +219,47 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/verifyCodeButton"
-        style="@style/customButtonStyle"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="150dp"
-        android:backgroundTint="?attr/colorPrimary"
-        android:text="@string/verifyCode"
-        android:textColor="?attr/colorOnPrimary"
+    <FrameLayout
+        android:id="@+id/verifyCodeButtonContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.47"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.58000004" />
+        app:layout_constraintVertical_bias="0.58000004">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/verifyCodeButton"
+            style="@style/customButtonStyle"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="150dp"
+            android:enabled="true"
+            android:backgroundTint="?attr/colorPrimary"
+            android:text="@string/verifyCode"
+            android:textColor="?attr/colorOnPrimary" />
+
+        <FrameLayout
+            android:id="@+id/verifyCodeButtonContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="150dp"
+            android:padding="12dp">
+
+            <ProgressBar
+                android:id="@+id/verifyCodeButtonProgress"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+    </FrameLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

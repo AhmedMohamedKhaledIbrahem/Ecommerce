@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
 import com.example.ecommerce.R
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.databinding.FragmentProductDetailsBinding
 import com.example.ecommerce.features.cart.domain.entities.AddItemRequestEntity

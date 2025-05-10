@@ -8,7 +8,7 @@ import com.example.ecommerce.core.database.data.entities.relation.ProductWithAll
 
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.features.product.domain.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow

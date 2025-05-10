@@ -15,5 +15,7 @@ const val InsertAddress = "insertAddress"
 const val Currency = "EG"
 const val XLatter = "x"
 const val InvalidViewType = "Invalid view type"
+const val CheckYourEmail = "check your email"
+const val UserEmailSaveState = "userEmail"
 
 

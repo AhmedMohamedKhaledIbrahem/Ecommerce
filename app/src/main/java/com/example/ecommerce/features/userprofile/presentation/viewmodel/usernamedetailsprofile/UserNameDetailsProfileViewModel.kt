@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
 import com.example.ecommerce.features.userprofile.domain.usecases.getusernamedetails.IGetUserNameDetailsUseCase
 import com.example.ecommerce.features.userprofile.domain.usecases.updateusernamedetails.IUpdateUserNameDetailsUseCase

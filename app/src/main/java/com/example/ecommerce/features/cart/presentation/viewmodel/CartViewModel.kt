@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.features.cart.domain.entities.AddItemRequestEntity
 import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.clear_cart.IClearCartUseCase

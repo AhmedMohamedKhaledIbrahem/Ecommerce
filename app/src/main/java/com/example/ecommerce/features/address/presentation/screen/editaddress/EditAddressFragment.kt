@@ -39,7 +39,7 @@ import com.example.ecommerce.core.constants.countryStateMap
 import com.example.ecommerce.core.constants.regionCodeMap
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.core.utils.AddressUtil
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.databinding.FragmentEditAddressBinding

@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile
 
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import kotlinx.coroutines.flow.SharedFlow
 
 interface IUserProfileViewModel {

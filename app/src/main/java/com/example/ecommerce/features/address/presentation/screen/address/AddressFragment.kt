@@ -17,7 +17,7 @@ import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.EditAddress
 import com.example.ecommerce.core.constants.InsertAddress
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressAdapter

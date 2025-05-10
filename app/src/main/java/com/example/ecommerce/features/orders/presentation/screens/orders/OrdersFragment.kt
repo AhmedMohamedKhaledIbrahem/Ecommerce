@@ -12,7 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.ecommerce.core.database.data.entities.orders.OrderWithItems
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.databinding.FragmentOrdersBinding

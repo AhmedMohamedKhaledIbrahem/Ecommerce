@@ -1,151 +1,169 @@
 package com.example.ecommerce.features.authentication.presentation.screens.checkverificationcodescreen
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputFilter
 import android.text.TextWatcher
 import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.ecommerce.R
+import com.example.ecommerce.core.constants.UserEmailSaveState
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
-import com.example.ecommerce.core.ui.UiState
-import com.example.ecommerce.core.utils.NetworkStatus
+import com.example.ecommerce.core.ui.event.UiEvent
+import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
-import com.example.ecommerce.databinding.ActivityCheckVerificationCodeBinding
-import com.example.ecommerce.features.authentication.domain.entites.CheckVerificationRequestEntity
-import com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginActivity
-import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
-import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.IAuthenticationViewModel
+import com.example.ecommerce.databinding.FragmentCheckVerificationCodeBinding
+import com.example.ecommerce.features.authentication.presentation.event.CheckVerificationCodeEvent
+import com.example.ecommerce.features.authentication.presentation.viewmodel.checkverificationcode.CheckVerificationCodeViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.resendcodetimerviewmodel.IResendCodeTimerViewModel
 import com.example.ecommerce.features.authentication.presentation.viewmodel.resendcodetimerviewmodel.ResendCodeTimerViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CheckVerificationCodeActivity : AppCompatActivity() {
-    private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
-    private val authenticationViewModel: IAuthenticationViewModel by viewModels<AuthenticationViewModel>()
+class CheckVerificationCodeFragment : Fragment() {
+    private val checkVerificationCodeViewModel: CheckVerificationCodeViewModel by viewModels<CheckVerificationCodeViewModel>()
+    private val emailArgs: CheckVerificationCodeFragmentArgs by navArgs()
+    private val  email = emailArgs.emailArg
     private val resendCodeTimerViewModel: IResendCodeTimerViewModel by viewModels<ResendCodeTimerViewModel>()
     private lateinit var loadingDialog: LoadingDialogFragment
-    private lateinit var binding: ActivityCheckVerificationCodeBinding
+    private var _binding: FragmentCheckVerificationCodeBinding? = null
+    private val binding get() = _binding!!
     private lateinit var rootView: View
-    private lateinit var verifyButton: Button
-    private var email: String? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityCheckVerificationCodeBinding.inflate(layoutInflater)
-        enableEdgeToEdge()
-        setContentView(binding.root)
-        loadingDialog = LoadingDialogFragment.getInstance(supportFragmentManager)
-        initView()
-        initIntents()
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentCheckVerificationCodeBinding.inflate(layoutInflater)
+        rootView = binding.root
+        return rootView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         resendCodeTimer()
         setupOtpEditTexts()
-        checkInternetStatus()
         verificationByCodeAndEmail()
-        verificationAuthentication()
-
+        verificationState()
+        verificationEvent()
     }
 
-    private fun initIntents() {
-
-        email = intent.getStringExtra("emailFromSignUp")
-            ?: intent.getStringExtra("emailFromLogin")
-    }
-
-    private fun initView() {
-        rootView = binding.root
-    }
-
-    private fun checkInternetStatus() {
-        NetworkStatus.checkInternetConnection(
-            lifecycleOwner = this@CheckVerificationCodeActivity,
-            networkStatus = networkStatusViewModel.networkStatus,
-            loadingDialog = loadingDialog,
-            fragmentManager = supportFragmentManager,
-            rootView = rootView,
-        )
-    }
 
     private fun verificationByCodeAndEmail() {
 
 
-        verifyButton.setOnClickListener {
+        binding.verifyCodeButton.setOnClickListener {
             val digit1 = binding.otpDigital1TextInputEditText.text.toString()
             val digit2 = binding.otpDigital2TextInputEditText.text.toString()
             val digit3 = binding.otpDigital3TextInputEditText.text.toString()
             val digit4 = binding.otpDigital4TextInputEditText.text.toString()
             val digit5 = binding.otpDigital5TextInputEditText.text.toString()
             val digit6 = binding.otpDigital6TextInputEditText.text.toString()
-            val otp = digit1 + digit2 + digit3 + digit4 + digit5 + digit6
-            if (validateInputs()) {
-                val checkVerificationCodeParams = email?.let { email ->
-                    CheckVerificationRequestEntity(
-                        email = email,
-                        code = otp,
-                    )
 
-                }
-                if (checkVerificationCodeParams != null) {
-                    authenticationViewModel.checkVerificationCode(checkVerificationCodeParams = checkVerificationCodeParams)
+            if (validateInputs()) {
+                checkVerificationCodeViewModel.onEvent(
+                    CheckVerificationCodeEvent.Input.Digit1(
+                        digit1
+                    )
+                )
+                checkVerificationCodeViewModel.onEvent(
+                    CheckVerificationCodeEvent.Input.Digit2(
+                        digit2
+                    )
+                )
+                checkVerificationCodeViewModel.onEvent(
+                    CheckVerificationCodeEvent.Input.Digit3(
+                        digit3
+                    )
+                )
+                checkVerificationCodeViewModel.onEvent(
+                    CheckVerificationCodeEvent.Input.Digit4(
+                        digit4
+                    )
+                )
+                checkVerificationCodeViewModel.onEvent(
+                    CheckVerificationCodeEvent.Input.Digit5(
+                        digit5
+                    )
+                )
+                checkVerificationCodeViewModel.onEvent(
+                    CheckVerificationCodeEvent.Input.Digit6(
+                        digit6
+                    )
+                )
+                checkVerificationCodeViewModel.onEvent(
+                    CheckVerificationCodeEvent.Input.Email(
+                        email
+                    )
+                )
+                checkVerificationCodeViewModel.onEvent(CheckVerificationCodeEvent.VerifyButton)
+
+            }
+        }
+    }
+
+    private fun verificationEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                checkVerificationCodeViewModel.checkVerificationCodeEvent.collect { event ->
+                    when (event) {
+
+                        is UiEvent.ShowSnackBar -> {
+                            SnackBarCustom.showSnackbar(view = rootView, message = event.message)
+                        }
+
+                        is UiEvent.CombinedEvents -> {
+                            combinedEvents(
+                                events = event.events,
+                                onShowSnackBar = {
+                                    SnackBarCustom.showSnackbar(view = rootView, message = it)
+                                },
+                                onNavigate = { destinationId, args ->
+                                    findNavController().navigate(destinationId)
+
+                                }
+                            )
+                        }
+
+                        else -> Unit
+                    }
                 }
             }
         }
     }
 
-    private fun verificationAuthentication() {
-        rootView = findViewById(android.R.id.content)
+    private fun verificationState() {
+        val button = binding.verifyCodeButton
+        val progress = binding.verifyCodeButtonProgress
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                authenticationViewModel.authenticationState.collect { state ->
-                    when (state) {
-                        is UiState.Loading -> {
-                            loadingDialog.showLoading(fragmentManager = supportFragmentManager)
-                        }
-
-                        is UiState.Success -> {
-                            loadingDialog.dismissLoading()
-                            Toast.makeText(
-                                this@CheckVerificationCodeActivity,
-                                "Verification Successful you can now login",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            lifecycleScope.launch {
-                                delay(2000L)
-                                val intent =
-                                    Intent(
-                                        this@CheckVerificationCodeActivity,
-                                        LoginActivity::class.java
-                                    )
-                                startActivity(intent)
-                            }
-
-                        }
-
-                        is UiState.Error -> {
-                            loadingDialog.dismissLoading()
-                            SnackBarCustom.showSnackbar(
-                                view = rootView,
-                                message = state.message
-                            )
-
-                        }
+                checkVerificationCodeViewModel.checkVerificationCodeState.collect { state ->
+                    button.isEnabled = !state.isLoading
+                    if (state.isLoading) {
+                        button.text = ""
+                        progress.visibility = View.VISIBLE
+                    } else {
+                        button.text = getString(R.string.verifyCode)
+                        progress.visibility = View.GONE
                     }
                 }
             }
         }
+
     }
 
     private fun validateInputs(): Boolean {
@@ -212,7 +230,7 @@ class CheckVerificationCodeActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun resendCodeTimer() {
-        resendCodeTimerViewModel.remainingTime.observe(this@CheckVerificationCodeActivity) { timeLeft ->
+        resendCodeTimerViewModel.remainingTime.observe(viewLifecycleOwner) { timeLeft ->
             if (timeLeft > 0) {
                 binding.resendCodeTextView.text =
                     getString(R.string.resend_in) + "${timeLeft / 1000}" + getString(
@@ -223,13 +241,10 @@ class CheckVerificationCodeActivity : AppCompatActivity() {
                 binding.resendCodeTextView.text = getString(R.string.clickToResend)
                 binding.resendCodeTextView.isClickable = true
             }
-
         }
         binding.resendCodeTextView.setOnClickListener {
-
             if (resendCodeTimerViewModel.isTimerRunning.value == false) {
                 resendCodeTimerViewModel.startTimer()
-
             }
         }
     }

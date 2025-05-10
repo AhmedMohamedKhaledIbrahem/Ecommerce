@@ -3,7 +3,7 @@ package com.example.ecommerce.features.address.presentation.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.features.address.domain.usecases.deleteaddress.IDeleteAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.deletealladdress.IDeleteAllAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.getaddress.IGetAddressUseCase

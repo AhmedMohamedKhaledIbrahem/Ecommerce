@@ -16,7 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.databinding.FragmentEditProfileBinding
 import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity

@@ -19,7 +19,7 @@ import androidx.work.WorkManager
 import com.example.ecommerce.core.constants.Page
 import com.example.ecommerce.core.constants.PerPage
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.databinding.FragmentProductBinding
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter

@@ -1,7 +1,7 @@
 package com.example.ecommerce.features.address.presentation.viewmodel.address
 
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -21,7 +21,7 @@ import com.example.ecommerce.core.database.data.entities.address.CustomerAddress
 import com.example.ecommerce.core.database.data.entities.cart.CartWithItems
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.databinding.FragmentCartBinding

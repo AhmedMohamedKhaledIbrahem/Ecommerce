@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.userprofile.presentation.viewmodel.usernamedetailsprofile
 
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
 import kotlinx.coroutines.flow.SharedFlow
 

@@ -1,134 +1,133 @@
 package com.example.ecommerce.features.authentication.presentation.screens.signupscreen
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.network.NetworkStatuesHelperViewModel
-import com.example.ecommerce.core.ui.UiState
-import com.example.ecommerce.core.utils.NetworkStatus
+import com.example.ecommerce.core.ui.event.UiEvent
+import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
-import com.example.ecommerce.databinding.ActivitySignUpBinding
-import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
-import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
-import com.example.ecommerce.features.authentication.presentation.screens.checkverificationcodescreen.CheckVerificationCodeActivity
-import com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginActivity
-import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.AuthenticationViewModel
-import com.example.ecommerce.features.authentication.presentation.viewmodel.authenticationviewmodel.IAuthenticationViewModel
+import com.example.ecommerce.databinding.FragmentSignUpBinding
+import com.example.ecommerce.features.authentication.presentation.event.SignUpEvent
+import com.example.ecommerce.features.authentication.presentation.viewmodel.signup.SignUpViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SignUpActivity : AppCompatActivity() {
-
-    private val networkStatusViewModel: NetworkStatuesHelperViewModel by viewModels()
-    private val authenticationViewModel: IAuthenticationViewModel by viewModels<AuthenticationViewModel>()
+class SignUpFragment : Fragment() {
+    private val signUpViewModel: SignUpViewModel by viewModels()
     private lateinit var rootView: View
-    private lateinit var loadingDialog: LoadingDialogFragment
-    private var emailFromSignUp = ""
-    private lateinit var binding: ActivitySignUpBinding
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        binding = ActivitySignUpBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        loadingDialog = LoadingDialogFragment.getInstance(supportFragmentManager)
-        navigateToLoginActivity()
-        checkInternetConnection()
-        textWatchers()
-        submitUser()
-        signUpAuthentication()
+    private var _binding: FragmentSignUpBinding? = null
+    private val binding get() = _binding!!
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentSignUpBinding.inflate(layoutInflater)
+        rootView = binding.root
+        return rootView
     }
 
-    private fun signUpAuthentication() {
-        rootView = findViewById(android.R.id.content)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        textWatchers()
+        signUp()
+        signInNavigation()
+        signUpState()
+        signUpEvent()
+    }
+
+    private fun signUpEvent() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                authenticationViewModel.authenticationState.collect { state ->
-                    when (state) {
-                        is UiState.Loading -> {
-                            loadingDialog.showLoading(fragmentManager = supportFragmentManager)
+                signUpViewModel.signUpEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            SnackBarCustom.showSnackbar(view = rootView, message = event.message)
                         }
 
-                        is UiState.Success -> {
-                            loadingDialog.dismissLoading()
-                            Toast.makeText(
-                                this@SignUpActivity,
-                                "${state.data}, check your email",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            val sendVerificationParams = EmailRequestEntity(email = emailFromSignUp)
-                            authenticationViewModel.sendVerificationCode(
-                                sendVerificationCodeParams = sendVerificationParams
-                            )
-
-                            val intent = Intent(
-                                this@SignUpActivity,
-                                CheckVerificationCodeActivity::class.java
-                            ).apply {
-                                putExtra("emailFromSignUp", emailFromSignUp)
-                            }
-                            delay(2000L)
-                            startActivity(intent)
+                        is UiEvent.Navigation.SignIn -> {
+                            findNavController().navigate(event.destinationId)
                         }
 
-                        is UiState.Error -> {
-                            loadingDialog.dismissLoading()
-                            SnackBarCustom.showSnackbar(
-                                view = rootView,
-                                message = state.message
+                        is UiEvent.CombinedEvents -> {
+                            combinedEvents(
+                                events = event.events,
+                                onShowSnackBar = {
+                                    SnackBarCustom.showSnackbar(view = rootView, message = it)
+                                },
+                                onNavigate = { destinationId, args ->
+                                    val action =
+                                        SignUpFragmentDirections.actionSignUpFragmentToCheckVerificationCodeFragment(
+                                            emailArg = args ?: ""
+                                        )
+                                    findNavController().navigate(action)
+                                }
                             )
                         }
+
+                        else -> Unit
                     }
                 }
+
             }
         }
     }
 
 
-    private fun checkInternetConnection() {
-        rootView = findViewById(android.R.id.content)
-        NetworkStatus.checkInternetConnection(
-            lifecycleOwner = this@SignUpActivity,
-            networkStatus = networkStatusViewModel.networkStatus,
-            loadingDialog = loadingDialog,
-            fragmentManager = supportFragmentManager,
-            rootView = rootView
-        )
+    private fun signInNavigation() {
+        binding.loginTextView.setOnClickListener {
+            signUpViewModel.onEvent(SignUpEvent.Button.SignIn)
+        }
     }
 
 
-    private fun submitUser() {
-
+    private fun signUp() {
         binding.signUpButton.setOnClickListener {
             val username = binding.userNameEditText.text.toString()
             val firsName = binding.firstNameEditText.text.toString()
             val lastName = binding.lastNameEditText.text.toString()
             val email = binding.emailEditText.text.toString()
-            emailFromSignUp = email
             val password = binding.passwordEditText.text.toString()
             if (validateInputs()) {
-                val signUpRequestEntity =
-                    SignUpRequestEntity(
-                        username,
-                        firsName,
-                        lastName,
-                        email,
-                        password
-                    )
-                authenticationViewModel.signUp(signUpRequestEntity)
+                signUpViewModel.onEvent(SignUpEvent.Input.UserName(username))
+                signUpViewModel.onEvent(SignUpEvent.Input.FirstName(firsName))
+                signUpViewModel.onEvent(SignUpEvent.Input.LastName(lastName))
+                signUpViewModel.onEvent(SignUpEvent.Input.Email(email))
+                signUpViewModel.onEvent(SignUpEvent.Input.Password(password))
+                signUpViewModel.onEvent(SignUpEvent.Button.SignUp)
+            }
+        }
+    }
+
+    private fun signUpState() {
+        val button = binding.signUpButton
+        val progress = binding.signUpButtonProgress
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                signUpViewModel.signUpState.collect { state ->
+                    button.isEnabled = !state.isLoading
+                    if (state.isLoading) {
+                        button.text = ""
+                        progress.visibility = View.VISIBLE
+                    } else {
+                        button.text = getString(R.string.SignUpNow)
+                        progress.visibility = View.GONE
+                    }
+                }
+
             }
         }
     }
@@ -229,13 +228,11 @@ class SignUpActivity : AppCompatActivity() {
         binding.confirmPasswordEditText.addTextChangedListener(textWatcher)
     }
 
-    private fun navigateToLoginActivity() {
-        binding.loginTextView.setOnClickListener {
-            val intent = Intent(this@SignUpActivity, LoginActivity::class.java)
-            startActivity(intent)
-        }
-    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
     override fun onDestroy() {
         super.onDestroy()

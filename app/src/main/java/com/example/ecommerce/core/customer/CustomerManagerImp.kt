@@ -1,6 +1,8 @@
 package com.example.ecommerce.core.customer
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
+import com.example.ecommerce.core.errors.Failures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -14,13 +16,22 @@ class CustomerManagerImp @Inject constructor(
 
     override suspend fun getCustomerId(): Int {
         return withContext(Dispatchers.IO) {
-            sharedPreferences.getInt(CUSTOMER_KEY, 0)
+            try {
+                sharedPreferences.getInt(CUSTOMER_KEY, 0)
+            } catch (e: Exception) {
+                throw Failures.CacheFailure("${e.message}")
+            }
         }
     }
 
     override suspend fun setCustomerId(customerId: Int) {
         withContext(Dispatchers.IO) {
-            sharedPreferences.edit().putInt(CUSTOMER_KEY, customerId).apply()
+            try {
+                sharedPreferences.edit{ putInt(CUSTOMER_KEY, customerId) }
+            } catch (e: Exception) {
+                throw Failures.CacheFailure("${e.message}")
+            }
+
         }
 
     }

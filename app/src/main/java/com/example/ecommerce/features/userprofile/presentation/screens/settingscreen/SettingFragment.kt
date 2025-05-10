@@ -27,12 +27,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.core.utils.AddressUtil
 import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.core.utils.SnackBarCustom
@@ -88,7 +89,7 @@ class SettingFragment : Fragment() {
         if (!isReadStoragePermissionGranted()) {
             onImageSettingClickListener(pickImageResult)
         }
-        return rootView
+        return binding.root
     }
 
 
@@ -312,8 +313,8 @@ class SettingFragment : Fragment() {
 
 
     private fun initRecyclerView() {
-        lifecycleScope.launch {
-            val data = withContext(Dispatchers.IO) { setData() }
+        binding.settingRecyclerView.layoutManager = LinearLayoutManager(context)
+            val data = setData()
             settingAdapter = SettingAdapter(
                 data,
                 onItemClickListener = { settingItem ->
@@ -333,7 +334,7 @@ class SettingFragment : Fragment() {
             position?.let {
                 settingAdapter.updateItemCheckedState(it, PreferencesUtils.isDarkMode)
             }
-        }
+
     }
 
     private fun toggleDarkMode(isChecked: Boolean) {

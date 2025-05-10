@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.cart.presentation.viewmodel
 
-import com.example.ecommerce.core.ui.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.features.cart.domain.entities.AddItemRequestEntity
 import kotlinx.coroutines.flow.SharedFlow
 
