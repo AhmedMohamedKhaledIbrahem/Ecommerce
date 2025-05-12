@@ -33,10 +33,8 @@ class AuthenticationRepositoryImp @Inject constructor(
         return@coroutineScope try {
             if (networkInfo.hasConnection()) {
                 val loginRequestModel = AuthenticationMapper.mapToModel(entity = loginParams)
-                val loginDeferred = async {  remoteDataSource.login(loginParams = loginRequestModel)}
-                val login = loginDeferred.await()
+                val login = remoteDataSource.login(loginParams = loginRequestModel)
                 try {
-
                     val existingUser = localDataSource.checkUserEntityById(login.userId)
                     if (existingUser == null) {
                         preferences.saveToken(login.token)

@@ -67,7 +67,7 @@ class MainNavigationActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(binding.root)
         requestNotificationPermission()
-        windowSystem()
+        //windowSystem()
         defaultNightMode()
         initView()
         appLifecycleObserver()

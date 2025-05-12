@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.authentication.presentation.viewmodel.checkverificationcode
+package com.example.ecommerce.features.authentication.presentation.viewmodel
 
 import com.example.ecommerce.activateTestFlow
 import com.example.ecommerce.core.errors.Failures
@@ -8,7 +8,7 @@ import com.example.ecommerce.features.authentication.domain.entites.CheckVerific
 import com.example.ecommerce.features.authentication.domain.entites.MessageResponseEntity
 import com.example.ecommerce.features.authentication.domain.usecases.checkverificationcode.ICheckVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.presentation.event.CheckVerificationCodeEvent
-import com.example.ecommerce.features.authentication.presentation.event.SignUpEvent
+import com.example.ecommerce.features.authentication.presentation.viewmodel.checkverificationcode.CheckVerificationCodeViewModel
 import com.example.ecommerce.features.errorMessage
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -166,6 +166,7 @@ class CheckVerificationCodeViewModelTest {
             assertFalse(checkVerificationCodeViewModel.checkVerificationCodeState.value.isLoading)
 
         }
+
     @Test
     fun `verifyCode should be verification code is incorrect then show snackBar `() = runTest {
         checkVerificationCodeViewModel.onEvent(CheckVerificationCodeEvent.Input.Digit1("1"))
@@ -187,7 +188,8 @@ class CheckVerificationCodeViewModelTest {
                 checkVerificationCodeParams = tCheckVerificationCodeParams
             )
         } returns messageResponse
-        val eventDeferred = async { checkVerificationCodeViewModel.checkVerificationCodeEvent.first() }
+        val eventDeferred =
+            async { checkVerificationCodeViewModel.checkVerificationCodeEvent.first() }
         checkVerificationCodeViewModel.onEvent(CheckVerificationCodeEvent.VerifyButton)
         advanceUntilIdle()
         coVerify(exactly = 1) { checkVerificationCodeUseCase.invoke(tCheckVerificationCodeParams) }
@@ -196,6 +198,7 @@ class CheckVerificationCodeViewModelTest {
         assertEquals(errorMessage, event.message)
         assertFalse(checkVerificationCodeViewModel.checkVerificationCodeState.value.isLoading)
     }
+
     @Test
     fun `verifyCode with failure then show snackBar`() = runTest {
         val tFailure = Failures.ServerFailure(errorMessage)
@@ -211,7 +214,8 @@ class CheckVerificationCodeViewModelTest {
                 checkVerificationCodeParams = any()
             )
         } throws tFailure
-        val eventDeferred = async { checkVerificationCodeViewModel.checkVerificationCodeEvent.first() }
+        val eventDeferred =
+            async { checkVerificationCodeViewModel.checkVerificationCodeEvent.first() }
         checkVerificationCodeViewModel.onEvent(CheckVerificationCodeEvent.VerifyButton)
         advanceUntilIdle()
         val event = eventDeferred.await()

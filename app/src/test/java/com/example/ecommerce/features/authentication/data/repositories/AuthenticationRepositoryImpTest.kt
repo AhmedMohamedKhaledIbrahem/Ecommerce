@@ -16,6 +16,9 @@ import com.example.ecommerce.features.authentication.data.models.MessageResponse
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
+import com.example.ecommerce.features.errorMessage
+import com.example.ecommerce.features.serverFailure
+import com.example.ecommerce.features.serverFailureMessage
 import com.example.ecommerce.resources.fixture
 import com.google.gson.Gson
 import kotlinx.coroutines.test.runTest
@@ -124,11 +127,13 @@ class AuthenticationRepositoryImpTest {
     @Test
     fun `login should throw ServerFailure when the login is fails`(): Unit = runTest {
         `when`(networkInfo.hasConnection()).thenReturn(true)
-        `when`(remoteDataSource.login(loginParams = tLoginParams)).thenThrow(FailureException("server error"))
-        val result = assertFailsWith<Failures.ServerFailure> {
+        `when`(remoteDataSource.login(loginParams = tLoginParams)).thenThrow(
+            FailureException(serverFailureMessage)
+        )
+        val result = serverFailure{
             repository.login(loginParams = authenticationRequestEntity)
         }
-        assertEquals("server error", result.message)
+        assertEquals(serverFailureMessage, result.message)
     }
 
     @Test

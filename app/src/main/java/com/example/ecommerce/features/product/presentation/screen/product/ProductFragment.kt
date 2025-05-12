@@ -2,13 +2,13 @@ package com.example.ecommerce.features.product.presentation.screen.product
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -19,9 +19,14 @@ import androidx.work.WorkManager
 import com.example.ecommerce.core.constants.Page
 import com.example.ecommerce.core.constants.PerPage
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
+import com.example.ecommerce.core.ui.event.UiEvent
+import com.example.ecommerce.core.ui.event.navigationWithArgs
 import com.example.ecommerce.core.ui.state.UiState
+import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.detectScrollEnd
+import com.example.ecommerce.core.utils.removeItemDecoration
 import com.example.ecommerce.databinding.FragmentProductBinding
+import com.example.ecommerce.features.product.presentation.event.ProductEvent
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductShimmerAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.SearchAdapter
@@ -73,37 +78,144 @@ class ProductFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initProductRecycleView()
         initShimmerRecycleView()
-        fetchData()
-        getProduct()
-        uiState()
+        initProductRecycleView()
+        fetchProductRemote()
+        fetchProductRemoteState()
+        fetchProductPaging()
+        fetchProductPagingState()
+        productEvent()
+        searchEvent()
+        searchState()
         detectScrollEnd(recyclerView, 3)
-        collectProduct()
-        productAdapter.refresh()
-        productSearchViewModel.searchQuery.asLiveData().observe(viewLifecycleOwner) { query ->
-            searchAdapter.updateQuery(query)
-        }
-
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        productAdapter.refresh()
+
+    }
+
+    private fun productEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                productViewModel.productPagedEvent.collectLatest { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            SnackBarCustom.showSnackbar(
+                                view = binding.root,
+                                message = event.message
+                            )
+                        }
+
+                        is UiEvent.Navigation.ProductDetails -> {
+                            navigationWithArgs(event, onNavigate = { _, args ->
+                                val action =
+                                    ProductFragmentDirections.actionProductFragmentToProductDetailsFragment(
+                                        args as ProductDetails
+                                    )
+                                findNavController().navigate(action)
+                            })
+
+                        }
+
+                        else -> Unit
+                    }
+
+                }
+            }
+        }
+    }
+
+    private fun fetchProductRemote() {
+        productViewModel.onEvent(ProductEvent.FetchProductRemote)
+    }
+
+    private fun fetchProductRemoteState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                productViewModel.productRemoteState.collect { state ->
+                    if (state.isLoading) {
+                        shimmerStartWhenLoading()
+                    } else {
+                        shimmerStopWhenDataSuccess()
+                        productViewModel.onEvent(ProductEvent.FetchProductPaging)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun fetchProductPaging() {
+        productViewModel.onEvent(ProductEvent.FetchProductPaging)
+    }
+
+    private fun fetchProductPagingState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                productViewModel.productPagedState.collectLatest { state ->
+                    if (state.isLoading) {
+                    Log.d("TAG", "fetchProductPagingState: loading")
+                    } else {
+                        productAdapter.submitData(state.products)
+                    }
+
+                }
+            }
+        }
+    }
+
+
+    private fun searchEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                productSearchViewModel.searchEvent.collectLatest { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            SnackBarCustom.showSnackbar(
+                                view = binding.root,
+                                message = event.message
+                            )
+                        }
+
+                        else -> Unit
+                    }
+
+                }
+            }
+        }
+    }
+
+    private fun searchState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                productSearchViewModel.searchState.collectLatest { state ->
+                    if (state.isSearching) {
+                        Log.d("TAG", "fetchProductPagingState: loading")
+                    } else {
+                        removeItemDecoration(binding.productRecyclerView)
+                        binding.productRecyclerView.clipToPadding = true
+                        productAdapter.submitData(state.products)
+
+                    }
+
+                }
+            }
+        }
     }
 
     private fun initProductRecycleView() {
         searchAdapter = SearchAdapter { query ->
-
-            productSearchViewModel.updateSearchQuery(query)
-
+            productSearchViewModel.onEvent(ProductEvent.SearchQuery(query))
+            productSearchViewModel.onEvent(ProductEvent.Searched)
         }
         productAdapter = ProductAdapter { product ->
             val productDetails = productDetails(product)
-            val action = ProductFragmentDirections.actionProductFragmentToProductDetailsFragment(
-                productDetails
+            productViewModel.onEvent(
+                ProductEvent.InputProductDetails(
+                    productDetails
+                )
             )
-            findNavController().navigate(action)
+            productViewModel.onEvent(ProductEvent.OnClickProductCard)
 
         }
         initRecycleViewLayoutManger()
@@ -112,7 +224,8 @@ class ProductFragment : Fragment() {
     }
 
     private fun initRecycleViewLayoutManger() {
-        val spanCount = if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) 2 else 4
+        val spanCount =
+            if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) 2 else 4
         val gridLayoutManager = GridLayoutManager(requireContext(), spanCount)
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
@@ -138,9 +251,7 @@ class ProductFragment : Fragment() {
         )
     }
 
-    private fun fetchData() {
-        productViewModel.fetchProductsFromRemote(page = Page, perPage = PerPage)
-    }
+
 
     private fun shimmerProducts(): List<ProductShimmerItem> {
         val products = listOf(
@@ -187,60 +298,11 @@ class ProductFragment : Fragment() {
         )
         return products
     }
-
-    private fun uiState() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                productViewModel.productState.collect { state ->
-                    productUiState(state)
-                }
-            }
-        }
-    }
-
-    private fun productUiState(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                if (state.source == "fetchProducts") {
-                    shimmerStartWhenLoading()
-                }
-            }
-
-            is UiState.Success -> {
-                if (state.source == "fetchProducts") {
-                    productAdapter.refresh()
-                    shimmerStopWhenDataSuccess()
-
-
-                }
-            }
-
-            is UiState.Error -> {
-                if (state.source == "fetchProducts") {
-                    shimmerStopWhenDataSuccess()
-                }
-            }
-
-        }
-    }
-
     private fun initShimmerRecycleView() {
         productShimmerAdapter = ProductShimmerAdapter(shimmerProducts())
         productShimmerRecyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         productShimmerRecyclerView.adapter = productShimmerAdapter
     }
-
-    private fun getProduct() {
-        lifecycleScope.launch {
-            productViewModel.productsPaged.collectLatest { paging ->
-                productAdapter.refresh()
-                productAdapter.submitData(paging)
-            }
-
-
-        }
-    }
-
     private fun shimmerStopWhenDataSuccess() {
         productShimmerLayout.apply {
             stopShimmer()
@@ -248,23 +310,15 @@ class ProductFragment : Fragment() {
         }
         recyclerView.visibility = View.VISIBLE
     }
-
     private fun shimmerStartWhenLoading() {
         productShimmerLayout.apply {
-            visibility = View.VISIBLE // Ensure the shimmer is visible
-            startShimmer()            // Start the shimmer animation
+            visibility = View.VISIBLE
+            startShimmer()
         }
         recyclerView.visibility = View.GONE
     }
 
-    private fun collectProduct() {
-        lifecycleScope.launch {
-            productSearchViewModel.product.collectLatest { pagingData ->
-                productAdapter.submitData(pagingData)
-            }
 
-        }
-    }
 
 
     override fun onDestroy() {

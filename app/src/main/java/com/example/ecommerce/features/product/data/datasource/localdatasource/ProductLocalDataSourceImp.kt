@@ -32,7 +32,10 @@ class ProductLocalDataSourceImp @Inject constructor(
     override fun getProductsPaged(): Flow<PagingData<ProductWithAllDetails>> {
         return try {
             Pager(
-                config = PagingConfig(pageSize = PageSize, enablePlaceholders = EnablePlaceholders),
+                config = PagingConfig(
+                    pageSize = PageSize, enablePlaceholders = EnablePlaceholders,
+                    initialLoadSize = PageSize
+                ),
                 pagingSourceFactory = { ProductPagingSource(productDao) }
             ).flow
         } catch (e: Exception) {
@@ -103,7 +106,10 @@ class ProductLocalDataSourceImp @Inject constructor(
         return try {
 
             val pager = Pager(
-                config = PagingConfig(pageSize = PageSize, enablePlaceholders = EnablePlaceholders),
+                config = PagingConfig(
+                    pageSize = PageSize, enablePlaceholders = EnablePlaceholders,
+                    initialLoadSize = PageSize
+                ),
                 pagingSourceFactory = { ProductSearchPagingSource(productDao, query) }
             )
             pager.flow

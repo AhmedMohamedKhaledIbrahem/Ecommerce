@@ -50,7 +50,7 @@ fun detectScrollEnd(
     })
 }
 
-private fun removeItemDecoration(recyclerView: RecyclerView) {
+ fun removeItemDecoration(recyclerView: RecyclerView) {
     for (i in 0 until recyclerView.itemDecorationCount) {
         val decoration = recyclerView.getItemDecorationAt(i)
         if (decoration is BottomSpacingDecoration) {

@@ -8,7 +8,7 @@ sealed class UiEvent() {
         data class Home(val destinationId: Int) : Navigation()
         data class CheckVerificationCode(val destinationId: Int, val args: String) : Navigation()
         data class ForgetPassword(val destinationId: Int) : Navigation()
-        data class ProductDetails(val destinationId: Int) : Navigation()
+        data class ProductDetails(val destinationId: Int, val args: Any?) : Navigation()
         data class Cart(val destinationId: Int) : Navigation()
         data class OrderDetails(val destinationId: Int) : Navigation()
         data class Orders(val destinationId: Int) : Navigation()
@@ -20,4 +20,17 @@ sealed class UiEvent() {
 
     data class ShowSnackBar(val message: String) : UiEvent()
     data class CombinedEvents(val events: List<UiEvent>) : UiEvent()
+}
+
+inline fun  navigationWithArgs(
+    event: UiEvent,
+    crossinline onNavigate: (destinationId: Int, args: Any?) -> Unit
+) {
+    when (event) {
+        is UiEvent.Navigation.ProductDetails -> {
+            onNavigate(event.destinationId, event.args)
+        }
+
+        else -> Unit
+    }
 }
