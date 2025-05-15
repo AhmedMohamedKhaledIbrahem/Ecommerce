@@ -141,5 +141,6 @@
     <string name="product_name">Product:%1$s</string>
     <string name="price_eg">Price:%1$s EG</string>
     <string name="category">Category:%1$s</string>
+    <string name="_00">.00</string>
 
 </resources>

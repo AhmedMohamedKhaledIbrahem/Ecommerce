@@ -2,7 +2,7 @@ package com.example.ecommerce.features.authentication.presentation.viewmodel
 
 import com.example.ecommerce.R
 import com.example.ecommerce.activateTestFlow
-import com.example.ecommerce.core.customer.CustomerManager
+import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.MainDispatcherRule

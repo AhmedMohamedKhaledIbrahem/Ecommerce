@@ -12,10 +12,13 @@ import com.example.ecommerce.databinding.EmptyScreenBinding
 import com.example.ecommerce.databinding.ItemCartBinding
 
 class CartAdapter(
-    private val cartItems: List<ItemCartEntity>,
-    private val onCounterUpdate: (ItemCartEntity, Int) -> Unit,
+    private val cartItems: MutableList<ItemCartEntity>,
+    private val onIncrease: (ItemCartEntity, Int) -> Unit,
+    private val onDecrease: (ItemCartEntity, Int) -> Unit,
     private val onDeleteItem: (ItemCartEntity) -> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>(
+) {
+    private var removeLoadingState: Boolean = false
     companion object {
         private const val TYPE_ITEM = 1
         private const val TYPE_EMPTY = 0
@@ -34,7 +37,7 @@ class CartAdapter(
             )
             holder.bind(emptyViewEntity)
         } else if (holder is CartViewHolder) {
-            holder.bind(cartItems[position])
+            holder.bind(cartItems[position],removeLoadingState)
         }
     }
 
@@ -43,11 +46,12 @@ class CartAdapter(
             TYPE_ITEM -> {
                 val binding =
                     ItemCartBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                CartViewHolder(binding, onCounterUpdate, onDeleteItem)
+                CartViewHolder(binding, onIncrease, onDecrease, onDeleteItem)
             }
 
             TYPE_EMPTY -> {
-                val binding = EmptyScreenBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                val binding =
+                    EmptyScreenBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 EmptyViewHolder(binding)
             }
 
@@ -59,5 +63,10 @@ class CartAdapter(
 
     override fun getItemCount(): Int {
         return if (cartItems.isEmpty()) 1 else cartItems.size
+    }
+
+    fun setRemoveLoadingState(isLoading: Boolean){
+        removeLoadingState = isLoading
+
     }
 }

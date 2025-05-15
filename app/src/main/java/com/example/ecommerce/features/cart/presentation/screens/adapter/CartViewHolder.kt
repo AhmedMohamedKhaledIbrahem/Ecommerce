@@ -1,6 +1,8 @@
 package com.example.ecommerce.features.cart.presentation.screens.adapter
 
-import android.annotation.SuppressLint
+import android.animation.ObjectAnimator
+import android.view.View
+import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -13,10 +15,13 @@ import com.google.android.material.imageview.ShapeableImageView
 
 class CartViewHolder(
     binding: ItemCartBinding,
-    private val onCounterUpdate: (ItemCartEntity, Int) -> Unit,
+    private val onIncrease: (ItemCartEntity, Int) -> Unit,
+    private val onDecrease: (ItemCartEntity, Int) -> Unit,
     private val onDeleteItem: (ItemCartEntity) -> Unit
 
 ) : RecyclerView.ViewHolder(binding.root) {
+    private var rotateAnimator: ObjectAnimator? = null
+
     private val cartItemImage: ShapeableImageView = binding.cartItemImage
     private val cartItemName: TextView = binding.nameItemCartText
     private val cartItemPrice: TextView = binding.priceItemCartText
@@ -26,28 +31,31 @@ class CartViewHolder(
     private val cartItemDecrease: ImageView = binding.itemCartDecreaseCounter
 
 
-    @SuppressLint("SetTextI18n")
-    fun bind(item: ItemCartEntity) {
+    fun bind(item: ItemCartEntity, isRemoveLoading: Boolean) {
+        removeState(isRemoveLoading)
+        val context = itemView.context
         cartItemName.text = item.name
-        cartItemPrice.text = item.price.plus(".00") + " $Currency"
+        cartItemPrice.text = item.price.plus(context.getString(R.string._00)).plus(" $Currency")
         cartItemQuantity.text = item.quantity.toString()
         cartItemIncrease.setOnClickListener {
             if (item.quantity < 10) {
                 val newQuantity = item.quantity + 1
                 item.quantity = newQuantity
                 cartItemQuantity.text = newQuantity.toString()
-                onCounterUpdate(item, newQuantity)
+                onIncrease(item, newQuantity)
 
             }
 
         }
-        cartDeleteImage.setOnClickListener { onDeleteItem(item) }
+        cartDeleteImage.setOnClickListener {
+            onDeleteItem(item)
+        }
         cartItemDecrease.setOnClickListener {
             if (item.quantity > 1) {
                 val newQuantity = item.quantity - 1
                 item.quantity = newQuantity
                 cartItemQuantity.text = newQuantity.toString()
-                onCounterUpdate(item, newQuantity)
+                onDecrease(item, newQuantity)
 
             }
         }
@@ -59,5 +67,69 @@ class CartViewHolder(
 
     }
 
+    private fun removeState(isRemoveLoading: Boolean) {
+        if (isRemoveLoading) {
+            cartItemImage.isEnabled = false
+            cartItemName.isEnabled = false
+            cartItemPrice.isEnabled = false
+            cartItemQuantity.isEnabled = false
+            cartItemIncrease.isEnabled = false
+            cartItemDecrease.isEnabled = false
+            cartItemImage.isEnabled = false
+            startDeleteImageButtonAnimation()
+            startRotateAnimation(cartItemImage)
+        } else {
+            cartItemImage.isEnabled = true
+            cartItemName.isEnabled = true
+            cartItemPrice.isEnabled = true
+            cartItemQuantity.isEnabled = true
+            cartItemIncrease.isEnabled = true
+            cartItemDecrease.isEnabled = true
+            cartItemImage.isEnabled = true
+            stopRotateAnimation(cartItemImage)
+            stopDeleteImageButtonAnimation()
+        }
+    }
+
+    private fun startDeleteImageButtonAnimation() {
+        cartDeleteImage.apply {
+            animate()
+                .scaleX(1.1f)
+                .scaleY(1.1f)
+                .alpha(0.3f)
+                .setDuration(300)
+                .start()
+            isEnabled = false
+
+        }
+
+    }
+
+    private fun stopDeleteImageButtonAnimation() {
+        cartDeleteImage.apply {
+            animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .alpha(1f)
+                .setDuration(300)
+                .start()
+            isEnabled = true
+        }
+
+    }
+
+    private fun startRotateAnimation(view: View) {
+        rotateAnimator = ObjectAnimator.ofFloat(view, View.ROTATION, 0f, 360f).apply {
+            duration = 1000
+            repeatCount = ObjectAnimator.INFINITE
+            interpolator = LinearInterpolator()
+            start()
+        }
+    }
+
+    private fun stopRotateAnimation(view: View) {
+        rotateAnimator?.cancel()
+        view.rotation = 0f
+    }
 
 }

@@ -23,6 +23,14 @@ inline fun combinedEvents(
                 onNavigate(event.destinationId, null)
             }
 
+            is UiEvent.Navigation.Cart -> {
+                onNavigate(event.destinationId, null)
+            }
+
+            is UiEvent.Navigation.Orders -> {
+                onNavigate(event.destinationId, null)
+            }
+
             else -> Unit
         }
 

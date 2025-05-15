@@ -1,4 +1,4 @@
-package com.example.ecommerce.core.customer
+package com.example.ecommerce.core.manager.customer
 
 interface CustomerManager {
    suspend fun getCustomerId():Int

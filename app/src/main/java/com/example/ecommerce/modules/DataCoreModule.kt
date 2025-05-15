@@ -3,8 +3,6 @@ package com.example.ecommerce.modules
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.room.Room
-import com.example.ecommerce.core.customer.CustomerManager
-import com.example.ecommerce.core.customer.CustomerManagerImp
 import com.example.ecommerce.core.database.AppDatabase
 import com.example.ecommerce.core.database.data.dao.address.AddressDao
 import com.example.ecommerce.core.database.data.dao.cart.CartDao
@@ -16,6 +14,10 @@ import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
 import com.example.ecommerce.core.database.data.dao.product.ProductDao
 import com.example.ecommerce.core.database.data.dao.user.UserDao
+import com.example.ecommerce.core.manager.address.AddressManager
+import com.example.ecommerce.core.manager.address.AddressManagerImp
+import com.example.ecommerce.core.manager.customer.CustomerManager
+import com.example.ecommerce.core.manager.customer.CustomerManagerImp
 import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.manager.fcm.FcmDeviceTokenImp
 import com.example.ecommerce.core.manager.prdouct.ProductHandler
@@ -119,10 +121,17 @@ object DataCoreModule {
 
     @Provides
     @Singleton
+    fun provideAddressManager(preferences: SharedPreferences): AddressManager {
+        return AddressManagerImp(sharedPreferences = preferences)
+    }
+
+    @Provides
+    @Singleton
     fun provideFCMDeviceToken(preferences: SharedPreferences): FcmDeviceToken {
         return FcmDeviceTokenImp(sharedPreferences = preferences)
 
     }
+
     @Provides
     @Singleton
     fun provideProductHandler(preferences: SharedPreferences): ProductHandler {

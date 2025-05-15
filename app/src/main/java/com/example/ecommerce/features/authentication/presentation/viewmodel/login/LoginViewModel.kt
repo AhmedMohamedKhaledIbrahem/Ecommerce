@@ -4,16 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.CheckYourEmail
-import com.example.ecommerce.core.customer.CustomerManager
+import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.domain.usecases.login.ILoginUseCase
-import com.example.ecommerce.features.authentication.domain.usecases.login.LoginUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.sendverificationcode.ISendVerificationCodeUseCase
-import com.example.ecommerce.features.authentication.domain.usecases.sendverificationcode.SendVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.presentation.event.LoginEvent
 import com.example.ecommerce.features.authentication.presentation.state.LoginState
 import com.example.ecommerce.features.notification.domain.usecase.addfcmtokendevice.IAddFcmTokenDeviceUseCase

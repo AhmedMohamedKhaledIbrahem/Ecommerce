@@ -63,8 +63,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:paddingHorizontal="10dp"
-                android:textSize="16sp"
                 android:text=""
+                android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -89,8 +89,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text=""
                 android:paddingHorizontal="10dp"
+                android:text=""
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -100,7 +100,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/horizontalButtonsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -112,25 +112,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- Favorite Button -->
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/favoriteButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="16dp"
-            android:layout_weight="0.8"
-            android:background="@drawable/circular_background"
-            android:clickable="true"
-            android:contentDescription="@string/favourite"
-            android:src="@drawable/baseline_favorite_border_24" />
-
-        <!-- Add to Cart Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/addToCartButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2.2"
             android:text="@string/add_to_cart" />
-    </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/addTOCartButtonContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="12dp">
+
+            <ProgressBar
+                android:id="@+id/addTOCartButtonProgress"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

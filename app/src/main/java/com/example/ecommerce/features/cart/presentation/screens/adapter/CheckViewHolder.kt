@@ -17,7 +17,8 @@ class CheckViewHolder(
     private val checkOutButton: MaterialButton = binding.buttonCheckOut
 
 
-    fun bind(totalPrice: Double) {
+    fun bind(totalPrice: Double, removeLoadingState: Boolean) {
+        checkOutButton.isEnabled = !removeLoadingState
         val context = itemView.context
         val formattedText = String.format(
             Locale.getDefault(),

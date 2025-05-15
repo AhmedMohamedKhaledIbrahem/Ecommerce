@@ -418,7 +418,7 @@ class EditAddressFragment : Fragment() {
                     email = email,
                     address = address,
                     city = city,
-                    state = stateCode,
+
                     country = countryCode,
                     postCode = postCode,
                     phone = phoneNumber,
