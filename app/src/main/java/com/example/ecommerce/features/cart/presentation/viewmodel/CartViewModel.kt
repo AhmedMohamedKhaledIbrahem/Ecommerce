@@ -95,6 +95,9 @@ class CartViewModel @Inject constructor(
                     itemId = cartState.value.itemId,
                     newQuantity = cartState.value.increase
                 )
+            } catch (failures: Failures) {
+                val message = mapFailureMessage(failures)
+                _cartEvent.send(UiEvent.ShowSnackBar(message = message))
             } catch (e: Exception) {
                 _cartEvent.send(UiEvent.ShowSnackBar(message = e.message ?: "Unknown Error"))
             }

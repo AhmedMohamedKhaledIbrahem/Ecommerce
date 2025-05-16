@@ -102,7 +102,7 @@ class CartFragment : Fragment() {
             },
         )
         cartAdapter = CartAdapter(
-            items,
+            cartItems = items,
             onIncrease = { item, newQuantity ->
                 updateItemQuantity(items, item, newQuantity)
                 cartViewModel.onEvent(CartEvent.Input.ItemId(item.itemId))
@@ -144,7 +144,6 @@ class CartFragment : Fragment() {
     }
 
     private fun updateAdapter(items: MutableList<ItemCartEntity>) {
-        Log.d("TAG", "updateAdapter: $items")
         if (items.isNotEmpty()) {
             binding.cartRecyclerView.adapter = ConcatAdapter(cartAdapter, checkAdapter)
         } else {
