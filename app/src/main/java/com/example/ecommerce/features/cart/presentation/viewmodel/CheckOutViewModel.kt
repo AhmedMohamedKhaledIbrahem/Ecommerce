@@ -10,18 +10,24 @@ import com.example.ecommerce.core.constants.PaymentMethodTitle
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.ui.event.UiEvent
-import com.example.ecommerce.features.address.data.mapper.AddressMapper.mapCustomerAddressEntityToBillingInfoRequest
+import com.example.ecommerce.features.address.data.mapper.AddressMapper
+import com.example.ecommerce.features.address.data.models.AddressRequestModel
+import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
 import com.example.ecommerce.features.address.domain.usecases.getselectaddress.IGetSelectAddressUseCase
-import com.example.ecommerce.features.cart.data.mapper.ItemMapper.mapCartWithItemsToLineItemRequest
+import com.example.ecommerce.features.cart.data.mapper.CartMapper
+import com.example.ecommerce.features.cart.data.mapper.ItemMapper
 import com.example.ecommerce.features.cart.domain.use_case.clear_cart.IClearCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.IGetCartUseCase
 import com.example.ecommerce.features.cart.presentation.event.CheckOutEvent
 import com.example.ecommerce.features.cart.presentation.state.CheckOutState
+import com.example.ecommerce.features.orders.domain.entities.LineItemRequestEntity
 import com.example.ecommerce.features.orders.domain.entities.OrderRequestEntity
 import com.example.ecommerce.features.orders.domain.use_case.create_order.ICreateOrderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -40,7 +46,7 @@ class CheckOutViewModel @Inject constructor(
     private val _checkOutEvent: Channel<UiEvent> = Channel()
     val checkOutEvent = _checkOutEvent.receiveAsFlow()
     private val _checkOutState = MutableStateFlow(CheckOutState())
-     val checkOutState = _checkOutState.stateIn(
+    val checkOutState = _checkOutState.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
         initialValue = CheckOutState()
@@ -63,33 +69,28 @@ class CheckOutViewModel @Inject constructor(
     }
 
     private fun checkOut() {
+
         viewModelScope.launch {
             try {
+                val customerId = checkOutState.value.customerId
+                val addressId = checkOutState.value.addressId
                 _checkOutState.update { it.copy(isCheckingOut = true) }
-                if (checkOutState.value.customerId == -1 || checkOutState.value.addressId == -1) {
+                if (customerId == -1 && addressId == -1) {
                     _checkOutEvent.send(UiEvent.ShowSnackBar(CustomerOrAddressNotFound))
                     return@launch
                 }
-                val getSelectAddressAsync =
-                    async { getSelectAddressUseCase.invoke(checkOutState.value.customerId) }
-                val getItemsAsync = async { getCartUseCase.invoke() }
-
-                val getSelectAddress = getSelectAddressAsync.await()
-                val getItems = getItemsAsync.await()
-
-                val billingAddress = mapCustomerAddressEntityToBillingInfoRequest(getSelectAddress)
-                val item = mapCartWithItemsToLineItemRequest(cartWithItems = getItems)
+                val (billingAddress, items) = parallelFetch(addressId)
                 createOrderUseCase(
                     orderRequestEntity = OrderRequestEntity(
-                        customerId = checkOutState.value.customerId,
+                        customerId = customerId,
                         billing = billingAddress,
-                        lineItems = item,
+                        lineItems = items,
                         paymentMethod = PaymentMethod,
                         paymentMethodTitle = PaymentMethodTitle,
                         setPaid = false,
                     )
                 )
-                clearCartUseCase()
+                clearCartUseCase.invoke()
                 _checkOutEvent.send(
                     UiEvent.CombinedEvents(
                         listOf(
@@ -110,6 +111,14 @@ class CheckOutViewModel @Inject constructor(
 
 
     }
+    private suspend fun parallelFetch(addressId: Int): Pair<BillingInfoRequestEntity, List<LineItemRequestEntity>> =
+        coroutineScope {
+            val addressDeferred = async { getSelectAddressUseCase(addressId) }
+            val cartDeferred = async { getCartUseCase() }
 
+            val billing = AddressMapper.mapCustomerAddressEntityToBillingInfoRequest(addressDeferred.await())
+            val items = ItemMapper.mapCartWithItemsToLineItemRequest(cartDeferred.await())
+            billing to items
+        }
 }
 

@@ -126,7 +126,7 @@ class AddressRepositoryImp @Inject constructor(
             localDataSource.getSelectAddress(customerId = customerId)
         } catch (e: FailureException) {
             throw Failures.CacheFailure(
-                e.localizedMessage ?: context.getString(R.string.unknown_error)
+                e.message ?: context.getString(R.string.unknown_error)
             )
         }
     }
