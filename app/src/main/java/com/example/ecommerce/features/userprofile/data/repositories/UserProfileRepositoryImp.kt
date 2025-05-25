@@ -10,7 +10,7 @@ import com.example.ecommerce.features.userprofile.data.mapper.GetImageProfileMap
 import com.example.ecommerce.features.userprofile.data.mapper.UpdateUserNameDetailsMapper
 import com.example.ecommerce.features.userprofile.data.mapper.UploadImageProfileMapper
 import com.example.ecommerce.features.userprofile.domain.entites.GetImageProfileResponseEntity
-import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
+import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserDetailsRequestEntity
 import com.example.ecommerce.features.userprofile.domain.entites.UploadImageProfileResponseEntity
 import com.example.ecommerce.features.userprofile.domain.repositories.UserProfileRepository
 import java.io.File
@@ -63,13 +63,13 @@ class UserProfileRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun updateUserNameDetails(
-        updateUserNameDetailsParams: UpdateUserNameDetailsRequestEntity
+    override suspend fun updateUserDetails(
+        updateUserDetailsParams: UpdateUserDetailsRequestEntity
     ) {
         try {
             if (internetConnectionChecker.hasConnection()) {
                 val updateUserNameRequestModel = UpdateUserNameDetailsMapper.mapToModel(
-                    entity = updateUserNameDetailsParams
+                    entity = updateUserDetailsParams
                 )
                 val updateUserNameDetailsRemote = remoteDataSource.updateUserNameDetails(
                     updateUserNameDetailsParams = updateUserNameRequestModel
@@ -89,29 +89,34 @@ class UserProfileRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun getUserNameDetails() {
-        try {
+    override suspend fun fetchUpdateUserDetails(): String {
+        return try {
             if (internetConnectionChecker.hasConnection()) {
-                val isUpdate = remoteDataSource.checkUserNameDetailsUpdate()
-                if (isUpdate.update) {
-                    val getUserNameDetailsRemote = remoteDataSource.getUserNameDetails()
+                val fetchUpdateUserDetailsRemote = remoteDataSource.getUserNameDetails()
+                val isNewUser = localDataSource.getUserCount(
+                    fetchUpdateUserDetailsRemote.id,
+                    fetchUpdateUserDetailsRemote.displayName.toString()
+                ) == 0
 
+                if (isNewUser) {
                     try {
                         localDataSource.updateUserNameDetails(
-                            updateUserNameDetailsParams = getUserNameDetailsRemote
+                            updateUserNameDetailsParams = fetchUpdateUserDetailsRemote
                         )
                     } catch (e: FailureException) {
-                        throw Failures.CacheFailure(e.message ?: " Unknown Error")
+                        throw Failures.CacheFailure(e.message ?: "Unknown Error")
                     }
                 }
+
+                fetchUpdateUserDetailsRemote.displayName.toString()
             } else {
                 throw Failures.ConnectionFailure("No Internet Connection")
             }
-
         } catch (e: FailureException) {
             throw Failures.ServerFailure(e.message ?: "Unknown Error")
         }
     }
+
 
 
 }

@@ -3,9 +3,11 @@ package com.example.ecommerce.features.address.data.repositories
 import android.content.Context
 import com.example.ecommerce.R
 import com.example.ecommerce.core.errors.FailureException
+import com.example.ecommerce.core.manager.address.AddressManager
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.features.address.data.datasources.localdatasource.AddressLocalDataSource
 import com.example.ecommerce.features.address.data.datasources.remotedatasource.AddressRemoteDataSource
+import com.example.ecommerce.features.address.data.mapper.AddressMapper
 import com.example.ecommerce.features.address.id
 import com.example.ecommerce.features.address.tAddressDataResponseModel
 import com.example.ecommerce.features.address.tAddressRequestEntity
@@ -41,6 +43,9 @@ class AddressRepositoryTest {
 
     @Mock
     private lateinit var internetConnectionChecker: InternetConnectionChecker
+
+    @Mock
+    private lateinit var addressManager: AddressManager
     private var context: Context = mockk(relaxed = true)
     private lateinit var repository: AddressRepositoryImp
 
@@ -53,6 +58,7 @@ class AddressRepositoryTest {
             remoteDataSource = remoteDataSource,
             localDataSource = localDataSource,
             internetConnectionChecker = internetConnectionChecker,
+            addressManager = addressManager,
             context = context
         )
     }
@@ -62,17 +68,22 @@ class AddressRepositoryTest {
     @Test
     fun `updateAddress Should update address when internet connection is available`() = runTest {
         `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
-        `when`(
-            localDataSource.updateAddress(
-                id,
-                addressRequestParams = tAddressRequestModel
-            )
-        ).thenReturn(Unit)
-        `when`(remoteDataSource.updateAddress(updateAddressParams = tAddressRequestModel))
-            .thenReturn(tUpdateAddressResponseModel)
+
+        val email = tAddressRequestEntity.billing.email
+        `when`(localDataSource.isEmailExist(email)).thenReturn(1)
+
+        val updateAddressParams = AddressMapper.mapToModel(tAddressRequestEntity)
+        `when`(localDataSource.updateAddress(id, updateAddressParams)).thenReturn(Unit)
+        `when`(localDataSource.unSelectAddress(id)).thenReturn(Unit)
+        `when`(remoteDataSource.updateAddress(updateAddressParams)).thenReturn(
+            tUpdateAddressResponseModel
+        )
         val result = repository.updateAddress(id, customerAddressParams = tAddressRequestEntity)
         assertEquals(tUpdateAddressResponseEntity, result)
+        verify(addressManager).setAddressId(id)
+        verify(localDataSource).unSelectAddress(id)
     }
+
 
     @Test
     fun `updateAddress Should throw connection failure when internet connection is not available`() =
@@ -90,20 +101,11 @@ class AddressRepositoryTest {
     @Test
     fun `updateAddress Should throw cache failure when update address fails`() = runTest {
         `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
-        `when`(
-            localDataSource.updateAddress(
-                id,
-                addressRequestParams = tAddressRequestModel
-            )
-        ).thenThrow(
-            FailureException(
-                cacheFailureMessage
-            )
-        )
-        `when`(remoteDataSource.updateAddress(updateAddressParams = tAddressRequestModel)).thenReturn(
-            tUpdateAddressResponseModel
-        )
-
+        val email = tAddressRequestEntity.billing.email
+        `when`(localDataSource.isEmailExist(email)).thenReturn(1)
+        val updateAddressParams = AddressMapper.mapToModel(tAddressRequestEntity)
+        `when`(localDataSource.updateAddress(id, updateAddressParams))
+            .thenThrow(FailureException(cacheFailureMessage))
         val exception = cacheFailure {
             repository.updateAddress(id, customerAddressParams = tAddressRequestEntity)
 
@@ -115,6 +117,11 @@ class AddressRepositoryTest {
     @Test
     fun `updateAddress Should throw server failure when update address fails`() = runTest {
         `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
+        val email = tAddressRequestEntity.billing.email
+        `when`(localDataSource.isEmailExist(email)).thenReturn(1)
+        val updateAddressParams = AddressMapper.mapToModel(tAddressRequestEntity)
+        `when`(localDataSource.updateAddress(id, updateAddressParams))
+            .thenReturn(Unit)
         `when`(remoteDataSource.updateAddress(updateAddressParams = tAddressRequestModel))
             .thenThrow(FailureException(serverFailureMessage))
         val exception = serverFailure {
@@ -138,12 +145,16 @@ class AddressRepositoryTest {
     @Test
     fun `getAddress should call remoteDataSource and insert Address then return list of address when the address is  empty and internet connection is available`() =
         runTest {
+            val id = 1
             `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
             `when`(localDataSource.isAddressEmpty()).thenReturn(true)
             `when`(remoteDataSource.getAddress()).thenReturn(tAddressDataResponseModel)
             `when`(localDataSource.insertAddress(addressRequestParams = tAddressRequestModel)).thenReturn(
                 Unit
             )
+            `when`(localDataSource.getCustomerId(tAddressRequestEntity.billing.email)).thenReturn(id)
+            `when`(addressManager.setAddressId(id)).thenReturn(Unit)
+            `when`(localDataSource.unSelectAddress(id)).thenReturn(Unit)
             `when`(localDataSource.getAddress()).thenReturn(tListCustomerAddressEntity)
             val result = repository.getAddress()
             assertEquals(tListCustomerAddressEntity, result)
@@ -195,13 +206,20 @@ class AddressRepositoryTest {
     fun `insertAddress should insert address when internet connection is available`() =
         runTest {
             `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
+            `when`(localDataSource.isEmailExist(tAddressRequestEntity.billing.email)).thenReturn(0)
             `when`(localDataSource.insertAddress(tAddressRequestModel)).thenReturn(Unit)
+            `when`(localDataSource.getCustomerId(tAddressRequestEntity.billing.email)).thenReturn(id)
+            `when`(addressManager.setAddressId(id)).thenReturn(Unit)
+            `when`(localDataSource.unSelectAddress(id)).thenReturn(Unit)
             `when`(remoteDataSource.updateAddress(tAddressRequestModel)).thenReturn(
                 tUpdateAddressResponseModel
             )
             repository.insertAddress(tAddressRequestEntity)
             verify(internetConnectionChecker).hasConnection()
             verify(localDataSource).insertAddress(tAddressRequestModel)
+            verify(localDataSource).getCustomerId(tAddressRequestEntity.billing.email)
+            verify(addressManager).setAddressId(id)
+            verify(localDataSource).unSelectAddress(id)
             verify(remoteDataSource).updateAddress(tAddressRequestModel)
 
         }
@@ -220,6 +238,7 @@ class AddressRepositoryTest {
     fun `insertAddress should throw cache failure when localDataSource throw exception`() =
         runTest {
             `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
+            `when`(localDataSource.isEmailExist(tAddressRequestEntity.billing.email)).thenReturn(0)
             `when`(localDataSource.insertAddress(tAddressRequestModel)).thenThrow(
                 FailureException(
                     cacheFailureMessage
@@ -232,10 +251,25 @@ class AddressRepositoryTest {
         }
 
     @Test
+    fun `insertAddress should throw cache failure when isEmailExist return 1 or more `() =
+        runTest {
+            `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
+            `when`(localDataSource.isEmailExist(tAddressRequestEntity.billing.email)).thenReturn(1)
+            val exception = cacheFailure {
+                repository.insertAddress(tAddressRequestEntity)
+            }
+            assertEquals(context.getString(R.string.email_exist), exception.message)
+        }
+
+    @Test
     fun `insertAddress should throw server failure when remoteDataSource throw exception`() =
         runTest {
             `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
+            `when`(localDataSource.isEmailExist(tAddressRequestEntity.billing.email)).thenReturn(0)
             `when`(localDataSource.insertAddress(tAddressRequestModel)).thenReturn(Unit)
+            `when`(localDataSource.getCustomerId(tAddressRequestEntity.billing.email)).thenReturn(id)
+            `when`(addressManager.setAddressId(id)).thenReturn(Unit)
+            `when`(localDataSource.unSelectAddress(id)).thenReturn(Unit)
             `when`(remoteDataSource.updateAddress(tAddressRequestModel)).thenThrow(
                 FailureException(
                     serverFailureMessage
@@ -334,6 +368,7 @@ class AddressRepositoryTest {
             assertEquals(cacheFailureMessage, exception.message)
 
         }
+
     @Test
     fun `unSelectAddress should unselect address unless the selected address `() = runTest {
         `when`(localDataSource.unSelectAddress(tCustomerId)).thenReturn(Unit)

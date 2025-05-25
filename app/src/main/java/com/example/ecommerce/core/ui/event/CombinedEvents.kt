@@ -2,13 +2,13 @@ package com.example.ecommerce.core.ui.event
 
 inline fun combinedEvents(
     events: List<UiEvent>,
-    crossinline onShowSnackBar: (message: String) -> Unit,
+    crossinline onShowSnackBar: (message: String, resId: Int) -> Unit,
     crossinline onNavigate: (destinationId: Int, args: String?) -> Unit
 ) {
     events.forEach { event ->
         when (event) {
             is UiEvent.ShowSnackBar -> {
-                onShowSnackBar(event.message)
+                onShowSnackBar(event.message, event.resId)
             }
 
             is UiEvent.Navigation.CheckVerificationCode -> {
@@ -29,6 +29,11 @@ inline fun combinedEvents(
 
             is UiEvent.Navigation.Orders -> {
                 onNavigate(event.destinationId, null)
+            }
+
+            is UiEvent.Navigation.Address -> {
+                onNavigate(event.destinationId, null)
+
             }
 
             else -> Unit

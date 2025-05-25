@@ -1,29 +1,28 @@
 package com.example.ecommerce.features.userprofile.presentation.screens.editscreen
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
-import com.example.ecommerce.core.database.data.entities.user.UserEntity
+import com.example.ecommerce.core.constants.Edit_profile_result
+import com.example.ecommerce.core.constants.Message
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.ui.state.UiState
+import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.databinding.FragmentEditProfileBinding
-import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
+import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserDetailsRequestEntity
+import com.example.ecommerce.features.userprofile.presentation.event.UserDetailsEvent
+import com.example.ecommerce.features.userprofile.presentation.event.UserProfileEvent
 import com.example.ecommerce.features.userprofile.presentation.screens.settingscreen.UpdateDisplayNameViewModel
-import com.example.ecommerce.features.userprofile.presentation.viewmodel.usernamedetailsprofile.IUserNameDetailsProfileViewModel
-import com.example.ecommerce.features.userprofile.presentation.viewmodel.usernamedetailsprofile.UserNameDetailsProfileViewModel
-import com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile.IUserProfileViewModel
+import com.example.ecommerce.features.userprofile.presentation.viewmodel.fetch_update_user_details.UserDetailsViewModel
 import com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile.UserProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.cancelChildren
@@ -38,9 +37,9 @@ class EditProfileFragment : DialogFragment() {
     private var idUser by Delegates.notNull<Int>()
     private lateinit var loadingDialog: LoadingDialogFragment
 
-    private val userNameDetailsViewModel: IUserNameDetailsProfileViewModel by
-    viewModels<UserNameDetailsProfileViewModel>()
-    private val userProfileViewModel: IUserProfileViewModel by viewModels<UserProfileViewModel>()
+    private val userDetailsViewModel by
+    viewModels<UserDetailsViewModel>()
+    private val userProfileViewModel by viewModels<UserProfileViewModel>()
     private lateinit var updateDisplayNameViewModel: UpdateDisplayNameViewModel
 
 
@@ -54,14 +53,15 @@ class EditProfileFragment : DialogFragment() {
         dialog?.window?.decorView?.setPadding(0, 0, 0, 0)
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(requireContext())
-        val inflater = requireActivity().layoutInflater
-        _binding = FragmentEditProfileBinding.inflate(inflater, null, false)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentEditProfileBinding.inflate(inflater, container, false)
         root = binding.root
-        builder.setView(root)
-        return builder.create()
+        return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -70,8 +70,10 @@ class EditProfileFragment : DialogFragment() {
         buttonCancelOnClickListener()
         getUserProfile()
         getUserProfileState()
+        getUserProfileEvent()
         updateUserNameDetailsProfile()
-        updateUserNameDetailsState()
+        userDetailsState()
+        userDetailsEvent()
         updateDisplayNameViewModel =
             ViewModelProvider(requireActivity())[UpdateDisplayNameViewModel::class.java]
     }
@@ -94,128 +96,136 @@ class EditProfileFragment : DialogFragment() {
 
 
     private fun buttonCancelOnClickListener() {
-        binding.buttonCancelEdit.setOnClickListener {
+        binding.CancelChangeButton.setOnClickListener {
             dialog?.dismiss()
         }
-        binding.buttonCancelChange.setOnClickListener {
+        binding.CancelEditButton.setOnClickListener {
             dialog?.dismiss()
         }
     }
 
     private fun getUserProfile() {
-        userProfileViewModel.getUserProfile()
+        userProfileViewModel.onEvent(event = UserProfileEvent.UserProfileLoad)
     }
 
     private fun getUserProfileState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 userProfileViewModel.userProfileState.collect { state ->
-                    getUserProfileUiStates(state)
+                    if (state.userEntity != null) {
+                        binding.firstNameEditText.setText(state.userEntity.firstName)
+                        binding.lastNameEditText.setText(state.userEntity.lastName)
+                        idUser = state.userEntity.userId
+                    }
                 }
             }
 
         }
     }
 
-    private fun getUserProfileUiStates(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                when (state.source) {
-                    "getUserProfile" -> {}
-                }
+    private fun getUserProfileEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                userProfileViewModel.userProfileEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            SnackBarCustom.showSnackbar(
+                                view = root,
+                                message = event.message,
+                            )
+                        }
 
-            }
-
-            is UiState.Success -> {
-                when (state.source) {
-                    "getUserProfile" -> {
-                        val userProfile = state.data as UserEntity
-                        binding.firstNameEditText.setText(userProfile.firstName)
-                        binding.lastNameEditText.setText(userProfile.lastName)
-                        idUser = userProfile.userId
+                        else -> Unit
                     }
                 }
             }
         }
     }
 
-    private fun updateUserNameDetailsProfile() {
 
-        binding.buttonEdit.setOnClickListener {
+    private fun updateUserNameDetailsProfile() {
+        binding.EditButton.setOnClickListener {
             val firstName = binding.firstNameEditText.text.toString()
             val lastName = binding.lastNameEditText.text.toString()
             val userUpdateDisplayName =
-                binding.firstNameEditText.text.toString()
+                binding.firstNameEditText.text.toString().plus(" ")
                     .plus(binding.lastNameEditText.text.toString())
             if (firstName.isNotEmpty() && lastName.isNotEmpty()) {
-                val updateUserNameDetailsParams = UpdateUserNameDetailsRequestEntity(
+
+                val updateUserNameDetailsParams = UpdateUserDetailsRequestEntity(
                     id = idUser,
                     firstName = firstName,
                     lastName = lastName,
-                    displayName = firstName + lastName
+                    displayName = firstName.plus(" ").plus(lastName)
                 )
-                userNameDetailsViewModel.updateUserNameDetails(
-                    updateUserNameDetailsParams = updateUserNameDetailsParams
+                userDetailsViewModel.onEvent(
+                    UserDetailsEvent.UserDetailsUpdateInput(
+                        updateUserNameDetailsParams
+                    )
                 )
-
+                userDetailsViewModel.onEvent(UserDetailsEvent.UserDetailsUpdateButton)
                 updateDisplayNameViewModel.updateDisplayName(userUpdateDisplayName)
+
+
+            } else {
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = "not work"
+                )
             }
         }
 
     }
 
-    private fun updateUserNameDetailsState() {
+    private fun userDetailsState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                userNameDetailsViewModel.userNameDetailsProfileState.collect { state ->
-                    updateUserNameDetailsUiState(state)
+                userDetailsViewModel.userDetailsState.collect { state ->
+                    if (state.isUpdateLoading) {
+                        changeStateView(false, View.VISIBLE, text = "")
+                    } else {
+                        changeStateView(true, View.GONE, text = getString(R.string.edit))
 
+                    }
+                    if (state.isUpdateSuccess) {
+                        dialog?.dismiss()
+                    }
                 }
             }
 
         }
     }
 
-    private fun updateUserNameDetailsUiState(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                when (state.source) {
-                    "updateUserNameDetails" -> {
-                        loadingDialog.showLoading(fragmentManager = parentFragmentManager)
+    private fun userDetailsEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                userDetailsViewModel.userDetailsEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            parentFragmentManager.setFragmentResult(
+                                Edit_profile_result, bundleOf(
+                                    Message to event.message
+                                )
+                            )
+                        }
+
+                        else -> Unit
                     }
-                }
-            }
 
-            is UiState.Success -> {
-                when (state.source) {
-                    "updateUserNameDetails" -> {
-
-
-                        loadingDialog.dismissLoading()
-                        val navController = findNavController()
-                        navController.navigate(R.id.settingFragment)
-                        Toast.makeText(
-                            requireContext(),
-                            "Edit Name successfully",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-
-            is UiState.Error -> {
-                when (state.source) {
-                    "updateUserNameDetails" -> {
-                        loadingDialog.dismissLoading()
-                        SnackBarCustom.showSnackbar(
-                            view = root,
-                            message = state.message,
-                        )
-                    }
                 }
             }
         }
     }
+
+    private fun changeStateView(isEnable: Boolean, visibility: Int, text: String) {
+        binding.radioEditName.isEnabled = isEnable
+        binding.radioChangePassword.isEnabled = isEnable
+        binding.EditButton.isEnabled = isEnable
+        binding.EditButton.text = text
+        binding.CancelEditButton.isEnabled = isEnable
+        binding.progressBarButtonEdit.visibility = visibility
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()

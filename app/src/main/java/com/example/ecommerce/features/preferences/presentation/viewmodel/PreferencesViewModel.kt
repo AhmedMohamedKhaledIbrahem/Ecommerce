@@ -1,19 +1,24 @@
 package com.example.ecommerce.features.preferences.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.ecommerce.core.errors.Failures
+import com.example.ecommerce.core.constants.Unknown_Error
 import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.ui.state.UiState
+import com.example.ecommerce.core.extension.eventHandler
+import com.example.ecommerce.core.extension.performUseCaseOperation
+import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.preferences.domain.usecase.getlanguage.IGetLanguageUseCase
 import com.example.ecommerce.features.preferences.domain.usecase.isdarkmodeenabled.IIsDarkModeEnableUseCase
 import com.example.ecommerce.features.preferences.domain.usecase.setdarkmodeenable.ISetDarkModeEnableUseCase
 import com.example.ecommerce.features.preferences.domain.usecase.setlanguage.ISetLanguageUseCase
+import com.example.ecommerce.features.preferences.presentation.event.PreferencesEvent
+import com.example.ecommerce.features.preferences.presentation.state.PreferencesState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,76 +27,100 @@ class PreferencesViewModel @Inject constructor(
     private val setLanguageUseCase: ISetLanguageUseCase,
     private val isDarkModeEnableUseCase: IIsDarkModeEnableUseCase,
     private val setDarkModeEnableUseCase: ISetDarkModeEnableUseCase,
+) : ViewModel() {
 
-    ) : ViewModel(), IPreferencesViewModel {
-    private val _preferencesState = MutableSharedFlow<UiState<Any>>(replay = 0)
-    override val preferencesState: SharedFlow<UiState<Any>> get() = _preferencesState.asSharedFlow()
-    override fun getLanguage() {
-        preferencesUiState(
-            operation = { getLanguageUseCase.invoke() },
-            onSuccess = { result ->
-                _preferencesState.emit(UiState.Success(result, "getLanguage"))
+    private val _preferencesEvent: Channel<UiEvent> = Channel()
+    val preferencesEvent = _preferencesEvent.receiveAsFlow()
+    private val _preferencesState = MutableStateFlow(PreferencesState())
+    val preferencesState: StateFlow<PreferencesState> get() = _preferencesState.asStateFlow()
 
-            },
-            source = "getLanguage"
-        )
-    }
 
-    override fun setLanguage(languageCode: String) {
-        preferencesUiState(
-            operation = { setLanguageUseCase.invoke(languageCode) },
-            onSuccess = { result ->
-                _preferencesState.emit(UiState.Success(result, "setLanguage"))
-            },
-            source = "setLanguage"
-        )
-    }
+    fun onEvent(event: PreferencesEvent) {
+        eventHandler(event = event) { evt ->
+            when (evt) {
+                is PreferencesEvent.Input.SetLanguage -> {
+                    _preferencesState.update { it.copy(languageCode = evt.languageCode) }
+                }
 
-    override fun isDarkModeEnabled() {
-        preferencesUiState(
-            operation = { isDarkModeEnableUseCase.invoke() },
-            onSuccess = { result ->
-                _preferencesState.emit(UiState.Success(result, "isDarkModeEnabled"))
-            },
-            source = "isDarkModeEnabled"
-        )
-    }
+                is PreferencesEvent.Input.SetDarkMode -> {
+                    _preferencesState.update { it.copy(isDarkMode = evt.isDarkMode) }
+                }
 
-    override fun setDarkModeEnabled(isDarkModeEnabled: Boolean) {
-        preferencesUiState(
-            operation = { setDarkModeEnableUseCase.invoke(isDarkModeEnabled) },
-            onSuccess = { result ->
-                _preferencesState.emit(UiState.Success(result, "setDarkModeEnabled"))
-            },
-            source = "setDarkModeEnabled"
-        )
-    }
+                is PreferencesEvent.Get.GetLanguage -> {
+                    getLanguage()
+                }
 
-    override fun <T> preferencesUiState(
-        operation: suspend () -> T,
-        onSuccess: suspend (T) -> Unit,
-        source: String
-    ) {
-        viewModelScope.launch {
-            _preferencesState.emit(UiState.Loading(source))
-            try {
-                val result =  operation()
-                onSuccess(result)
-            } catch (failure: Failures) {
-                _preferencesState.emit(
-                    UiState.Error(
-                        mapFailureMessage(failures = failure),
-                        source = source
-                    )
-                )
-            } catch (e: Exception) {
-                _preferencesState.emit(
-                    UiState.Error(
-                        message = e.message ?: "Unknown Error",
-                        source = source
-                    )
-                )
+                is PreferencesEvent.Get.GetDarkMode -> {
+                    getDarkMode()
+                }
+
+                is PreferencesEvent.Button.DarkModeButton -> {
+                    darkModeButton()
+                }
+
+                is PreferencesEvent.Button.LanguageButton -> {
+                    languageButton()
+                }
+
             }
         }
     }
+
+
+    fun languageButton() = performUseCaseOperation(
+        useCase = {
+            val languageCode = preferencesState.value.languageCode
+            setLanguageUseCase.invoke(languageCode = languageCode)
+            _preferencesState.update { it.copy(isFinished = true) }
+        },
+        onFailure = { failure ->
+            val mapFailureToMessage = mapFailureMessage(failures = failure)
+            _preferencesEvent.send(UiEvent.ShowSnackBar(mapFailureToMessage))
+        },
+        onException = {
+            _preferencesEvent.send(UiEvent.ShowSnackBar(it.message ?: Unknown_Error))
+        },
+    )
+
+    fun getLanguage() = performUseCaseOperation(
+        useCase = {
+            val languageCode = getLanguageUseCase.invoke()
+            _preferencesState.update { it.copy(languageCode = languageCode) }
+        },
+        onFailure = {
+            val mapFailureToMessage = mapFailureMessage(failures = it)
+            _preferencesEvent.send(UiEvent.ShowSnackBar(mapFailureToMessage))
+        },
+        onException = {
+            _preferencesEvent.send(UiEvent.ShowSnackBar(it.message ?: Unknown_Error))
+        },
+    )
+
+    fun darkModeButton() = performUseCaseOperation(
+        useCase = {
+            val isDarkMode = preferencesState.value.isDarkMode
+            setDarkModeEnableUseCase.invoke(isDarkModeEnabled = isDarkMode)
+        },
+        onFailure = { failure ->
+            val mapFailureToMessage = mapFailureMessage(failures = failure)
+            _preferencesEvent.send(UiEvent.ShowSnackBar(mapFailureToMessage))
+        },
+        onException = {
+            _preferencesEvent.send(UiEvent.ShowSnackBar(it.message ?: Unknown_Error))
+        }
+    )
+
+    fun getDarkMode() = performUseCaseOperation(
+        useCase = {
+            val isDarkMode = isDarkModeEnableUseCase.invoke()
+            _preferencesState.update { it.copy(isDarkMode = isDarkMode) }
+        },
+        onFailure = { failure ->
+            val mapFailureToMessage = mapFailureMessage(failures = failure)
+            _preferencesEvent.send(UiEvent.ShowSnackBar(mapFailureToMessage))
+        },
+        onException = {
+            _preferencesEvent.send(UiEvent.ShowSnackBar(it.message ?: Unknown_Error))
+        }
+    )
 }

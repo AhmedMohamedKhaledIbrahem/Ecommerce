@@ -1,9 +1,11 @@
 package com.example.ecommerce.features.address.presentation.screen.address
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -12,67 +14,111 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.EditAddress
 import com.example.ecommerce.core.constants.InsertAddress
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
-import com.example.ecommerce.core.ui.state.UiState
+import com.example.ecommerce.core.extension.isTablet
+import com.example.ecommerce.core.manager.address.AddressManager
+import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.detectScrollEnd
+import com.example.ecommerce.databinding.FragmentAddressBinding
+import com.example.ecommerce.features.address.presentation.event.AddressEvent
+import com.example.ecommerce.features.address.presentation.event.DeleteAddressEvent
+import com.example.ecommerce.features.address.presentation.event.SelectAddressEvent
 import com.example.ecommerce.features.address.presentation.screen.address.addressrecyclerview.AddressAdapter
 import com.example.ecommerce.features.address.presentation.viewmodel.address.AddressViewModel
-import com.example.ecommerce.features.address.presentation.viewmodel.address.IAddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.address.DeleteAddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.address.SelectAddressViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.AddressActionViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.IAddressActionViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.customer.CustomerViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.customer.ICustomerViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AddressFragment : Fragment() {
-    private lateinit var addressRecyclerView: RecyclerView
+    @Inject
+    lateinit var addressManager: AddressManager
+    private var _binding: FragmentAddressBinding? = null
+    private val binding get() = _binding!!
     private lateinit var addressAdapter: AddressAdapter
     private lateinit var rootView: View
-    private lateinit var floatingActionButtonAddAddress: FloatingActionButton
-    private val addressViewModel: IAddressViewModel by viewModels<AddressViewModel>()
+    private val addressViewModel by viewModels<AddressViewModel>()
+    private val selectAddressViewModel by viewModels<SelectAddressViewModel>()
+    private val deleteAddressViewModel by viewModels<DeleteAddressViewModel>()
     private val customerViewModel: ICustomerViewModel by activityViewModels<CustomerViewModel>()
     private val addressActionViewModel: IAddressActionViewModel by activityViewModels<AddressActionViewModel>()
+    private var addressList: MutableList<CustomerAddressEntity> = mutableListOf()
+    private var customerAddressEntity: CustomerAddressEntity? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_address, container, false)
-        initView(view)
+        _binding = FragmentAddressBinding.inflate(inflater, container, false)
+        rootView = binding.root
 
-        return view
+
+        return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        getAddress()
+        if (isTablet(requireContext())) {
+            adaptiveFBAPosition(landScapeVerticalBase = 0.84f, portraitVerticalBase = 0.88f)
+        } else {
+            adaptiveFBAPosition(landScapeVerticalBase = 0.61f, portraitVerticalBase = 0.84f)
+        }
+        addressViewModel.onEvent(AddressEvent.LoadAllAddress)
         addressEvent()
         addressState()
+        deleteAddressEvent()
+        deleteAddressState()
+        selectAddressEvent()
+        selectAddressState()
+
         floatingActionButtonAddAddressOnClickListener()
-        detectScrollEnd(addressRecyclerView)
+        detectScrollEnd(binding.addressRecyclerView)
     }
 
-
-    private fun initView(view: View) {
-        addressRecyclerView = view.findViewById(R.id.addressRecyclerView)
-        addressRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        floatingActionButtonAddAddress = view.findViewById(R.id.floatingActionButtonAddAddress)
-        rootView = view
-    }
 
     private fun addressState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 addressViewModel.addressState.collect { state ->
-                    initRecyclerView(state)
+                    if (!state.isGetAllAddressLoading) {
+                        initRecyclerView(state.addressList)
+                    }
+
+
+                }
+            }
+        }
+    }
+
+    private fun deleteAddressState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                deleteAddressViewModel.deleteAddressState.collect { state ->
+                    if (!state.isDeleteAddressLoading) {
+                        deleteCustomerAddress()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun selectAddressState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                selectAddressViewModel.selectAddressState.collect { state ->
+                    if (state.customerAddressId != -1) {
+                        addressManager.setAddressId(state.customerAddressId)
+                    }
                 }
             }
         }
@@ -81,58 +127,81 @@ class AddressFragment : Fragment() {
     private fun addressEvent() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                addressViewModel.addressEvent.collect { state ->
-                    addressUiStates(state)
+                addressViewModel.addressEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            SnackBarCustom.showSnackbar(
+                                view = rootView,
+                                message = event.message
+                            )
+                        }
+
+                        else -> Unit
+                    }
+
                 }
             }
         }
     }
 
-    private fun addressUiStates(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                addressUiSourceStateLoading(state)
-            }
+    private fun deleteAddressEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                deleteAddressViewModel.deleteAddressEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            if (event.message != "" && event.resId == -1) {
+                                SnackBarCustom.showSnackbar(
+                                    view = rootView,
+                                    message = event.message
+                                )
+                            } else if (event.message == "" && event.resId != -1) {
+                                val message = getString(event.resId)
+                                SnackBarCustom.showSnackbar(
+                                    view = rootView,
+                                    message = message,
 
-            is UiState.Success -> {
-                addressUiSourceStateSuccess(state)
-            }
+                                    )
+                            }
 
-            is UiState.Error -> {
-                addressUiSourceStateError(state)
+                        }
 
-            }
-        }
-    }
-
-    private fun addressUiSourceStateLoading(state: UiState.Loading) {
-        when (state.source) {
-            "getAddress" -> {
-            }
-        }
-    }
-
-    private fun addressUiSourceStateSuccess(state: UiState.Success<Any>) {
-        when (state.source) {
-            "getAddress" -> {}
-        }
-    }
-
-
-    private fun addressUiSourceStateError(state: UiState.Error) {
-        when (state.source) {
-            "getAddress" -> {
-                SnackBarCustom.showSnackbar(
-                    view = rootView,
-                    message = state.message
-                )
+                        else -> Unit
+                    }
+                }
             }
         }
     }
 
-    private fun getAddress() {
-        addressViewModel.getAddress()
+    private fun selectAddressEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                selectAddressViewModel.selectAddressEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            if (event.message != "" && event.resId == -1) {
+                                SnackBarCustom.showSnackbar(
+                                    view = rootView,
+                                    message = event.message
+                                )
+                            } else if (event.message == "" && event.resId != -1) {
+                                val message = getString(event.resId)
+                                SnackBarCustom.showSnackbar(
+                                    view = rootView,
+                                    message = message,
+
+                                    )
+                            }
+                        }
+
+                        else -> Unit
+                    }
+
+                }
+            }
+        }
     }
+
 
     private fun navigate() {
         val navController = findNavController()
@@ -140,7 +209,7 @@ class AddressFragment : Fragment() {
     }
 
     private fun floatingActionButtonAddAddressOnClickListener() {
-        floatingActionButtonAddAddress.setOnClickListener {
+        binding.floatingActionButtonAddAddress.setOnClickListener {
             addressActionViewModel.setAddressAction(InsertAddress)
             navigate()
         }
@@ -148,18 +217,82 @@ class AddressFragment : Fragment() {
 
 
     private fun initRecyclerView(addressData: List<CustomerAddressEntity>) {
-        lifecycleScope.launch {
-            addressAdapter = AddressAdapter(
-                addressData,
-                onCardClickListener = {},
-                onDeleteClickListener = {},
-                onEditClickListener = {
-                    customerViewModel.setCustomerEntity(customerEntity = it)
-                    addressActionViewModel.setAddressAction(EditAddress)
-                    navigate()
-                },
-            )
-            addressRecyclerView.adapter = addressAdapter
+        addressList = addressData.toMutableList()
+        binding.addressRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        addressAdapter = AddressAdapter(
+            addressData,
+            onCardClickListener = { customerAddressEntity ->
+
+                selectAddressViewModel.onEvent(
+                    SelectAddressEvent.SetCustomerAddressId(
+                        customerAddressEntity.id
+                    )
+                )
+                selectAddressViewModel.onEvent(SelectAddressEvent.SetSelected(customerAddressEntity.isSelect))
+                selectAddressViewModel.onEvent(SelectAddressEvent.UnSelectAddress)
+                selectAddressViewModel.onEvent(SelectAddressEvent.SelectAddress)
+                addressViewModel.onEvent(AddressEvent.LoadAllAddress)
+
+            },
+            onDeleteClickListener = { customerAddressEntity ->
+                this.customerAddressEntity = customerAddressEntity
+                deleteAddressViewModel.onEvent(
+                    DeleteAddressEvent.DeleteAddressInput(
+                        customerAddressEntity
+                    )
+                )
+                deleteAddressViewModel.onEvent(DeleteAddressEvent.DeleteAddressButton)
+
+
+            },
+            onEditClickListener = {
+                customerViewModel.setCustomerEntity(customerEntity = it)
+                addressActionViewModel.setAddressAction(EditAddress)
+                navigate()
+            },
+        )
+        binding.addressRecyclerView.adapter = addressAdapter
+
+    }
+
+    private fun deleteCustomerAddress() {
+        val position = addressList.indexOf(customerAddressEntity)
+        if (position != -1) {
+            addressViewModel.onEvent(AddressEvent.LoadAllAddress)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun adaptiveFBAPosition(landScapeVerticalBase: Float, portraitVerticalBase: Float) {
+        val orientation = resources.configuration.orientation
+        val fab = binding.floatingActionButtonAddAddress
+        val layoutParams = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.WRAP_CONTENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+            topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+            horizontalBias = 0.9f
+        }
+
+        when (orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                layoutParams.verticalBias = landScapeVerticalBase
+                fab.layoutParams = layoutParams
+            }
+
+            Configuration.ORIENTATION_PORTRAIT -> {
+                layoutParams.verticalBias = portraitVerticalBase
+                fab.layoutParams = layoutParams
+            }
+
+            else -> Unit
         }
     }
 

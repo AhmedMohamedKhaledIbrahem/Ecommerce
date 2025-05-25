@@ -67,6 +67,7 @@ class CartAdapter(
 
     fun setRemoveLoadingState(isLoading: Boolean){
         removeLoadingState = isLoading
+        notifyItemChanged(0)
 
     }
 }

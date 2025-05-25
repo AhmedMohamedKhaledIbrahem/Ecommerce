@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -27,8 +28,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
-import com.example.ecommerce.core.app.AppLifecycleObserver
-import com.example.ecommerce.core.app.AppLifecycleViewModel
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.navigation.MainNavigationViewModel
@@ -36,6 +35,7 @@ import com.example.ecommerce.core.network.NetworkHelperViewModel
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.checkInternetConnection
 import com.example.ecommerce.databinding.ActivityMainNavigationBinding
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -48,12 +48,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainNavigationActivity : AppCompatActivity() {
     private lateinit var detectViewModel: DetectScrollEndViewModel
-    private lateinit var loadingDialog: LoadingDialogFragment
+    internal lateinit var loadingDialog: LoadingDialogFragment
     private val mainNavigationViewModel: MainNavigationViewModel by viewModels()
     private val networkStatusViewModel: NetworkHelperViewModel by viewModels()
-    private val appLifecycleViewModel: AppLifecycleViewModel by viewModels()
-    private lateinit var appLifecycleObserver: AppLifecycleObserver
-    private lateinit var binding: ActivityMainNavigationBinding
+    internal lateinit var binding: ActivityMainNavigationBinding
 
     @Inject
     lateinit var tokenManager: TokenManager
@@ -66,12 +64,12 @@ class MainNavigationActivity : AppCompatActivity() {
         binding = ActivityMainNavigationBinding.inflate(layoutInflater)
         enableEdgeToEdge()
         setContentView(binding.root)
-        requestNotificationPermission()
-        //windowSystem()
-        defaultNightMode()
+        windowSystem()
         initView()
-        appLifecycleObserver()
-        startDestinationGraph()
+        internetMonitor()
+        requestNotificationPermission()
+        defaultNightMode()
+        startDestinationGraph(savedInstanceState)
         navigationEvent()
     }
 
@@ -90,6 +88,7 @@ class MainNavigationActivity : AppCompatActivity() {
     }
 
     override fun attachBaseContext(newBase: Context?) {
+
         val language = PreferencesUtils.languageCode ?: Locale.getDefault().language
         super.attachBaseContext(ContextWrapper(newBase?.setAppLocal(language)))
     }
@@ -125,7 +124,7 @@ class MainNavigationActivity : AppCompatActivity() {
                 destination.id == R.id.editAddressFragment ||
                 destination.id == R.id.productDetailsFragment ||
                 destination.id == R.id.orderDetailsFragment ||
-                destination.id == R.id.checkVerificationCodeFragment||
+                destination.id == R.id.checkVerificationCodeFragment ||
                 destination.id == R.id.loginFragment ||
                 destination.id == R.id.signUpFragment ||
                 destination.id == R.id.forgetPasswordFragment
@@ -141,13 +140,16 @@ class MainNavigationActivity : AppCompatActivity() {
     private fun navigationView(navController: NavController) {
         binding.bottomNavigationBar.setupWithNavController(navController)
         binding.bottomNavigationBar.setOnItemSelectedListener { item ->
-            mainNavigationViewModel.onBottomNavigationEvent(item.itemId)
+            val currentDestination = navController.currentDestination?.id
+            if (currentDestination != item.itemId) {
+                mainNavigationViewModel.onBottomNavigationEvent(item.itemId)
+            }
+
             true
         }
     }
 
     private fun navigationEvent() {
-        //val findNavController = findNavController(R.id.fragmentContainer)
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainNavigationViewModel.navigationEvent.collectLatest { event ->
@@ -168,6 +170,13 @@ class MainNavigationActivity : AppCompatActivity() {
                         }
 
                         is UiEvent.Navigation.Orders -> {
+                            findNavController(R.id.fragmentContainer).apply {
+                                navigate(event.destinationId)
+                                popBackStack(event.destinationId, inclusive = false)
+                            }
+                        }
+
+                        is UiEvent.Navigation.Address -> {
                             findNavController(R.id.fragmentContainer).apply {
                                 navigate(event.destinationId)
                                 popBackStack(event.destinationId, inclusive = false)
@@ -222,7 +231,8 @@ class MainNavigationActivity : AppCompatActivity() {
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (!isGranted) {
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.permission_denied), Toast.LENGTH_SHORT)
+                    .show()
             }
         }
 
@@ -242,48 +252,50 @@ class MainNavigationActivity : AppCompatActivity() {
     }
 
     private fun defaultNightMode() {
-        PreferencesUtils.isDarkMode = shardPreferences.getBoolean("dark_mode", false)
+//        PreferencesUtils.isDarkMode = shardPreferences.getBoolean("dark_mode", false)
         AppCompatDelegate.setDefaultNightMode(
             if (PreferencesUtils.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
         )
     }
 
-    private fun startDestinationGraph() {
+    private fun startDestinationGraph(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
-            val navHostFragment = supportFragmentManager
-                .findFragmentById(binding.fragmentContainer.id) as NavHostFragment
-            val navController = navHostFragment.navController
-            val graph = navController.navInflater.inflate(R.navigation.navigation_bottom_bar)
+            if (savedInstanceState == null) {
+                val navHostFragment = supportFragmentManager
+                    .findFragmentById(binding.fragmentContainer.id) as NavHostFragment
+                val navController = navHostFragment.navController
+                val graph = navController.navInflater.inflate(R.navigation.navigation_bottom_bar)
 
-            if (isLogin()) {
-                graph.setStartDestination(R.id.productFragment)
-            } else {
-                graph.setStartDestination(R.id.loginFragment)
+                if (isLogin()) {
+                    graph.setStartDestination(R.id.productFragment)
+                } else {
+                    graph.setStartDestination(R.id.loginFragment)
+                }
+                navController.graph = graph
             }
-            navController.graph = graph
         }
     }
 
     private fun windowSystem() {
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        val mainView = binding.root
+        ViewCompat.setOnApplyWindowInsetsListener(mainView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(0, systemBars.top, 0, systemBars.bottom)
+            v.setPadding(0, systemBars.top, 0, 0)
             insets
         }
-        (application as EcommerceApp).hideSystemUI(this)
+        ViewCompat.requestApplyInsets(mainView)
+
+
     }
 
-    private fun appLifecycleObserver() {
-        appLifecycleViewModel.rootView = binding.root
-        appLifecycleViewModel.loadingDialog = loadingDialog
-        appLifecycleViewModel.fragmentManager = supportFragmentManager
-        appLifecycleObserver = AppLifecycleObserver(
-            networkStatusViewModel = networkStatusViewModel,
-            appLifecycleViewModel = appLifecycleViewModel
+
+    private fun internetMonitor() {
+        checkInternetConnection(
+            lifecycleOwner = this,
+            networkStatus = networkStatusViewModel.networkStatus,
+            activity = this
         )
-        ProcessLifecycleOwner.Companion.get().lifecycle.addObserver(appLifecycleObserver)
     }
-
 
 }

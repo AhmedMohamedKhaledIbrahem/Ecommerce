@@ -1,16 +1,16 @@
 package com.example.ecommerce.features.userprofile.modules
 
 import com.example.ecommerce.features.userprofile.domain.repositories.UserProfileRepository
-import com.example.ecommerce.features.userprofile.domain.usecases.getimageprofilebyid.GetImageProfileByIdUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.getimageprofilebyid.IGetImageProfileByIdUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.getusernamedetails.GetUserNameDetailsUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.getusernamedetails.IGetUserNameDetailsUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofile.GetUserProfileUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofile.IGetUserProfileUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.updateusernamedetails.IUpdateUserNameDetailsUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.updateusernamedetails.UpdateUserNameDetailsUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.uploadimageprofile.IUploadImageProfileUseCase
-import com.example.ecommerce.features.userprofile.domain.usecases.uploadimageprofile.UploadImageProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.get_image_profile_by_id.GetImageProfileByIdUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.get_image_profile_by_id.IGetImageProfileByIdUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.fetch_update_user_details.FetchUpdateUserDetailsUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.fetch_update_user_details.IFetchUpdateUserDetailsUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.get_user_profile.GetUserProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.get_user_profile.IGetUserProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.update_user_details.IUpdateUserDetailsUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.update_user_details.UpdateUserDetailsUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.upload_image_profile.IUploadImageProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.upload_image_profile.UploadImageProfileUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -37,15 +37,15 @@ object DomainModule {
     @Provides
     @Singleton
     fun provideGetUserNameDetailsUseCase(repository: UserProfileRepository)
-            : IGetUserNameDetailsUseCase {
-        return GetUserNameDetailsUseCase(repository = repository)
+            : IFetchUpdateUserDetailsUseCase {
+        return FetchUpdateUserDetailsUseCase(repository = repository)
     }
 
     @Provides
     @Singleton
     fun provideUpdateUserNameDetailsUseCase(repository: UserProfileRepository)
-            : IUpdateUserNameDetailsUseCase {
-        return UpdateUserNameDetailsUseCase(repository = repository)
+            : IUpdateUserDetailsUseCase {
+        return UpdateUserDetailsUseCase(repository = repository)
     }
 
     @Provides

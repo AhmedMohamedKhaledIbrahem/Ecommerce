@@ -60,7 +60,7 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:clickable="true"
-                android:contentDescription="@string/itemcartdecreasecounter"
+                android:contentDescription="@string/item_cart_decrease_counter"
                 android:src="@drawable/minus" />
 
             <TextView
@@ -76,7 +76,7 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:clickable="true"
-                android:contentDescription="@string/itemcartincreasecounter"
+                android:contentDescription="@string/item_cart_increase_counter"
                 android:src="@drawable/add" />
         </LinearLayout>
 

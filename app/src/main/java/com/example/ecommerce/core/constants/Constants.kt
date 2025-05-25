@@ -25,6 +25,8 @@ const val PaymentMethod = "cod"
 const val PaymentMethodTitle = "Cash On Delivery"
 const val CustomerOrAddressNotFound = "Customer or address not found"
 const val quantity = "1"
-
+const val Unknown_Error = "Unknown error"
+const val Edit_profile_result= "edit_profile_result"
+const val Message = "message"
 
 

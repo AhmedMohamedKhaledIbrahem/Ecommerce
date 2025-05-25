@@ -1,6 +1,7 @@
 package com.example.ecommerce.core.manager.address
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.example.ecommerce.core.errors.Failures
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,7 @@ class AddressManagerImp @Inject constructor(
     override suspend fun setAddressId(addressId: Int) {
         withContext(Dispatchers.IO){
             try {
+                Log.d("TAG", "setAddressId: $addressId")
                 sharedPreferences.edit{ putInt(ADDRESS_KEY, addressId) }
             }catch (e: Exception){
                 throw Failures.CacheFailure("${e.message}")

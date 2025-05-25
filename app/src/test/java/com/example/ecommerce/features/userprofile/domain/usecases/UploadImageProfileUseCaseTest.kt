@@ -2,7 +2,7 @@ package com.example.ecommerce.features.userprofile.domain.usecases
 
 import com.example.ecommerce.features.userprofile.domain.entites.UploadImageProfileResponseEntity
 import com.example.ecommerce.features.userprofile.domain.repositories.UserProfileRepository
-import com.example.ecommerce.features.userprofile.domain.usecases.uploadimageprofile.UploadImageProfileUseCase
+import com.example.ecommerce.features.userprofile.domain.usecases.upload_image_profile.UploadImageProfileUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before

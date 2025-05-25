@@ -17,19 +17,17 @@ object AddressMapper {
 
     fun mapToModel(entity: AddressRequestEntity): AddressRequestModel {
         return AddressRequestModel(
-            billing = entity.billing?.let { BillingInfoMapper.mapToModel(it) },
-            shipping = entity.shipping?.let { ShippingInfoMapper.mapToModel(it) },
+            billing = BillingInfoMapper.mapToModel(entity.billing) ,
+            shipping =   ShippingInfoMapper.mapToModel(entity.shipping) ,
         )
     }
 
     fun mapAddressResponseModelToAddressRequestModel(model: AddressDataResponseModel): AddressRequestModel {
 
         return AddressRequestModel(
-            billing = model.billing?.let {
-                BillingInfoMapper.mapBillingInfoResponseModelToBillingInfoRequestModel(
-                    it
-                )
-            },
+            billing = BillingInfoMapper.mapBillingInfoResponseModelToBillingInfoRequestModel(
+                model.billing
+            ),
         )
 
     }

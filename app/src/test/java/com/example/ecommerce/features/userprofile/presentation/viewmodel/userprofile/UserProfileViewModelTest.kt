@@ -1,100 +1,85 @@
 package com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
-import com.example.ecommerce.core.ui.state.UiState
-import com.example.ecommerce.features.await
-import com.example.ecommerce.features.observerViewModelErrorState
-import com.example.ecommerce.features.observerViewModelSuccessState
-import com.example.ecommerce.features.removeObserverFromLiveData
-import com.example.ecommerce.features.userprofile.domain.usecases.getuserprofile.IGetUserProfileUseCase
-import kotlinx.coroutines.Dispatchers
+import com.example.ecommerce.core.errors.Failures
+import com.example.ecommerce.core.ui.event.UiEvent
+import com.example.ecommerce.features.MainDispatcherRule
+import com.example.ecommerce.features.errorMessage
+import com.example.ecommerce.features.userprofile.domain.usecases.get_user_profile.IGetUserProfileUseCase
+import com.example.ecommerce.features.userprofile.presentation.event.UserProfileEvent
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import io.mockk.spyk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.verify
-import java.util.concurrent.CountDownLatch
+import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class UserProfileViewModelTest {
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
-    @Mock
-    private lateinit var getUserProfileUseCase: IGetUserProfileUseCase
-    private lateinit var viewModel: UserProfileViewModel
-    private val dispatcher = UnconfinedTestDispatcher()
+    val mainDispatcherRule = MainDispatcherRule()
+    private val getUserProfileUseCase = mockk<IGetUserProfileUseCase>()
+    lateinit var viewModel: UserProfileViewModel
 
     @Before
-    fun setUp() {
-        MockitoAnnotations.openMocks(this)
-        Dispatchers.setMain(dispatcher)
+    fun setup() {
         viewModel = UserProfileViewModel(getUserProfileUseCase)
     }
 
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
+    @Test
+    fun `onEvent LoadImageById should call getImageProfileById`() = runTest {
+        val userProfileSpy = spyk(viewModel, recordPrivateCalls = true)
+        userProfileSpy.onEvent(UserProfileEvent.UserProfileLoad)
+        coVerify(exactly = 1) { userProfileSpy[GET_USER_PROFILE]() }
     }
-
-    fun userProfileStateAsLiveData(): LiveData<UiState<Any>> {
-        return viewModel.userProfileState.asLiveData()
-    }
-
-    val userId = 1
-    private val tGetUserProfileResponseEntity =
-        UserEntity(
-            userId = 1,
-            userName = "test",
-            userEmail = "test@gmail.com",
-            firstName = "test",
-            lastName = "test2",
-            displayName = "test test2",
-            imagePath = "",
-            expiredToken = 123,
-            verificationStatues = true,
-            id = 1,
-            roles = "customer"
-        )
 
     @Test
-    fun `getUserProfile should emit success state when use case returns data`() = runTest {
-        val latch = CountDownLatch(1)
-        `when`(getUserProfileUseCase.invoke()).thenReturn(tGetUserProfileResponseEntity)
-        viewModel.getUserProfile()
-        val observer = observerViewModelSuccessState(
-            latch,
-            tGetUserProfileResponseEntity,
-            userProfileStateAsLiveData()
-        )
-        verify(getUserProfileUseCase).invoke()
-        await(latch)
-        removeObserverFromLiveData(userProfileStateAsLiveData(),observer)
-    }
+    fun `getUserProfile should call getUserProfileUseCase and update state`() =
+        runTest {
+            val userProfile = mockk<UserEntity>()
+            coEvery { getUserProfileUseCase.invoke() } returns userProfile
+            viewModel.onEvent(UserProfileEvent.UserProfileLoad)
+            advanceUntilIdle()
+            coVerify(exactly = 1) { getUserProfileUseCase.invoke() }
+            assertEquals(
+                userProfile,
+                viewModel.userProfileState.value.userEntity
+            )
+        }
+
     @Test
-    fun `getUserProfile should emit error state when use case throws exception`() = runTest {
-        val latch = CountDownLatch(1)
-        val errorMessage = "Error message"
-        `when`(getUserProfileUseCase.invoke()).thenThrow(RuntimeException(errorMessage))
-        viewModel.getUserProfile()
-        val observer = observerViewModelErrorState(
-            latch,
-            errorMessage,
-            userProfileStateAsLiveData()
+    fun `getUserProfile should throw failure and send ShowSnackBar event`() = runTest {
+        coEvery {  getUserProfileUseCase.invoke()  } throws Failures.CacheFailure(
+            errorMessage
         )
-        verify(getUserProfileUseCase).invoke()
-        await(latch)
-        removeObserverFromLiveData(userProfileStateAsLiveData(),observer)
+        val eventDeferred = async { viewModel.userProfileEvent.first() }
+        viewModel.onEvent(UserProfileEvent.UserProfileLoad)
+        advanceUntilIdle()
+        val event = eventDeferred.await()
+        assertEquals(errorMessage, (event as UiEvent.ShowSnackBar).message)
+
+    }
+
+    @Test
+    fun `getUserProfile should throw Exception and send ShowSnackBar event`() = runTest {
+        coEvery { getUserProfileUseCase.invoke() } throws Exception(
+            errorMessage
+        )
+        val eventDeferred = async { viewModel.userProfileEvent.first() }
+        viewModel.onEvent(UserProfileEvent.UserProfileLoad)
+        advanceUntilIdle()
+        val event = eventDeferred.await()
+        assertEquals(errorMessage, (event as UiEvent.ShowSnackBar).message)
+    }
+
+    companion object {
+        private const val GET_USER_PROFILE = "getUserProfile"
     }
 }

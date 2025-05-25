@@ -1,12 +1,12 @@
 package com.example.ecommerce.features.authentication.presentation.viewmodel.signup
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.R
-import com.example.ecommerce.core.constants.UserEmailSaveState
+import com.example.ecommerce.core.constants.Unknown_Error
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
+import com.example.ecommerce.core.extension.performUseCaseOperation
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
@@ -73,40 +73,49 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    fun signUp() {
-        viewModelScope.launch {
-            try {
-                _signUpState.update { it.copy(isLoading = true) }
-                val signUpParams = SignUpRequestEntity(
-                    username = signUpState.value.userName,
-                    firstName = signUpState.value.firstName,
-                    lastName = signUpState.value.lastName,
-                    email = signUpState.value.email,
-                    password = signUpState.value.password
-                )
-                signUpUseCase(signUpParams = signUpParams)
-                val sendVerificationParams = EmailRequestEntity(email = signUpState.value.email)
-                val messageResponse =
-                    sendVerificationCodeUseCase(sendVerificationCodeParams = sendVerificationParams)
-                _signUpEvent.send(
-                    UiEvent.CombinedEvents(
-                        listOf(
-                            UiEvent.ShowSnackBar(message = messageResponse.message),
-                            UiEvent.Navigation.CheckVerificationCode(
-                                destinationId = R.id.checkVerificationCodeFragment,
-                                args = signUpState.value.email
-                            )
+    private fun signUp() = performUseCaseOperation(
+        loadingUpdater = { isLoading ->
+            _signUpState.update { it.copy(isLoading = isLoading) }
+        },
+        useCase = {
+            val signUpParams = SignUpRequestEntity(
+                username = signUpState.value.userName,
+                firstName = signUpState.value.firstName,
+                lastName = signUpState.value.lastName,
+                email = signUpState.value.email,
+                password = signUpState.value.password
+            )
+            signUpUseCase(signUpParams = signUpParams)
+            val sendVerificationParams = EmailRequestEntity(email = signUpState.value.email)
+            val messageResponse =
+                sendVerificationCodeUseCase(sendVerificationCodeParams = sendVerificationParams)
+            _signUpEvent.send(
+                UiEvent.CombinedEvents(
+                    listOf(
+                        UiEvent.ShowSnackBar(message = messageResponse.message),
+                        UiEvent.Navigation.CheckVerificationCode(
+                            destinationId = R.id.checkVerificationCodeFragment,
+                            args = signUpState.value.email
                         )
                     )
                 )
-            } catch (failure: Failures) {
-                val mapFailureToMessage = mapFailureMessage(failures = failure)
-                _signUpEvent.send(UiEvent.ShowSnackBar(message = mapFailureToMessage))
-            } catch (e: Exception) {
-                _signUpEvent.send(UiEvent.ShowSnackBar(message = e.message ?: "Unknown Error"))
-            } finally {
-                _signUpState.update { it.copy(isLoading = false) }
-            }
+            )
+        },
+        onFailure = { failure ->
+            val mapFailureToMessage = mapFailureMessage(failures = failure)
+            _signUpEvent.send(UiEvent.ShowSnackBar(message = mapFailureToMessage))
+        },
+        onException = {
+            _signUpEvent.send(
+                UiEvent.ShowSnackBar(
+                    message = it.message ?: Unknown_Error
+                )
+            )
         }
-    }
+    )
+
+
+
+
+
 }

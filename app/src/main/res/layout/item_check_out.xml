@@ -22,11 +22,26 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonCheckOut"
+    <FrameLayout
+        android:id="@+id/checkOutButtonContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="30dp"
-        android:text="@string/check_out" />
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonCheckOut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:text="@string/check_out" />
+
+        <ProgressBar
+            android:id="@+id/checkOutButtonProgress"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+    </FrameLayout>
+
 
 </LinearLayout>

@@ -3,8 +3,9 @@ package com.example.ecommerce.features.authentication.presentation.viewmodel.che
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.R
-import com.example.ecommerce.core.errors.Failures
+import com.example.ecommerce.core.constants.Unknown_Error
 import com.example.ecommerce.core.errors.mapFailureMessage
+import com.example.ecommerce.core.extension.performUseCaseOperation
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.authentication.domain.entites.CheckVerificationRequestEntity
 import com.example.ecommerce.features.authentication.domain.usecases.checkverificationcode.ICheckVerificationCodeUseCase
@@ -18,7 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -72,51 +72,51 @@ class CheckVerificationCodeViewModel @Inject constructor(
         }
     }
 
-    fun verifyCode() {
-        viewModelScope.launch {
-            try {
-                _checkVerificationCodeState.update { it.copy(isLoading = true) }
-                val otp =
-                    _checkVerificationCodeState.value.digit1
-                        .plus(_checkVerificationCodeState.value.digit2)
-                        .plus(_checkVerificationCodeState.value.digit3)
-                        .plus(_checkVerificationCodeState.value.digit4)
-                        .plus(_checkVerificationCodeState.value.digit5)
-                        .plus(_checkVerificationCodeState.value.digit6)
-                val checkVerificationCodeParams = CheckVerificationRequestEntity(
-                    email = _checkVerificationCodeState.value.email,
-                    code = otp
-                )
-                val message =
-                    checkVerificationCodeUseCase.invoke(checkVerificationCodeParams = checkVerificationCodeParams)
-                if (message.verified) {
-                    _checkVerificationCodeEvent.send(
-                        UiEvent.CombinedEvents(
-                            listOf(
-                                UiEvent.ShowSnackBar(message = message.message),
-                                UiEvent.Navigation.Home(R.id.productFragment)
-                            )
+   private fun verifyCode() = performUseCaseOperation(
+        loadingUpdater = { isLoading ->
+            _checkVerificationCodeState.update { it.copy(isLoading = isLoading) }
+        },
+        useCase = {
+            val otp =
+                _checkVerificationCodeState.value.digit1
+                    .plus(_checkVerificationCodeState.value.digit2)
+                    .plus(_checkVerificationCodeState.value.digit3)
+                    .plus(_checkVerificationCodeState.value.digit4)
+                    .plus(_checkVerificationCodeState.value.digit5)
+                    .plus(_checkVerificationCodeState.value.digit6)
+            val checkVerificationCodeParams = CheckVerificationRequestEntity(
+                email = _checkVerificationCodeState.value.email,
+                code = otp
+            )
+            val message =
+                checkVerificationCodeUseCase.invoke(checkVerificationCodeParams = checkVerificationCodeParams)
+            if (message.verified) {
+                _checkVerificationCodeEvent.send(
+                    UiEvent.CombinedEvents(
+                        listOf(
+                            UiEvent.ShowSnackBar(message = message.message),
+                            UiEvent.Navigation.Home(R.id.productFragment)
                         )
                     )
-                } else {
-                    _checkVerificationCodeEvent.send(
-                        UiEvent.ShowSnackBar(message = message.message)
-                    )
-                }
-
-            } catch (failure: Failures) {
-                val mapFailureToMessage = mapFailureMessage(failures = failure)
-                _checkVerificationCodeEvent.send(UiEvent.ShowSnackBar(message = mapFailureToMessage))
-            } catch (e: Exception) {
-                _checkVerificationCodeEvent.send(
-                    UiEvent.ShowSnackBar(
-                        message = e.message ?: "Unknown Error"
-                    )
                 )
-            } finally {
-                _checkVerificationCodeState.update { it.copy(isLoading = false) }
+            } else {
+                _checkVerificationCodeEvent.send(
+                    UiEvent.ShowSnackBar(message = message.message)
+                )
             }
-        }
-    }
+        },
+        onFailure = { failure ->
+            val mapFailureToMessage = mapFailureMessage(failures = failure)
+            _checkVerificationCodeEvent.send(UiEvent.ShowSnackBar(message = mapFailureToMessage))
+        },
+        onException = {
+            _checkVerificationCodeEvent.send(
+                UiEvent.ShowSnackBar(
+                    message = it.message ?: Unknown_Error
+                )
+            )
+        },
+    )
+
 
 }

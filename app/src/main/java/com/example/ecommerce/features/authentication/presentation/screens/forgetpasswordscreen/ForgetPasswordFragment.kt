@@ -13,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
@@ -72,13 +71,14 @@ class ForgetPasswordFragment : Fragment() {
                         is UiEvent.ShowSnackBar -> {
                             SnackBarCustom.showSnackbar(view = rootView, message = event.message)
                         }
+
                         is UiEvent.CombinedEvents -> {
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = {
-                                    SnackBarCustom.showSnackbar(view = rootView, message = it)
+                                onShowSnackBar = { message, _ ->
+                                    SnackBarCustom.showSnackbar(view = rootView, message = message)
                                 },
-                                onNavigate = { destinationId ,args->
+                                onNavigate = { destinationId, args ->
                                     findNavController().navigate(destinationId)
                                 }
                             )

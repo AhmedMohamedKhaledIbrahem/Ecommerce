@@ -8,7 +8,7 @@ import com.example.ecommerce.databinding.ItemCheckOutBinding
 class CheckAdapter(private val onCheckoutClick: () -> Unit) :
     RecyclerView.Adapter<CheckViewHolder>() {
     private var totalPrice: Double = 0.0
-    private var removeLoadingState: Boolean = false
+    private var isLoadingState: Boolean = false
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CheckViewHolder {
         val binding =
             ItemCheckOutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -18,15 +18,16 @@ class CheckAdapter(private val onCheckoutClick: () -> Unit) :
     override fun getItemCount(): Int = 1
 
     override fun onBindViewHolder(holder: CheckViewHolder, position: Int) {
-        holder.bind(totalPrice,removeLoadingState)
+        holder.bind(totalPrice,isLoadingState)
     }
 
     fun updateTotalPrice(newTotalPrice: Double) {
         totalPrice = newTotalPrice
         notifyItemChanged(0)
     }
-    fun setRemoveLoadingState(isLoading: Boolean){
-        removeLoadingState = isLoading
+    fun setLoadingState(isLoading: Boolean){
+        isLoadingState = isLoading
+        notifyItemChanged(0)
 
     }
 }

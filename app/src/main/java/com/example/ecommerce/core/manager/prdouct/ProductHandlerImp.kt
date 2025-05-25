@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import androidx.core.content.edit
 
 class ProductHandlerImp @Inject constructor(
     private val sharedPreferences: SharedPreferences
@@ -21,14 +22,14 @@ class ProductHandlerImp @Inject constructor(
 
     override suspend fun addProductUpdate(update: Boolean) {
         withContext(Dispatchers.IO) {
-            sharedPreferences.edit().putBoolean(PRODUCT_UPDATE, update).apply()
+            sharedPreferences.edit() { putBoolean(PRODUCT_UPDATE, update) }
         }
 
     }
 
     override suspend fun deleteProductUpdate() {
         withContext(Dispatchers.IO) {
-            sharedPreferences.edit().remove(PRODUCT_UPDATE).apply()
+            sharedPreferences.edit() { remove(PRODUCT_UPDATE) }
         }
 
     }

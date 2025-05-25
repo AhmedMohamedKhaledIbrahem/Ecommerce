@@ -29,7 +29,9 @@
             android:id="@+id/radioChangePassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/change_password" />
+            android:text="@string/change_password"
+            android:enabled="true"
+            />
     </RadioGroup>
 
 
@@ -87,23 +89,39 @@
             android:orientation="horizontal"
             android:layout_marginHorizontal="35dp"
             >
+            <FrameLayout
+                android:id="@+id/buttonEditContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ProgressBar
+                    android:id="@+id/progressBarButtonEdit"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:elevation="14dp"
+                    android:visibility="gone"
+
+                    />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/EditButton"
+                    style="@style/customButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:text="@string/edit"
+                    android:enabled="true"
+                    android:elevation="2dp"
+                    android:layout_marginEnd="5dp"
+                    android:textColor="?attr/colorOnPrimary" />
+            </FrameLayout>
+
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonEdit"
+                android:id="@+id/CancelEditButton"
                 style="@style/customButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="?attr/colorPrimary"
-                android:text="@string/edit"
-                android:layout_marginEnd="5dp"
-                android:textColor="?attr/colorOnPrimary" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonCancelEdit"
-                style="@style/customButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
+                android:enabled="true"
                 android:backgroundTint="?attr/colorPrimary"
                 android:text="@string/cancel"
                 android:textColor="?attr/colorOnPrimary" />
@@ -170,7 +188,7 @@
             >
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonChangePassword"
+                android:id="@+id/ChangePasswordButton"
                 style="@style/customButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -180,7 +198,7 @@
                 android:textColor="?attr/colorOnPrimary" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonCancelChange"
+                android:id="@+id/CancelChangeButton"
                 style="@style/customButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

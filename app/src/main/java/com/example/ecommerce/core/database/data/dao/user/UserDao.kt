@@ -27,6 +27,9 @@ interface UserDao {
     @Query("Update user SET verificationStatues = :verificationStatus where userEmail =:email")
     suspend fun updateVerificationStatusByEmail(email: String, verificationStatus: Boolean)
 
+    @Query("select Count(*) from user where userId =:userId and displayName =:displayName")
+    suspend fun getUserExist(userId: Int, displayName: String): Int
+
 
 }
 

@@ -54,10 +54,18 @@ class CartLocalDataSourceImp @Inject constructor(
         }
     }
 
+    override suspend fun getCartCount(): Int {
+        return try {
+            cartDao.getCartCount()
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
+        }
+    }
+
     override suspend fun clearCart() {
         try {
             cartDao.deleteCart()
-        }catch (e:Exception){
+        } catch (e: Exception) {
             throw FailureException("${e.message}")
 
         }

@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/productFragment"
         android:name="com.example.ecommerce.features.product.presentation.screen.product.ProductFragment"
-        android:label="Product"
+        android:label="@string/title_product"
         tools:layout="@layout/fragment_product">
         <action
             android:id="@+id/action_productFragment_to_productDetailsFragment"
@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/settingFragment"
         android:name="com.example.ecommerce.features.userprofile.presentation.screens.settingscreen.SettingFragment"
-        android:label="Setting"
+        android:label="@string/title_setting"
         tools:layout="@layout/fragment_setting">
         <action
             android:id="@+id/action_settingFragment_to_editProfileFragment"
@@ -48,12 +48,12 @@
     <dialog
         android:id="@+id/editProfileFragment"
         android:name="com.example.ecommerce.features.userprofile.presentation.screens.editscreen.EditProfileFragment"
-        android:label="Edit Profile"
+        android:label="@string/title_edit_profile"
         tools:layout="@layout/fragment_edit_profile" />
     <fragment
         android:id="@+id/addressFragment"
         android:name="com.example.ecommerce.features.address.presentation.screen.address.AddressFragment"
-        android:label="Address"
+        android:label="@string/title_address"
         tools:layout="@layout/fragment_address">
         <action
             android:id="@+id/action_addressFragment_to_editAddressFragment"
@@ -67,17 +67,17 @@
     <fragment
         android:id="@+id/editAddressFragment"
         android:name="com.example.ecommerce.features.address.presentation.screen.editaddress.EditAddressFragment"
-        android:label="Edit Address"
+        android:label="@string/title_edit_address"
         tools:layout="@layout/fragment_edit_address" />
     <dialog
         android:id="@+id/languageFragment"
         android:name="com.example.ecommerce.features.preferences.presentation.screen.LanguageFragment"
-        android:label="Language"
+        android:label="@string/title_language"
         tools:layout="@layout/fragment_language" />
     <fragment
         android:id="@+id/productDetailsFragment"
         android:name="com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetailsFragment"
-        android:label="Product Details"
+        android:label="@string/title_product_details"
         tools:layout="@layout/fragment_product_details">
         <argument
             android:name="product"
@@ -93,12 +93,12 @@
     <fragment
         android:id="@+id/cartFragment"
         android:name="com.example.ecommerce.features.cart.presentation.screens.cart.CartFragment"
-        android:label="Cart"
+        android:label="@string/title_cart"
         tools:layout="@layout/fragment_cart" />
     <fragment
         android:id="@+id/ordersFragment"
         android:name="com.example.ecommerce.features.orders.presentation.screens.orders.OrdersFragment"
-        android:label="Orders"
+        android:label="@string/title_orders"
         tools:layout="@layout/fragment_orders">
         <action
             android:id="@+id/action_ordersFragment_to_orderDetailsFragment"
@@ -111,7 +111,7 @@
     <fragment
         android:id="@+id/orderDetailsFragment"
         android:name="com.example.ecommerce.features.orders.presentation.screens.orders.OrderDetailsFragment"
-        android:label="Order Details"
+        android:label="@string/title_order_details"
         tools:layout="@layout/fragment_order_details">
         <argument
             android:name="orderDetailsArgs"
@@ -120,8 +120,8 @@
     <fragment
         android:id="@+id/checkVerificationCodeFragment"
         android:name="com.example.ecommerce.features.authentication.presentation.screens.checkverificationcodescreen.CheckVerificationCodeFragment"
-        android:label="Check Verification Code"
-        tools:layout="@layout/fragment_check_verification_code" >
+        android:label="@string/title_check_verification_code"
+        tools:layout="@layout/fragment_check_verification_code">
         <argument
             android:name="emailArg"
             app:argType="string" />
@@ -129,13 +129,13 @@
     <fragment
         android:id="@+id/forgetPasswordFragment"
         android:name="com.example.ecommerce.features.authentication.presentation.screens.forgetpasswordscreen.ForgetPasswordFragment"
-        android:label="Forget Password"
+        android:label="@string/title_forget_password"
         tools:layout="@layout/fragment_forget_password" />
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginFragment"
-        android:label="Login"
-        tools:layout="@layout/fragment_login" >
+        android:label="@string/title_login"
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_checkVerificationCodeFragment"
             app:destination="@id/checkVerificationCodeFragment"
@@ -147,9 +147,8 @@
     <fragment
         android:id="@+id/signUpFragment"
         android:name="com.example.ecommerce.features.authentication.presentation.screens.signupscreen.SignUpFragment"
-        android:label="SignUp"
-        tools:layout="@layout/fragment_sign_up"
-        >
+        android:label="@string/title_signup"
+        tools:layout="@layout/fragment_sign_up">
         <action
             android:id="@+id/action_signUpFragment_to_checkVerificationCodeFragment"
             app:destination="@id/checkVerificationCodeFragment"

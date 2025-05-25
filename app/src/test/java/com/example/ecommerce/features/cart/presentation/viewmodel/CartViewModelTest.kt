@@ -8,6 +8,7 @@ import com.example.ecommerce.features.MainDispatcherRule
 import com.example.ecommerce.features.cart.domain.entities.AddItemRequestEntity
 import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.IGetCartUseCase
+import com.example.ecommerce.features.cart.domain.use_case.get_cart_count.IGetCartCountUseCase
 import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.update_quantity.IUpdateQuantityUseCase
 import com.example.ecommerce.features.cart.presentation.event.CartEvent
@@ -40,6 +41,7 @@ class CartViewModelTest {
     private val getCartUseCase = mockk<IGetCartUseCase>()
     private val removeItemUseCase = mockk<IRemoveItemUseCase>()
     private val updateQuantityUseCase = mockk<IUpdateQuantityUseCase>()
+    private val getCartCountUseCase = mockk<IGetCartCountUseCase>()
     private lateinit var viewModel: CartViewModel
 
     @Before
@@ -49,6 +51,7 @@ class CartViewModelTest {
             getCartUseCase = getCartUseCase,
             removeItemUseCase = removeItemUseCase,
             updateQuantityUseCase = updateQuantityUseCase,
+            getCartCountUseCase = getCartCountUseCase
         )
     }
 

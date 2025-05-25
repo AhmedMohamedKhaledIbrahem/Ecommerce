@@ -1,10 +1,12 @@
 package com.example.ecommerce.features.address.data.repositories
 
 import android.content.Context
+import android.util.Log
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.errors.Failures
+import com.example.ecommerce.core.manager.address.AddressManager
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.features.address.data.datasources.localdatasource.AddressLocalDataSource
 import com.example.ecommerce.features.address.data.datasources.remotedatasource.AddressRemoteDataSource
@@ -18,6 +20,7 @@ import javax.inject.Inject
 class AddressRepositoryImp @Inject constructor(
     private val remoteDataSource: AddressRemoteDataSource,
     private val localDataSource: AddressLocalDataSource,
+    private val addressManager: AddressManager,
     private val internetConnectionChecker: InternetConnectionChecker,
     @ApplicationContext private val context: Context
 ) : AddressRepository {
@@ -29,9 +32,19 @@ class AddressRepositoryImp @Inject constructor(
             if (!internetConnectionChecker.hasConnection()) {
                 throw Failures.ConnectionFailure(context.getString(R.string.no_internet_connection))
             }
+            val email = customerAddressParams.billing.email
+            val exists =
+                localDataSource.isEmailExist(email) == 1 || localDataSource.isEmailExist(email) == 0
+
+
+            if (!exists) throw Failures.CacheFailure(context.getString(R.string.email_exist))
+
             val updateAddressParams = AddressMapper.mapToModel(customerAddressParams)
             try {
                 localDataSource.updateAddress(id = id, updateAddressParams)
+
+                addressManager.setAddressId(id)
+                localDataSource.unSelectAddress(id)
             } catch (e: FailureException) {
                 throw Failures.CacheFailure(
                     e.localizedMessage ?: context.getString(R.string.unknown_error)
@@ -62,6 +75,9 @@ class AddressRepositoryImp @Inject constructor(
                             addressDataResponseModel
                         )
                     localDataSource.insertAddress(addressRequestModel)
+                    val id = localDataSource.getCustomerId(addressRequestModel.billing.email)
+                    addressManager.setAddressId(id)
+                    localDataSource.unSelectAddress(id)
                     localDataSource.getAddress()
                 } catch (e: FailureException) {
                     throw Failures.ServerFailure(
@@ -82,9 +98,22 @@ class AddressRepositoryImp @Inject constructor(
             if (!internetConnectionChecker.hasConnection()) {
                 throw Failures.ConnectionFailure(context.getString(R.string.no_internet_connection))
             }
+            val exists = localDataSource.isEmailExist(customerAddressParams.billing.email) > 0
+
+            if (exists) {
+                throw Failures.CacheFailure(context.getString(R.string.email_exist))
+            }
+
             val addressRequestModel = AddressMapper.mapToModel(customerAddressParams)
             try {
                 localDataSource.insertAddress(addressRequestModel)
+
+                val id = localDataSource.getCustomerId(customerAddressParams.billing.email)
+
+                addressManager.setAddressId(id)
+                localDataSource.unSelectAddress(id)
+
+
             } catch (e: FailureException) {
                 throw Failures.CacheFailure(
                     e.localizedMessage ?: context.getString(R.string.unknown_error)
