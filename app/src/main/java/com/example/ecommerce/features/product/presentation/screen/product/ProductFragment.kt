@@ -92,7 +92,8 @@ class ProductFragment : Fragment() {
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-
+        fetchProductPaging()
+        fetchProductPagingState()
     }
 
     private fun productEvent() {

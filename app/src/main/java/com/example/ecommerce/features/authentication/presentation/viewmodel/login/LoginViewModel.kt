@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.CheckYourEmail
-import com.example.ecommerce.core.manager.customer.CustomerManager
-import com.example.ecommerce.core.errors.Failures
+import com.example.ecommerce.core.constants.Unknown_Error
 import com.example.ecommerce.core.errors.mapFailureMessage
+import com.example.ecommerce.core.extension.performUseCaseOperation
+import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
@@ -53,6 +54,7 @@ class LoginViewModel @Inject constructor(
 
             is LoginEvent.PasswordInput -> {
                 _loginState.update { it.copy(password = event.value) }
+
             }
 
             is LoginEvent.Button.SignIn -> {
@@ -75,45 +77,52 @@ class LoginViewModel @Inject constructor(
 
     }
 
-    private fun signIn() {
-        viewModelScope.launch {
-            try {
-                _loginState.update { it.copy(isLoading = true) }
-                val loginParams = AuthenticationRequestEntity(
-                    userName = loginState.value.userName,
-                    password = loginState.value.password
-                )
-                val response = loginUseCase.invoke(loginParams = loginParams)
-                if (response.verificationStatues) {
-                    val setCustomerAsync = async { customerManager.setCustomerId(response.userId) }
-                    val getFcmTokenAsync = async { getFcmTokenDeviceUseCase.invoke() }
-                    setCustomerAsync.await()
-                    getFcmTokenAsync.await()?.let { addFcmTokenDeviceUseCase.invoke(it) }
-                    _loginEvent.send(UiEvent.Navigation.Home(R.id.productFragment))
-                } else {
-                    val sendVerification = EmailRequestEntity(response.userEmail)
-                    sendVerificationCodeUseCase.invoke(sendVerificationCodeParams = sendVerification)
+    private fun signIn() = performUseCaseOperation(
+        loadingUpdater = { isLoading ->
+            _loginState.update { it.copy(isLoading = isLoading) }
+        },
+        useCase = {
+            val loginParams = AuthenticationRequestEntity(
+                userName = loginState.value.userName,
+                password = loginState.value.password
+            )
+            val response = loginUseCase.invoke(loginParams = loginParams)
+            if (response.verificationStatues) {
+                performTaskParallel(userId = response.userId)
+                _loginEvent.send(UiEvent.Navigation.Home(R.id.productFragment))
+            } else {
+                val sendVerification = EmailRequestEntity(response.userEmail)
+                sendVerificationCodeUseCase.invoke(sendVerificationCodeParams = sendVerification)
 
-                    _loginEvent.send(
-                        UiEvent.CombinedEvents(
-                            listOf(
-                                UiEvent.ShowSnackBar(message = CheckYourEmail),
-                                UiEvent.Navigation.CheckVerificationCode(
-                                    destinationId = R.id.checkVerificationCodeFragment,
-                                    args = response.userEmail
-                                )
+                _loginEvent.send(
+                    UiEvent.CombinedEvents(
+                        listOf(
+                            UiEvent.ShowSnackBar(message = CheckYourEmail),
+                            UiEvent.Navigation.CheckVerificationCode(
+                                destinationId = R.id.checkVerificationCodeFragment,
+                                args = response.userEmail
                             )
                         )
                     )
-                }
-            } catch (failure: Failures) {
-                val mapFailureToMessage = mapFailureMessage(failures = failure)
-                _loginEvent.send(UiEvent.ShowSnackBar(message = mapFailureToMessage))
-            } catch (e: Exception) {
-                _loginEvent.send(UiEvent.ShowSnackBar(message = e.message ?: "Unknown Error"))
-            } finally {
-                _loginState.update { it.copy(isLoading = false) }
+                )
             }
+        },
+        onFailure = { failure ->
+            val mapFailureToMessage = mapFailureMessage(failures = failure)
+            _loginEvent.send(UiEvent.ShowSnackBar(message = mapFailureToMessage))
+        },
+        onException = {
+            _loginEvent.send(UiEvent.ShowSnackBar(message = it.message ?: Unknown_Error))
         }
+    )
+
+    private fun performTaskParallel(userId: Int) = viewModelScope.launch {
+        val setCustomerAsync = async { customerManager.setCustomerId(userId) }
+        val getFcmTokenAsync = async { getFcmTokenDeviceUseCase.invoke() }
+        setCustomerAsync.await()
+        getFcmTokenAsync.await()?.let { addFcmTokenDeviceUseCase.invoke(it) }
+
     }
+
+
 }

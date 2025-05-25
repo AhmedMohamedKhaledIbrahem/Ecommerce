@@ -18,6 +18,7 @@ import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.orders.domain.entities.LineItemRequestEntity
 import com.example.ecommerce.features.orders.domain.entities.OrderResponseEntity
 import com.example.ecommerce.features.orders.domain.use_case.create_order.ICreateOrderUseCase
+import com.example.ecommerce.features.orders.domain.use_case.save_order_locally.ISaveOrderLocallyUseCase
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -46,6 +47,7 @@ class CheckOutViewModelTest {
     private val getCartUseCase = mockk<IGetCartUseCase>()
     private val createOrderUseCase = mockk<ICreateOrderUseCase>()
     private val clearCartUseCase = mockk<IClearCartUseCase>()
+    private val saveOrderLocallyUseCase = mockk<ISaveOrderLocallyUseCase>()
     private lateinit var viewModel: CheckOutViewModel
 
     @Before
@@ -56,7 +58,8 @@ class CheckOutViewModelTest {
             getSelectAddressUseCase = getSelectAddressUseCase,
             getCartUseCase = getCartUseCase,
             createOrderUseCase = createOrderUseCase,
-            clearCartUseCase = clearCartUseCase
+            clearCartUseCase = clearCartUseCase,
+            saveOrderLocallyUseCase = saveOrderLocallyUseCase
         )
     }
 

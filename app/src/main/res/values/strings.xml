@@ -3,14 +3,14 @@
     <string name="username">UserName</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
-    <string name="email">Email</string>
+    <string name="email">Email:</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="password">Password</string>
     <string name="signupButton">Sign Up</string>
     <string name="you_have_already_account">you have Already Account?</string>
     <string name="login_now">login now</string>
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
-    <string name="iconsnackbarcustom">iconSnackbarCustom</string>
+    <string name="icon_snack_bar_custom">iconSnackbarCustom</string>
     <string name="username_is_required">Username is required</string>
     <string name="username_must_start_with_a_letter_and_contain_only_letters_numbers_or_underscores">Username must start with a letter and contain only letters, numbers, or underscores</string>
     <string name="first_name_is_required">First name is required</string>
@@ -42,7 +42,6 @@
     <string name="loginParagraph">Fill Your Details or Continue\n\nWith Social Media</string>
     <string name="RegisterAccount">Register Account</string>
     <string name="title_home">Home</string>
-    <string name="title_setting">Setting</string>
     <string name="account">Account</string>
     <string name="supportAndAbout"><![CDATA[Support&About]]></string>
     <string name="edit_profile">Edit Profile</string>
@@ -50,7 +49,7 @@
     <string name="profile">Profile</string>
     <string name="setting_item_image">Setting Item Image</string>
     <string name="changePassword">Change Password</string>
-    <string name="myorders">My Orders</string>
+    <string name="my_orders">My Orders</string>
     <string name="address">Addresses</string>
     <string name="accountDetails">Account Details</string>
     <string name="darkMode">Dark Mode</string>
@@ -65,9 +64,9 @@
     <string name="change_password">Change Password</string>
     <string name="new_password">New Password</string>
     <string name="change">Change</string>
-    <string name="phone_number">Phone Number</string>
-    <string name="city">City</string>
-    <string name="post_code">Post Code</string>
+    <string name="phone_number">Phone Number:</string>
+    <string name="city">City:</string>
+    <string name="post_code">Post Code:</string>
     <string name="save">Save</string>
     <string name="location">Location</string>
     <string name="select_the_country">select the country</string>
@@ -85,9 +84,6 @@
     <string name="please_turn_on_your_location">Please turn on your location</string>
     <string name="nothing_selected">Nothing selected</string>
     <string name="english">English</string>
-    <string name="french">French</string>
-    <string name="italian">Italian</string>
-    <string name="germany">Germany</string>
     <string name="arabic">Arabic</string>
     <string name="product_image">product image</string>
     <string name="favourite">Favourite</string>
@@ -97,9 +93,8 @@
     <string name="increase">increase</string>
     <string name="decrease">decrease</string>
     <string name="check_out">Check Out</string>
-    <string name="title_cart">Cart</string>
-    <string name="itemcartdecreasecounter">itemCartDecreaseCounter</string>
-    <string name="itemcartincreasecounter">itemCartIncreaseCounter</string>
+    <string name="item_cart_decrease_counter">itemCartDecreaseCounter</string>
+    <string name="item_cart_increase_counter">itemCartIncreaseCounter</string>
     <string name="onDelivery">onDelivery</string>
     <string name="creditCard">CreditCard</string>
     <string name="ok">OK</string>
@@ -111,7 +106,7 @@
     <string name="the_item_has_been_added_successfully">the item has been added successfully</string>
     <string name="empty_cart">Empty cart</string>
     <string name="order_has_been_created_successfully">Order Has Been Created Successfully</string>
-    <string name="order_tag_number">Order Tag Number: %1$s</string>
+    <string name="order_tag_number">Order Tag Number: </string>
     <string name="order_date_create">Date Create: </string>
     <string name="order_total">Total Price: </string>
     <string name="orders">Orders</string>
@@ -133,7 +128,7 @@
     <string name="no_address_found">No Address Found</string>
     <string name="unknown_error">Unknown Error</string>
     <string name="no_internet_connection">No Internet Connection</string>
-    <string name="fullname">"FullName: "</string>
+    <string name="full_name">"FullName: "</string>
     <string name="country">"Country: "</string>
     <string name="total_price_format">Total Price: %.2f %s</string>
     <string name="status">Status: %1$s</string>
@@ -142,6 +137,34 @@
     <string name="price_eg">Price:%1$s EG</string>
     <string name="category">Category:%1$s</string>
     <string name="_00">.00</string>
+    <string name="address_selected_successfully">Address Selected Successfully</string>
+    <string name="please_select_address">Please Select address</string>
+    <string name="address_unselected_successfully">Address UnSelected Successfully</string>
+    <string name="address_deleted_successfully">Address deleted successfully</string>
+    <string name="address_inserted_successfully">Address Inserted Successfully</string>
+    <string name="selected_address_icon">selected address icon</string>
+    <string name="address_already_selected">Address Already Selected</string>
+    <string name="email_exist">The email Already exist</string>
+
+    <string name="update_user_details_success">Edit Name successfully</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="your_internet_has_been_restored">Your Internet has been Restored</string>
+    <string name="you_are_currently_offline">You are currently offline</string>
+    <string name="Xlatter">x</string>
+    <string name="title_product">Home</string>
+    <string name="title_setting">Setting</string>
+    <string name="title_edit_profile">Edit Profile</string>
+    <string name="title_address">Address</string>
+    <string name="title_language">Language</string>
+    <string name="title_edit_address">Edit Address</string>
+    <string name="title_product_details">Product Details</string>
+    <string name="title_cart">Cart</string>
+    <string name="title_order_details">Order Details</string>
+    <string name="title_check_verification_code">Check Verification Code</string>
+    <string name="title_forget_password">Forget Password</string>
+    <string name="title_login">Login</string>
+    <string name="title_signup">SignUp</string>
+    <string name="title_orders">Orders</string>
 
 
 </resources>

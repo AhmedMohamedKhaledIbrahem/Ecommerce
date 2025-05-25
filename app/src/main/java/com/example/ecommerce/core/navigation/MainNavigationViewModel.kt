@@ -35,6 +35,11 @@ class MainNavigationViewModel : ViewModel() {
                         )
                     }
 
+                    R.id.addressFragment -> {
+                        _navigationEvent.send(
+                            UiEvent.Navigation.Address(R.id.addressFragment)
+                        )
+                    }
                     R.id.settingFragment -> {
                         _navigationEvent.send(
                             UiEvent.Navigation.Setting(R.id.settingFragment)

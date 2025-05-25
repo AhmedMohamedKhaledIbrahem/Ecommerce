@@ -1,8 +1,7 @@
 package com.example.ecommerce.features.userprofile.data.mapper
 
 import com.example.ecommerce.features.userprofile.data.models.UpdateUserNameDetailsRequestModel
-import com.example.ecommerce.features.userprofile.data.models.UpdateUserNameDetailsResponseModel
-import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
+import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserDetailsRequestEntity
 
 object UpdateUserNameDetailsMapper {
    /* fun mapToEntity(model: UpdateUserNameDetailsResponseModel): UpdateUserNameDetailsRequestEntity {
@@ -13,7 +12,7 @@ object UpdateUserNameDetailsMapper {
             displayName = model.displayName ?: "",
         )
     }*/
-    fun mapToModel(entity: UpdateUserNameDetailsRequestEntity):UpdateUserNameDetailsRequestModel{
+    fun mapToModel(entity: UpdateUserDetailsRequestEntity):UpdateUserNameDetailsRequestModel{
         return UpdateUserNameDetailsRequestModel(
             id = entity.id,
             firstName = entity.firstName,

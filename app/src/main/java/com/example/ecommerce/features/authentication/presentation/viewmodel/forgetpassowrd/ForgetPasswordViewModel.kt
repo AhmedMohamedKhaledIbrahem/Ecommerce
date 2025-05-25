@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.CheckYourEmail
+import com.example.ecommerce.core.constants.Unknown_Error
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
+import com.example.ecommerce.core.extension.performUseCaseOperation
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
 import com.example.ecommerce.features.authentication.domain.usecases.restpassword.IResetPasswordUseCase
@@ -19,7 +21,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -49,34 +50,35 @@ class ForgetPasswordViewModel @Inject constructor(
 
     }
 
-    fun resetPassword() {
-        viewModelScope.launch {
-            try {
-                _forgetPasswordState.update { it.copy(isLoading = true) }
-                val resetPasswordParams =
-                    EmailRequestEntity(email = forgetPasswordState.value.email)
-                resetPasswordUseCase(resetPasswordParams = resetPasswordParams)
-                _forgetPasswordEvent.send(
-                    UiEvent.CombinedEvents(
-                        listOf(
-                            UiEvent.ShowSnackBar(message = CheckYourEmail),
-                            UiEvent.Navigation.SignIn(R.id.loginFragment)
-                        )
+    private fun resetPassword() = performUseCaseOperation(
+        loadingUpdater = { isLoading ->
+            _forgetPasswordState.update { it.copy(isLoading = isLoading) }
+        },
+        useCase = {
+            val resetPasswordParams =
+                EmailRequestEntity(email = forgetPasswordState.value.email)
+            resetPasswordUseCase(resetPasswordParams = resetPasswordParams)
+            _forgetPasswordEvent.send(
+                UiEvent.CombinedEvents(
+                    listOf(
+                        UiEvent.ShowSnackBar(message = CheckYourEmail),
+                        UiEvent.Navigation.SignIn(R.id.loginFragment)
                     )
                 )
-
-            } catch (failure: Failures) {
-                val mapFailureToMessage = mapFailureMessage(failures = failure)
-                _forgetPasswordEvent.send(UiEvent.ShowSnackBar(message = mapFailureToMessage))
-            } catch (e: Exception) {
-                _forgetPasswordEvent.send(
-                    UiEvent.ShowSnackBar(
-                        message = e.message ?: "Unknown Error"
-                    )
+            )
+        },
+        onFailure = { failure ->
+            val mapFailureToMessage = mapFailureMessage(failures = failure)
+            _forgetPasswordEvent.send(UiEvent.ShowSnackBar(message = mapFailureToMessage))
+        },
+        onException = {
+            _forgetPasswordEvent.send(
+                UiEvent.ShowSnackBar(
+                    message = it.message ?: Unknown_Error
                 )
-            } finally {
-                _forgetPasswordState.update { it.copy(isLoading = false) }
-            }
+            )
         }
-    }
+    )
+
+
 }

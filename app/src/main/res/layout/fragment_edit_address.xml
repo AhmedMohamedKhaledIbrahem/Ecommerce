@@ -175,22 +175,39 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5dp"
-            android:orientation="horizontal"
             android:layout_gravity="bottom"
-            >
+            android:layout_marginHorizontal="5dp"
+            android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonSave"
-                style="@style/customButtonStyle"
+            <FrameLayout
+                android:id="@+id/buttonSaveContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="5dp"
-                android:layout_weight="2"
-                android:backgroundTint="?attr/colorPrimary"
-                android:text="@string/save"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="13sp" />
+                android:layout_weight="2">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonSave"
+                    style="@style/customButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="5dp"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:elevation="2dp"
+                    android:enabled="true"
+                    android:text="@string/save"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:textSize="13sp" />
+
+                <ProgressBar
+                    android:id="@+id/buttonSaveProgress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:elevation="10dp"
+                    android:visibility="gone" />
+            </FrameLayout>
+
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonLocation"
@@ -200,6 +217,7 @@
                 android:layout_marginEnd="5dp"
                 android:layout_weight="1.1"
                 android:backgroundTint="?attr/colorPrimary"
+                android:enabled="true"
                 android:text="@string/location"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="13sp"

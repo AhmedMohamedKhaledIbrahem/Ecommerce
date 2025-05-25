@@ -13,6 +13,10 @@
         android:icon="@drawable/online_delivery"
         android:title="@string/orders" />
     <item
+        android:id="@+id/addressFragment"
+        android:icon="@drawable/address_icon_selector"
+        android:title="@string/title_address" />
+    <item
         android:id="@+id/settingFragment"
         android:icon="@drawable/setting_icon_selector"
         android:title="@string/title_setting" />

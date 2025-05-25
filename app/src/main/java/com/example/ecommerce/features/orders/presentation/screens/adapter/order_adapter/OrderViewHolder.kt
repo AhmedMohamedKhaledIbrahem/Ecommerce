@@ -33,7 +33,7 @@ class OrderViewHolder(
         orderDateCreate.text =
             context.getString(R.string.order_date_create).plus(dateTime)
 
-        orderTotal.text = context.getString(R.string.order_total).plus(totalPrice)
+        orderTotal.text = context.getString(R.string.order_total).plus(totalPrice).plus(" ").plus(context.getString(R.string.currency))
         orderCard.setOnClickListener {
             onOrderClick(orderWithItems.items)
         }

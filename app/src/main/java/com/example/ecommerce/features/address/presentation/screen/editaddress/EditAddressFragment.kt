@@ -38,16 +38,17 @@ import com.example.ecommerce.core.constants.countryCode
 import com.example.ecommerce.core.constants.countryStateMap
 import com.example.ecommerce.core.constants.regionCodeMap
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.ui.state.UiState
+import com.example.ecommerce.core.ui.event.UiEvent
+import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.AddressUtil
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.databinding.FragmentEditAddressBinding
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
 import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
 import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequestEntity
+import com.example.ecommerce.features.address.presentation.event.AddressEvent
 import com.example.ecommerce.features.address.presentation.viewmodel.address.AddressViewModel
-import com.example.ecommerce.features.address.presentation.viewmodel.address.IAddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.address.SelectAddressViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.AddressActionViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.IAddressActionViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.customer.CustomerViewModel
@@ -60,12 +61,15 @@ import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
 @AndroidEntryPoint
 class EditAddressFragment : Fragment() {
+    private var _binding: FragmentEditAddressBinding? = null
+    private val binding get() = _binding!!
     private lateinit var firstNameAddressEditText: TextInputEditText
     private lateinit var lastNameAddressEditText: TextInputEditText
     private lateinit var emailNameAddressEditText: TextInputEditText
@@ -80,8 +84,6 @@ class EditAddressFragment : Fragment() {
     private lateinit var phoneNumberAddressTextFieldInputLayout: TextInputLayout
     private lateinit var cityAddressTextFieldInputLayout: TextInputLayout
     private lateinit var postCodeAddressTextFieldInputLayout: TextInputLayout
-    private var _binding: FragmentEditAddressBinding? = null
-    private val binding get() = _binding!!
     private val customerViewModel: ICustomerViewModel by activityViewModels<CustomerViewModel>()
     private val addressActionViewModel: IAddressActionViewModel by activityViewModels<AddressActionViewModel>()
     private lateinit var buttonSave: MaterialButton
@@ -90,8 +92,8 @@ class EditAddressFragment : Fragment() {
     private lateinit var spinnerState: Spinner
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private val addressViewModel: IAddressViewModel by viewModels<AddressViewModel>()
-    private val loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
+    private val addressViewModel by viewModels<AddressViewModel>()
+
 
     private lateinit var root: View
     private lateinit var customerAddressEntity: CustomerAddressEntity
@@ -114,7 +116,7 @@ class EditAddressFragment : Fragment() {
     ): View? {
         _binding = FragmentEditAddressBinding.inflate(inflater, container, false)
         root = binding.root
-        return root
+        return binding.root
     }
 
 
@@ -125,6 +127,7 @@ class EditAddressFragment : Fragment() {
         textWatchers()
         saveButtonOnClickedListener()
         addressState()
+        addressEvent()
         showInitAddress()
         if (isLocationPermissionGranted()) {
             locationButtonOnClickedListener()
@@ -400,7 +403,7 @@ class EditAddressFragment : Fragment() {
             val country = spinnerCountry.selectedItem.toString()
             val state = spinnerState.selectedItem.toString()
             val stateCode = regionCodeMap[state] ?: "unknown"
-            val countryCode = countryCode[country]
+            val countryCode = countryCode[country] ?: "unknown"
             if (
                 firstNameValidateInput() &&
                 lastNameValidateInput() &&
@@ -466,85 +469,104 @@ class EditAddressFragment : Fragment() {
     }
 
     private fun updateAddress(addressRequestEntity: AddressRequestEntity) {
-        addressViewModel.updateAddress(
-            id = customerAddressEntity.id,
-            updateAddressParams = addressRequestEntity
+        addressViewModel.onEvent(
+            AddressEvent.Input.UpdateAddress(
+                id = customerAddressEntity.id,
+                addressRequestEntity = addressRequestEntity
+            )
         )
+        addressViewModel.onEvent(AddressEvent.Button.UpdateAddressButton)
     }
 
     private fun insertAddress(addressRequestEntity: AddressRequestEntity) {
-        addressViewModel.insertAddress(addressParams = addressRequestEntity)
+        addressViewModel.onEvent(
+            AddressEvent.Input.InsertAddress(
+                addressRequestEntity = addressRequestEntity
+            )
+        )
+        addressViewModel.onEvent(AddressEvent.Button.InsertAddressButton)
     }
 
     private fun addressState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                addressViewModel.addressEvent.collect { state ->
-                    addressUiStates(state)
+                addressViewModel.addressState.collectLatest { state ->
+
+                    if (state.isInsertLoading || state.isUpdateLoading) {
+                        showProgressBar()
+                        disableLocationButton()
+                    } else {
+                        hideProgressBar()
+                        enableLocationButton()
+                    }
+
                 }
             }
         }
 
     }
 
-    private fun addressUiStates(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                addressUiSourceStateLoading(state)
-            }
+    private fun showProgressBar() {
+        buttonSave.isEnabled = false
+        buttonSave.text = ""
+        binding.buttonSaveProgress.visibility = View.VISIBLE
+    }
 
-            is UiState.Success -> {
-                addressUiSourceStateSuccess(state)
-            }
+    private fun hideProgressBar() {
+        buttonSave.isEnabled = true
+        buttonSave.text = getString(R.string.save)
+        binding.buttonSaveProgress.visibility = View.GONE
+    }
 
-            is UiState.Error -> {
-                addressUiSourceStateError(state)
+    private fun enableLocationButton() {
+        buttonLocation.isEnabled = true
+    }
+
+    private fun disableLocationButton() {
+        buttonLocation.isEnabled = false
+    }
+
+    private fun addressEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                addressViewModel.addressEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            if (event.message != "" && event.resId == -1) {
+                                SnackBarCustom.showSnackbar(
+                                    view = binding.root,
+                                    message = event.message
+                                )
+                            }
+                        }
+
+                        is UiEvent.CombinedEvents -> {
+                            combinedEvents(
+                                events = event.events,
+                                onShowSnackBar = { message, resId ->
+                                    if (message == "" && resId != -1) {
+                                        val message = getString(resId)
+                                        SnackBarCustom.showSnackbar(
+                                            view = binding.root,
+                                            message = message,
+
+                                            )
+                                    }
+                                },
+                                onNavigate = { destinationId, _ ->
+                                    findNavController().navigate(destinationId)
+
+                                }
+                            )
+                        }
+
+                        else -> Unit
+                    }
+                }
             }
         }
     }
 
-    private fun addressUiSourceStateLoading(state: UiState.Loading) {
-        when (state.source) {
-            "updateAddress" -> {
-                loadingDialog.showLoading(parentFragmentManager)
-            }
-
-            "insertAddress" -> {
-                loadingDialog.showLoading(parentFragmentManager)
-            }
-        }
-    }
-
-    private fun addressUiSourceStateSuccess(state: UiState.Success<Any>) {
-        when (state.source) {
-            "updateAddress" -> {
-                loadingDialog.dismissLoading()
-
-                goBackScreenWithMessage()
-            }
-
-            "insertAddress" -> {
-                loadingDialog.dismissLoading()
-                goBackScreenWithMessage()
-            }
-        }
-
-    }
-
-
-    private fun addressUiSourceStateError(state: UiState.Error) {
-        when (state.source) {
-            "updateAddress" -> {
-                loadingDialog.dismissLoading()
-                SnackBarCustom.showSnackbar(root, state.message)
-            }
-
-            "insertAddress" -> {
-                loadingDialog.dismissLoading()
-                SnackBarCustom.showSnackbar(root, state.message)
-            }
-        }
-    }
 
     @SuppressLint("MissingPermission")
     private fun getLastLocation() {
@@ -571,15 +593,6 @@ class EditAddressFragment : Fragment() {
         }
     }
 
-    private fun goBackScreenWithMessage() {
-        val navController = findNavController()
-        Toast.makeText(
-            requireContext(),
-            getString(R.string.address_updated_successfully), Toast.LENGTH_SHORT
-        ).show()
-
-        navController.popBackStack()
-    }
 
     private fun getAddressFromLatLngLegacy(latitude: Double, longitude: Double) {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
@@ -603,14 +616,6 @@ class EditAddressFragment : Fragment() {
         val state = address.adminArea.replace("Governorate", "").trim()
         val country = address.countryName
         val postalCode = address.postalCode
-        val addressList = listOf(street, city, state, country, postalCode)
-        /*val stringAddress = """
-                        Address: ${extractStreetAddress(address.getAddressLine(0))}
-                        City: ${address.locality}
-                        State: ${address.adminArea}
-                        Country: ${address.countryName}
-                        postCode: ${address.postalCode}
-                    """.trimIndent()*/
         lifecycleScope.launch {
             withContext(Dispatchers.Main) {
                 streetAddressEditText.setText(street)
@@ -679,11 +684,11 @@ class EditAddressFragment : Fragment() {
     private fun locationButtonOnClickedListener() {
         buttonLocation.setOnClickListener {
             if (isLocationEnabled(requireContext())) {
-                loadingDialog.showLoading(parentFragmentManager)
+                //loadingDialog.showLoading(parentFragmentManager)
                 lifecycleScope.launch {
                     delay(500L)
                     getLastLocation()
-                    loadingDialog.dismissLoading()
+                    // loadingDialog.dismissLoading()
                 }
             } else {
                 openLocationSettings()

@@ -4,7 +4,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.ecommerce.R
-import com.example.ecommerce.core.constants.XLatter
 import com.example.ecommerce.core.database.data.entities.orders.OrderItemEntity
 import com.example.ecommerce.databinding.ItemOrderDetailsBinding
 import com.google.android.material.imageview.ShapeableImageView
@@ -25,6 +24,7 @@ class OrderDetailsViewHolder(
         orderItemName.text = context.getString(R.string.product).plus(orderItem.itemName)
         orderItemPrice.text =
             context.getString(R.string.price).plus(orderItem.priceItem)
-                .plus(context.getString(R.string.currency)).plus(XLatter).plus(orderItem.quantity)
+                .plus(context.getString(R.string.currency)).plus(" ")
+                .plus(context.getString(R.string.Xlatter)).plus(orderItem.quantity)
     }
 }

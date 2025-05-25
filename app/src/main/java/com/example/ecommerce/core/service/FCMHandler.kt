@@ -97,8 +97,8 @@ class FCMHandler : FirebaseMessagingService(), IFCMHandler {
 
     override fun processExternalNotification(message: RemoteMessage) {
         val isNewProduct = message.data["isNewProduct"]?.let {
-            it.lowercase().toBooleanStrictOrNull() ?: false
-        } ?:false
+            it.lowercase().toBooleanStrictOrNull() == true
+        } == true
         val title = message.notification?.title
         val body = message.notification?.body
         if (title == null || body == null) return

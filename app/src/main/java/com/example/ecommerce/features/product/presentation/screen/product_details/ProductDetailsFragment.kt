@@ -79,7 +79,7 @@ class ProductDetailsFragment : Fragment() {
                         is UiEvent.CombinedEvents -> {
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = { message ->
+                                onShowSnackBar = { message, _ ->
                                     SnackBarCustom.showSnackbar(
                                         view = binding.root,
                                         message = message

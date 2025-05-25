@@ -74,6 +74,7 @@ class CartFragment : Fragment() {
         cartEvent()
         cartState()
         cartLoad()
+        setAddressId()
         checkOutState()
         checkOutEvent()
         detectScrollEnd(binding.cartRecyclerView)
@@ -163,6 +164,7 @@ class CartFragment : Fragment() {
                 cartViewModel.cartEvent.collectLatest { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
+                            Log.d("TAG", "cartEvent: ${event.message}")
                             SnackBarCustom.showSnackbar(
                                 view = root,
                                 message = event.message
@@ -184,6 +186,7 @@ class CartFragment : Fragment() {
                 checkOutViewModel.checkOutEvent.collectLatest { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
+                            Log.d("TAG", "cartEvent: ${event.message}")
                             SnackBarCustom.showSnackbar(
                                 view = root,
                                 message = event.message
@@ -192,9 +195,10 @@ class CartFragment : Fragment() {
                         }
 
                         is UiEvent.CombinedEvents -> {
+
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = { message ->
+                                onShowSnackBar = { message, _  ->
                                     SnackBarCustom.showSnackbar(
                                         view = root,
                                         message = message
@@ -231,8 +235,11 @@ class CartFragment : Fragment() {
                 cartViewModel.cartLoadState.collect { state ->
                     if (!state.isGetLoading) {
                         initRecyclerView(itemHashKeys)
+
+                    }
+                    if (::cartAdapter.isInitialized && ::checkAdapter.isInitialized) {
                         cartAdapter.setRemoveLoadingState(state.isRemoveLoading)
-                        checkAdapter.setRemoveLoadingState(state.isRemoveLoading)
+                        checkAdapter.setLoadingState(state.isRemoveLoading)
                     }
 
                     if (!state.isRemoveLoading) {
@@ -250,6 +257,12 @@ class CartFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 checkOutViewModel.checkOutState.collect { state ->
 
+                    if (::cartAdapter.isInitialized && ::checkAdapter.isInitialized) {
+                        Log.d("TAG", "checkOutState: ${state.isCheckingOut}")
+                        checkAdapter.setLoadingState(state.isCheckingOut)
+                    }
+
+
                 }
             }
         }
@@ -266,6 +279,25 @@ class CartFragment : Fragment() {
                 binding.cartRecyclerView.adapter = cartAdapter
             }
         }
+    }
+
+    private fun setAddressId() {
+        lifecycleScope.launch {
+            val addressId = addressManager.getAddressId()
+            Log.d("TAG", "setAddressId: $addressId")
+            if (addressId == -1) return@launch
+            checkOutViewModel.onEvent(
+                CheckOutEvent.Input.AddressId(
+                    addressId
+                )
+            )
+            checkOutViewModel.onEvent(
+                CheckOutEvent.Input.CustomerId(
+                    customerManager.getCustomerId()
+                )
+            )
+        }
+
     }
 
     override fun onDestroyView() {

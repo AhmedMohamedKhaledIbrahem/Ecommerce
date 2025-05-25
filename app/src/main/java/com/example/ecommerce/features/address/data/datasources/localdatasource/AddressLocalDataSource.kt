@@ -13,6 +13,8 @@ interface AddressLocalDataSource {
     suspend fun getSelectAddress(customerId: Int): CustomerAddressEntity
     suspend fun unSelectAddress(customerId: Int)
     suspend fun selectAddress(customerId: Int)
+    suspend fun isEmailExist(email: String): Int
+    suspend fun getCustomerId(email: String): Int
 
 
 }

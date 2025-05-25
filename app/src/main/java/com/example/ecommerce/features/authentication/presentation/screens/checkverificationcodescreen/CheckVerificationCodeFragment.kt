@@ -129,8 +129,8 @@ class CheckVerificationCodeFragment : Fragment() {
                         is UiEvent.CombinedEvents -> {
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = {
-                                    SnackBarCustom.showSnackbar(view = rootView, message = it)
+                                onShowSnackBar = { message, _ ->
+                                    SnackBarCustom.showSnackbar(view = rootView, message = message)
                                 },
                                 onNavigate = { destinationId, args ->
                                     findNavController().navigate(destinationId)

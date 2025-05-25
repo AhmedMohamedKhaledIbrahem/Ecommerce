@@ -42,6 +42,8 @@ class CartRepositoryImp @Inject constructor(
     override suspend fun getCart(): CartWithItems {
         return try {
             if (internetConnectionChecker.hasConnection()) {
+
+
                 localDataSource.getCart()
             } else {
                 throw Failures.ConnectionFailure("No Internet Connection")
@@ -102,6 +104,14 @@ class CartRepositoryImp @Inject constructor(
             }
         } catch (failure: FailureException) {
             throw Failures.ServerFailure("${failure.message}")
+        }
+    }
+
+    override suspend fun getCartCount(): Int {
+        return try {
+            localDataSource.getCartCount()
+        } catch (failure: FailureException) {
+            throw Failures.CacheFailure("${failure.message}")
         }
     }
 

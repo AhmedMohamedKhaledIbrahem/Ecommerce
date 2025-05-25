@@ -9,13 +9,13 @@ import kotlinx.parcelize.Parcelize
 @Entity(tableName = "customerAddress")
 data class CustomerAddressEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    var firstName: String? = null ?: "",
-    var lastName: String? = null ?: "",
-    var email: String? = null ?: "",
-    var phone: String? = null ?: "",
-    var address: String? = null ?: "",
-    var country: String? = null ?: "",
-    var city: String? = null ?: "",
-    var zipCode: String? = null ?: "",
+    var firstName: String =  "",
+    var lastName: String=  "",
+    var email: String = "",
+    var phone: String = "",
+    var address: String=  "",
+    var country: String =  "",
+    var city: String =  "",
+    var zipCode: String =  "",
     val isSelect: Int = 1
 ) : Parcelable

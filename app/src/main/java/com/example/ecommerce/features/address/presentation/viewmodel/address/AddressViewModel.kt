@@ -1,27 +1,24 @@
 package com.example.ecommerce.features.address.presentation.viewmodel.address
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
-import com.example.ecommerce.core.errors.Failures
+import com.example.ecommerce.R
+import com.example.ecommerce.core.constants.Unknown_Error
 import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.ui.state.UiState
-import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
-import com.example.ecommerce.features.address.domain.usecases.deleteaddress.IDeleteAddressUseCase
-import com.example.ecommerce.features.address.domain.usecases.deletealladdress.IDeleteAllAddressUseCase
+import com.example.ecommerce.core.extension.eventHandler
+import com.example.ecommerce.core.extension.performUseCaseOperation
+import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.address.domain.usecases.getaddress.IGetAddressUseCase
-import com.example.ecommerce.features.address.domain.usecases.getselectaddress.IGetSelectAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.insertupdateaddress.IInsertAddressUseCase
-import com.example.ecommerce.features.address.domain.usecases.selectaddress.ISelectAddressUseCase
-import com.example.ecommerce.features.address.domain.usecases.unselectaddress.IUnSelectAddressUseCase
 import com.example.ecommerce.features.address.domain.usecases.updateaddress.IUpdateAddressUseCase
+import com.example.ecommerce.features.address.presentation.event.AddressEvent
+import com.example.ecommerce.features.address.presentation.state.AddressState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,117 +26,119 @@ class AddressViewModel @Inject constructor(
     private val updateAddressUseCase: IUpdateAddressUseCase,
     private val getAddressUseCase: IGetAddressUseCase,
     private val insertAddressUseCase: IInsertAddressUseCase,
-    private val deleteAllAddressUseCase: IDeleteAllAddressUseCase,
-    private val deleteAddressUseCase: IDeleteAddressUseCase,
-    private val selectAddressUseCase: ISelectAddressUseCase,
-    private val unSelectAddressUseCase: IUnSelectAddressUseCase,
-    private val getSelectAddressUseCase: IGetSelectAddressUseCase
+) : ViewModel() {
 
-) : ViewModel(), IAddressViewModel {
+    private val _addressEvent: Channel<UiEvent> = Channel()
+    val addressEvent = _addressEvent.receiveAsFlow()
 
-    private val _addressEvent = MutableSharedFlow<UiState<Any>>(replay = 0)
-    override val addressEvent: SharedFlow<UiState<Any>> get() = _addressEvent.asSharedFlow()
-    private val _addressState = MutableStateFlow<List<CustomerAddressEntity>>(emptyList())
-    override val addressState: StateFlow<List<CustomerAddressEntity>> get() = _addressState
+    private val _addressState = MutableStateFlow(AddressState())
+    val addressState: StateFlow<AddressState> get() = _addressState.asStateFlow()
 
-    override fun updateAddress(id: Int, updateAddressParams: AddressRequestEntity) {
-        addressUiState(
-            operation = { updateAddressUseCase(id, updateAddressParams) },
-            onSuccess = { result ->
-                _addressEvent.emit(UiState.Success(result, "updateAddress"))
-            },
-            source = "updateAddress"
-        )
-    }
+    fun onEvent(event: AddressEvent) {
+        eventHandler(event) { evt ->
+            when (evt) {
+                is AddressEvent.Input.UpdateAddress -> {
+                    _addressState.update {
+                        it.copy(
+                            id = evt.id,
+                            addressRequestEntity = evt.addressRequestEntity
+                        )
+                    }
+                }
 
-    override fun getAddress() {
-        addressUiState(
-            operation = { getAddressUseCase() },
-            onSuccess = { result ->
-                _addressState.value = result
-                _addressEvent.emit(UiState.Success(result, "getAddress"))
-            },
-            source = "getAddress"
-        )
-    }
+                is AddressEvent.Input.InsertAddress -> {
+                    _addressState.update { it.copy(addressRequestEntity = evt.addressRequestEntity) }
+                }
 
-    override fun deleteAllAddress() {
-        addressUiState(
-            operation = { deleteAllAddressUseCase() },
-            onSuccess = { result ->
-                _addressEvent.emit(UiState.Success(result, "deleteAllAddress"))
-            },
-            source = "deleteAllAddress"
-        )
-    }
+                is AddressEvent.Button.UpdateAddressButton -> {
+                    updateAddress()
+                }
 
-    override fun getSelectAddress(customerId: Int) {
-        addressUiState(
-            operation = { getSelectAddressUseCase(customerId) },
-            onSuccess = { result ->
-                _addressEvent.emit(UiState.Success(result, "getSelectAddress"))
-            },
-            source = "getSelectAddress"
-        )
-    }
+                is AddressEvent.Button.InsertAddressButton -> {
+                    insertAddress()
+                }
 
-    override fun selectAddress(customerId: Int) {
-        addressUiState(
-            operation = { selectAddressUseCase(customerId) },
-            onSuccess = { result ->
-                _addressEvent.emit(UiState.Success(result, "selectAddress"))
-            },
-            source = "selectAddress"
-        )
-    }
-
-    override fun unSelectAddress(customerId: Int) {
-        addressUiState(
-            operation = { unSelectAddressUseCase(customerId) },
-            onSuccess = { result ->
-                _addressEvent.emit(UiState.Success(result, "unSelectAddress"))
-            },
-            source = "unSelectAddress"
-        )
-    }
-
-    override fun deleteAddress(customerAddressEntity: CustomerAddressEntity) {
-        addressUiState(
-            operation = { deleteAddressUseCase(customerAddressEntity = customerAddressEntity) },
-            onSuccess = { result ->
-                _addressEvent.emit(UiState.Success(result, "deleteAddress"))
-            },
-            source = "deleteAddress"
-        )
-    }
-
-    override fun insertAddress(addressParams: AddressRequestEntity) {
-        addressUiState(
-            operation = { insertAddressUseCase(addressParams) },
-            onSuccess = { result ->
-                _addressEvent.emit(UiState.Success(result, "insertAddress"))
-            },
-            source = "insertAddress"
-        )
-    }
-
-    override fun <T> addressUiState(
-        operation: suspend () -> T,
-        onSuccess: suspend (T) -> Unit,
-        source: String
-    ) {
-        viewModelScope.launch {
-            _addressEvent.emit(UiState.Loading(source))
-            try {
-                val result = operation()
-                onSuccess(result)
-            } catch (failure: Failures) {
-                _addressEvent.emit(UiState.Error(mapFailureMessage(failure), source))
-            } catch (e: Exception) {
-                _addressEvent.emit(UiState.Error(e.message ?: "Unknown Error", source))
+                is AddressEvent.LoadAllAddress -> {
+                    getAllAddress()
+                }
             }
+
         }
     }
+
+    private fun updateAddress() = performUseCaseOperation(
+        loadingUpdater = { isLoading ->
+            _addressState.update { it.copy(isUpdateLoading = isLoading) }
+        },
+        useCase = {
+            val id = addressState.value.id
+            val addressRequestEntity = addressState.value.addressRequestEntity
+            if (id <= -1) {
+                _addressState.update { it.copy(isUpdateLoading = false) }
+                return@performUseCaseOperation
+            }
+            updateAddressUseCase(id, addressRequestEntity)
+            //val message = context.getString(R.string.address_updated_successfully)
+            _addressEvent.send(
+                UiEvent.CombinedEvents(
+                    listOf(
+                        UiEvent.ShowSnackBar(resId = R.string.address_updated_successfully),
+                        UiEvent.Navigation.Address(destinationId = R.id.addressFragment)
+                    )
+                )
+            )
+        },
+        onFailure = { failure ->
+            val message = mapFailureMessage(failure)
+            _addressEvent.send(UiEvent.ShowSnackBar(message = message))
+        },
+        onException = { exception ->
+            _addressEvent.send(UiEvent.ShowSnackBar(message = exception.message ?: Unknown_Error))
+        }
+    )
+
+    private fun insertAddress() = performUseCaseOperation(
+        loadingUpdater = { isLoading ->
+            _addressState.update { it.copy(isInsertLoading = isLoading) }
+        },
+        useCase = {
+            val addressRequestEntity = addressState.value.addressRequestEntity
+            insertAddressUseCase(addressRequestEntity)
+//            val message = context.getString(R.string.address_inserted_successfully)
+            _addressEvent.send(
+                UiEvent.CombinedEvents(
+                    listOf(
+                        UiEvent.ShowSnackBar(resId = R.string.address_inserted_successfully),
+                        UiEvent.Navigation.Address(destinationId = R.id.addressFragment)
+                    )
+                )
+            )
+        },
+        onFailure = { failure ->
+            val message = mapFailureMessage(failure)
+            _addressEvent.send(UiEvent.ShowSnackBar(message = message))
+        },
+        onException = { exception ->
+            _addressEvent.send(UiEvent.ShowSnackBar(message = exception.message ?: Unknown_Error))
+        }
+    )
+
+    private fun getAllAddress() = performUseCaseOperation(
+        loadingUpdater = { isLoading ->
+            _addressState.update { it.copy(isGetAllAddressLoading = isLoading) }
+        },
+        useCase = {
+            val allAddress = getAddressUseCase()
+            _addressState.update { it.copy(addressList = allAddress) }
+        },
+        onFailure = { failure ->
+            val message = mapFailureMessage(failure)
+            _addressEvent.send(UiEvent.ShowSnackBar(message = message))
+        },
+        onException = { exception ->
+            _addressEvent.send(UiEvent.ShowSnackBar(message = exception.message ?: Unknown_Error))
+        }
+    )
 
 
 }

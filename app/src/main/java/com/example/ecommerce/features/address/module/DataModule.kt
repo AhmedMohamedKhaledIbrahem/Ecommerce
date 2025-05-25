@@ -2,6 +2,7 @@ package com.example.ecommerce.features.address.module
 
 import android.content.Context
 import com.example.ecommerce.core.database.data.dao.address.AddressDao
+import com.example.ecommerce.core.manager.address.AddressManager
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.features.address.data.datasources.AddressApi
 import com.example.ecommerce.features.address.data.datasources.localdatasource.AddressLocalDataSource
@@ -26,7 +27,10 @@ object DataModule {
         dao: AddressDao,
         @ApplicationContext context: Context
     ): AddressLocalDataSource {
-        return AddressLocalDataSourceImp(dao = dao, context = context)
+        return AddressLocalDataSourceImp(
+            dao = dao,
+            context = context
+        )
     }
 
     @Provides
@@ -43,12 +47,14 @@ object DataModule {
     fun provideAddressRepository(
         localDataSource: AddressLocalDataSource,
         remoteDataSource: AddressRemoteDataSource,
+       addressManager: AddressManager,
         internetConnectionChecker: InternetConnectionChecker,
         @ApplicationContext context: Context
     ): AddressRepository {
         return AddressRepositoryImp(
             localDataSource = localDataSource,
             remoteDataSource = remoteDataSource,
+            addressManager = addressManager,
             internetConnectionChecker = internetConnectionChecker,
             context = context
         )

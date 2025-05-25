@@ -14,6 +14,7 @@ interface AddressDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAddress(customerAddressEntity: CustomerAddressEntity)
 
+
     @Update
     suspend fun updateAddress(customerAddressEntity: CustomerAddressEntity)
 
@@ -29,14 +30,20 @@ interface AddressDao {
     @Query("delete from customerAddress ")
     suspend fun deleteAllAddress()
 
-    @Query("select * from customerAddress where id=:customerId and isSelect = 1")
-    suspend fun getSelectAddress(customerId: Int): CustomerAddressEntity
+    @Query("select * from customerAddress where id=:customerAddressId and isSelect = 1")
+    suspend fun getSelectAddress(customerAddressId: Int): CustomerAddressEntity
 
-    @Query("update customerAddress set isSelect = 0 where id != :customerId")
-    suspend fun unSelectAddress(customerId: Int)
 
-    @Query("update customerAddress set isSelect = 1 where id = :customerId")
-    suspend fun selectAddress(customerId: Int)
+    @Query("update customerAddress set isSelect = 0 where id != :customerAddressId")
+    suspend fun unSelectAddress(customerAddressId: Int)
 
+    @Query("update customerAddress set isSelect = 1 where id = :customerAddressId")
+    suspend fun selectAddress(customerAddressId: Int)
+
+    @Query("select Count(*) from customerAddress where email = :email ")
+    suspend fun isEmailExist(email: String): Int
+
+    @Query("select id from customerAddress where email = :email")
+    suspend fun getCustomerId(email: String): Int
 
 }

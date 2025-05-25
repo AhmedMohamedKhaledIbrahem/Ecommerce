@@ -10,6 +10,7 @@ import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.cart.domain.use_case.add_item.IAddItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.IGetCartUseCase
+import com.example.ecommerce.features.cart.domain.use_case.get_cart_count.IGetCartCountUseCase
 import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.update_quantity.IUpdateQuantityUseCase
 import com.example.ecommerce.features.cart.presentation.event.CartEvent
@@ -31,6 +32,7 @@ class CartViewModel @Inject constructor(
     private val getCartUseCase: IGetCartUseCase,
     private val removeItemUseCase: IRemoveItemUseCase,
     private val updateQuantityUseCase: IUpdateQuantityUseCase,
+    private val getCartCountUseCase: IGetCartCountUseCase
 ) : ViewModel() {
 
 
@@ -170,6 +172,10 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _cartLoadState.update { it.copy(isGetLoading = true) }
+                if (getCartCountUseCase() == 0) {
+                    _cartLoadState.update { it.copy(isGetLoading = false) }
+                    return@launch
+                }
                 val cartWithItems = getCartUseCase()
                 _cartState.update { it.copy(cartWithItems = cartWithItems) }
             } catch (failures: Failures) {

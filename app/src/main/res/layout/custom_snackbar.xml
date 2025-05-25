@@ -10,7 +10,7 @@
     <ImageView
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:contentDescription="@string/iconsnackbarcustom"
+        android:contentDescription="@string/icon_snack_bar_custom"
         android:id="@+id/iconSnackBarCustom"
         android:layout_gravity="center"
         android:visibility="gone"
