@@ -6,6 +6,7 @@ import com.example.ecommerce.features.cart.dummyAddItemRequestModel
 import com.example.ecommerce.features.cart.dummyCartResponseModel
 import com.example.ecommerce.features.cart.keyItem
 import com.example.ecommerce.features.errorBody
+import com.example.ecommerce.features.errorJsonBody
 import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.errorResponseBody
 import com.example.ecommerce.features.failureException
@@ -57,7 +58,7 @@ class CartRemoteDataSourceTest {
         runTest {
             val response = Response.error<CartResponseModel>(
                 400,
-                errorBody
+                errorJsonBody
             )
             `when`(api.addItemToCart(request = dummyAddItemRequestModel)).thenReturn(response)
             val result = failureException {
@@ -156,18 +157,19 @@ class CartRemoteDataSourceTest {
         }
 
     @Test
-    fun `clearCart should throw Failure exception when the status code is 400 or higher`() = runTest {
-        val response = Response.error<Unit>(
-            400,
-            errorBody
-        )
-        `when`(api.clearCart()).thenReturn(response)
-        val result = failureException {
-            remoteDataSource.clearCart()
-        }
-        assertEquals(errorMessage, result.message)
+    fun `clearCart should throw Failure exception when the status code is 400 or higher`() =
+        runTest {
+            val response = Response.error<Unit>(
+                400,
+                errorJsonBody
+            )
+            `when`(api.clearCart()).thenReturn(response)
+            val result = failureException {
+                remoteDataSource.clearCart()
+            }
+            assertEquals(errorMessage, result.message)
 
-    }
+        }
 
     @Test
     fun `clearCart  should throw FailureException when API call throws exception`() =

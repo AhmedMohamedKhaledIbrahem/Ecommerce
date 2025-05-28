@@ -18,6 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
+        app:shimmer_auto_start="true"
         app:shimmer_base_alpha="0.2">
 
         <include
@@ -29,11 +30,11 @@
         android:id="@+id/productRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/productShimmerFrameLayout"
 
         />

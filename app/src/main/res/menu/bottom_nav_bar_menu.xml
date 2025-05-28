@@ -10,7 +10,7 @@
         android:title="@string/title_cart" />
     <item
         android:id="@+id/ordersFragment"
-        android:icon="@drawable/online_delivery"
+        android:icon="@drawable/order"
         android:title="@string/orders" />
     <item
         android:id="@+id/addressFragment"

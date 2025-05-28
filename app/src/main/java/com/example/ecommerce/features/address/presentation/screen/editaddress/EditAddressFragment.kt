@@ -48,7 +48,6 @@ import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestE
 import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequestEntity
 import com.example.ecommerce.features.address.presentation.event.AddressEvent
 import com.example.ecommerce.features.address.presentation.viewmodel.address.AddressViewModel
-import com.example.ecommerce.features.address.presentation.viewmodel.address.SelectAddressViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.AddressActionViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.IAddressActionViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.customer.CustomerViewModel
@@ -184,16 +183,24 @@ class EditAddressFragment : Fragment() {
 
 
     private fun spinnerCountryOnItemSelected() {
-        val countries = countryStateMap.keys.toList()
+        val countries = countryStateMap.keys.map {
+            if (it is Int) getString(it) else it.toString()
+        }
         val countryAdapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, countries)
         countryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerCountry.adapter = countryAdapter
 
         spinnerCountry.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                val selectedCountry = countries[p2]
-                val regions = countryStateMap[selectedCountry] ?: listOf("No regions available")
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+                val selectedCountry = countries[position]
+                val selectedKey = countryStateMap.keys.firstOrNull {
+                    (it is Int && getString(it) == selectedCountry) || (it.toString() == selectedCountry)
+                }
+                val regionsRaw = countryStateMap[selectedKey] ?: listOf(R.string.no_regions_available)
+                val regions = regionsRaw.map {
+                    if (it is Int) getString(it) else it.toString()
+                }
                 spinnerRegionAdapter(regions)
             }
 
@@ -402,8 +409,8 @@ class EditAddressFragment : Fragment() {
             val postCode = postCodeAddressEditText.text.toString()
             val country = spinnerCountry.selectedItem.toString()
             val state = spinnerState.selectedItem.toString()
-            val stateCode = regionCodeMap[state] ?: "unknown"
-            val countryCode = countryCode[country] ?: "unknown"
+            val stateCode = regionCodeMap[state] ?: getString(R.string.unknown)
+            val countryCode = countryCode[country] ?: getString(R.string.unknown)
             if (
                 firstNameValidateInput() &&
                 lastNameValidateInput() &&
@@ -412,8 +419,8 @@ class EditAddressFragment : Fragment() {
                 cityValidateInput() &&
                 postCodeValidateInput() &&
                 streetAddressValidateInput() &&
-                spinnerCountry.selectedItem.toString() != "Select Country" &&
-                spinnerState.selectedItem.toString() != "Select State"
+                spinnerCountry.selectedItem.toString() != getString(R.string.select_country) &&
+                spinnerState.selectedItem.toString() != getString(R.string.select_state)
             ) {
                 val billingInfoAddressRequest = BillingInfoRequestEntity(
                     firstName = firstName,
@@ -659,7 +666,7 @@ class EditAddressFragment : Fragment() {
             postCodeAddressEditText.setText(it.zipCode)
             streetAddressEditText.setText(it.address)
             spinnerCountry.setSelection(countryStateMap.keys.indexOf(it.country))
-            //spinnerState.setSelection(countryStateMap[it.country]?.indexOf(it.state) ?: 0)
+
 
         }
 

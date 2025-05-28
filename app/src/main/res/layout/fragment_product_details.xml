@@ -19,14 +19,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Product Image -->
-            <ImageView
+
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/productImage"
                 android:layout_width="match_parent"
                 android:layout_height="350dp"
                 android:layout_marginTop="32dp"
                 android:contentDescription="@string/productImage"
-                android:src="@drawable/ic_launcher_foreground"
+                android:src="@drawable/round_placeholder_24"
+                app:shapeAppearanceOverlay="@style/roundedCornerProductStyle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -38,7 +39,8 @@
                 android:layout_marginTop="8dp"
                 android:paddingHorizontal="10dp"
                 android:text=""
-                android:textSize="16sp"
+                android:textColor="?attr/colorOnSecondary"
+                style="@style/headLine2"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -51,7 +53,8 @@
                 android:layout_marginTop="8dp"
                 android:paddingHorizontal="10dp"
                 android:text=""
-                android:textSize="16sp"
+                android:textColor="?attr/colorOnSecondary"
+                style="@style/headLine2"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -64,7 +67,8 @@
                 android:layout_marginTop="8dp"
                 android:paddingHorizontal="10dp"
                 android:text=""
-                android:textSize="16sp"
+                android:textColor="?attr/colorOnSecondary"
+                style="@style/headLine2"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -78,7 +82,8 @@
                 android:layout_marginTop="8dp"
                 android:paddingHorizontal="10dp"
                 android:text=""
-                android:textSize="16sp"
+                android:textColor="?attr/colorOnSecondary"
+                style="@style/headLine2"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -91,8 +96,8 @@
                 android:layout_marginTop="8dp"
                 android:paddingHorizontal="10dp"
                 android:text=""
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:textColor="?attr/colorOnSecondary"
+                style="@style/headLine1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/productPrice" />
@@ -116,7 +121,10 @@
             android:id="@+id/addToCartButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_to_cart" />
+            android:text="@string/add_to_cart"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
+            />
 
         <FrameLayout
             android:id="@+id/addTOCartButtonContent"

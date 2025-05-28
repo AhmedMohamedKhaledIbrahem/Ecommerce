@@ -7,27 +7,17 @@
     android:layout_height="match_parent"
     tools:context=".features.userprofile.presentation.screens.settingscreen.SettingFragment">
 
-    <View
-        android:id="@+id/topCurveView"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:background="@drawable/top_curve"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-
-        />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/userSettingCardView"
+        style="@style/customCardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
-        android:backgroundTint="?attr/colorBackgroundFloating"
-        app:cardElevation="10dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topCurveView">
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmerUserImageLayout"
@@ -68,28 +58,29 @@
 
             <TextView
                 android:id="@+id/userNameTextView"
+                style="@style/headLine1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/raleway_bold"
                 android:lines="1"
                 android:maxLines="1"
                 android:scrollHorizontally="false"
                 android:text=""
-                android:textColor="?attr/colorSecondary"
-                android:textSize="18sp" />
+                android:textColor="?attr/colorOnSecondary" />
 
             <TextView
                 android:id="@+id/userEmailTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/raleway_bold"
                 android:lines="1"
                 android:maxLines="1"
                 android:scrollHorizontally="false"
                 android:text=""
-                android:textColor="?attr/colorOnSecondary" />
+                android:textColor="?attr/colorOnSecondary"
+                style="@style/headLine2"
+                android:textStyle="bold"
+                />
 
         </LinearLayout>
 

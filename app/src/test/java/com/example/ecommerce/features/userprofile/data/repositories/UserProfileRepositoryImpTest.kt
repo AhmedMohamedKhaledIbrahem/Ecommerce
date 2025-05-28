@@ -1,9 +1,11 @@
 package com.example.ecommerce.features.userprofile.data.repositories
 
+import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
+import com.example.ecommerce.features.cacheFailure
 import com.example.ecommerce.features.userprofile.data.datasources.localdatasource.UserProfileLocalDataSource
 import com.example.ecommerce.features.userprofile.data.datasources.remotedatasource.UserProfileRemoteDataSource
 import com.example.ecommerce.features.userprofile.data.mapper.GetImageProfileMapper
@@ -188,19 +190,45 @@ class UserProfileRepositoryImpTest {
         }
 
     @Test
-    fun `getUserNameDetails should return Unit when internet connection is available`() = runTest {
+    fun `fetchUpdateUserDetails should return Unit when internet connection is available`() = runTest {
         `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
-        `when`(remoteDataSource.checkUserNameDetailsUpdate()).thenReturn(
-            tCheckUserNameDetailsResponseModel
+        `when`(remoteDataSource.getUserNameDetails()).thenReturn(tUpdateUserNameDetailsResponseModel)
+        `when`(
+            localDataSource.getUserCount(
+                tUpdateUserNameDetailsResponseModel.id,
+                tUpdateUserNameDetailsResponseModel.displayName.toString()
+            )
+        ).thenReturn(0)
+        `when`(localDataSource.updateUserNameDetails(tUpdateUserNameDetailsResponseModel)).thenReturn(
+            Unit
         )
-        val result = repository.fetchUpdateUserDetails()
-        //assertEquals(Unit, result)
-        //ToDo dont forget update this test
+        repository.fetchUpdateUserDetails()
 
+        verify(remoteDataSource).getUserNameDetails()
+        verify(localDataSource).getUserCount(
+            tUpdateUserNameDetailsResponseModel.id,
+            tUpdateUserNameDetailsResponseModel.displayName.toString()
+        )
+        verify(localDataSource).updateUserNameDetails(tUpdateUserNameDetailsResponseModel)
+    }
+    @Test
+    fun `fetchUpdateUserDetails should throw CacheFailure when isNewUser is not equal 0`() = runTest {
+        `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
+        `when`(remoteDataSource.getUserNameDetails()).thenReturn(tUpdateUserNameDetailsResponseModel)
+        `when`(
+            localDataSource.getUserCount(
+                tUpdateUserNameDetailsResponseModel.id,
+                tUpdateUserNameDetailsResponseModel.displayName.toString()
+            )
+        ).thenReturn(1)
+        val exception = cacheFailure {
+            repository.fetchUpdateUserDetails()
+        }
+        assertEquals(R.string.user_name_already_exist, exception.resourceId)
     }
 
     @Test
-    fun `getUserNameDetails should throw ConnectionFailure when internet connection is not available`() =
+    fun `fetchUpdateUserDetails should throw ConnectionFailure when internet connection is not available`() =
         runTest {
             `when`(internetConnectionChecker.hasConnection()).thenReturn(false)
             val exception = assertFailsWith<Failures.ConnectionFailure> {
@@ -210,10 +238,10 @@ class UserProfileRepositoryImpTest {
         }
 
     @Test
-    fun `getUserNameDetails should throw ServerFailure when remoteDataSource throws exception`() =
+    fun `fetchUpdateUserDetails should throw ServerFailure when remoteDataSource throws exception`() =
         runTest {
             `when`(internetConnectionChecker.hasConnection()).thenReturn(true)
-            `when`(remoteDataSource.checkUserNameDetailsUpdate()).thenThrow(
+            `when`(remoteDataSource.getUserNameDetails()).thenThrow(
                 FailureException(
                     serverFailure
                 )

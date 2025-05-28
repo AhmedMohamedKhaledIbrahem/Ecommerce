@@ -132,6 +132,8 @@ class SettingFragment : Fragment() {
                 userDetailsViewModel.userDetailsEvent.collect { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
+                            Log.e("event", "userDetailsEvent: ${event.message}")
+
                             SnackBarCustom.showSnackbar(rootView, event.message)
                         }
 
@@ -155,7 +157,7 @@ class SettingFragment : Fragment() {
                         binding.userEmailTextView.text = state.userEntity.userEmail
                         state.userEntity.imagePath?.let { imagePath ->
                             binding.userImageView.load(imagePath) {
-                                error(R.drawable.round_placeholder_24)
+                                error(R.drawable.profile_circle)
                                 transformations(CircleCropTransformation())
                             }
                         }
@@ -194,7 +196,7 @@ class SettingFragment : Fragment() {
     private fun userImageProfileView(imageFile: File) {
 
         binding.userImageView.load(imageFile) {
-            error(R.drawable.round_placeholder_24)
+            error(R.drawable.profile_circle)
             transformations(CircleCropTransformation())
         }
     }
@@ -325,7 +327,7 @@ class SettingFragment : Fragment() {
     private fun setData(): List<SettingItem> {
         val settingItem = listOf(
             SettingItem(
-                R.drawable.round_person_24,
+                R.drawable.user_person_profile,
                 getString(R.string.accountDetails),
                 enableSwitch = false,
                 isChecked = false,
@@ -346,14 +348,14 @@ class SettingFragment : Fragment() {
                 R.id.languageFragment,
             ),
             SettingItem(
-                R.drawable.privacy,
+                R.drawable.licens,
                 getString(R.string.policePrivacy),
                 enableSwitch = false,
                 isChecked = false,
                 R.id.productFragment,
             ),
             SettingItem(
-                R.drawable.log_out,
+                R.drawable.logout,
                 getString(R.string.logout),
                 enableSwitch = false,
                 isChecked = false,

@@ -70,7 +70,7 @@ class OrdersFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 orderViewModel.orderState.collect { state ->
                     val orders = state.orders
-                    if (!state.isOrdersLoading && orders.isNotEmpty()) {
+                    if (!state.isOrdersLoading) {
                         orderRecyclerView(orderWithItems = orders)
                     }
                 }

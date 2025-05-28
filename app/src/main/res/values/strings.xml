@@ -165,6 +165,14 @@
     <string name="title_login">Login</string>
     <string name="title_signup">SignUp</string>
     <string name="title_orders">Orders</string>
+    <string name="user_name_already_exist">User Name Already Exist</string>
+    <string name="filter_icon">filter_icon</string>
+    <string name="no_regions_available">No regions available</string>
+    <string name="unknown">unknown</string>
+    <string name="select_country">Select Country</string>
+    <string name="select_state">Select State</string>
+    <string name="filter">Filter</string>
+    <string name="select">Select</string>
 
 
 </resources>

@@ -7,11 +7,11 @@ import com.example.ecommerce.core.constants.EnablePlaceholders
 import com.example.ecommerce.core.constants.IpHost
 import com.example.ecommerce.core.constants.LocalHost
 import com.example.ecommerce.core.constants.PageSize
-import com.example.ecommerce.core.database.data.dao.category.CategoryDao
+import com.example.ecommerce.core.database.data.dao.category.ProductCategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
 import com.example.ecommerce.core.database.data.dao.product.ProductDao
-import com.example.ecommerce.core.database.data.entities.category.CategoryEntity
+import com.example.ecommerce.core.database.data.entities.category.ProductCategoryEntity
 import com.example.ecommerce.core.database.data.entities.image.ImageEntity
 import com.example.ecommerce.core.database.data.entities.products.ProductCategoryCrossRefEntity
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
@@ -26,7 +26,7 @@ import javax.inject.Inject
 class ProductLocalDataSourceImp @Inject constructor(
     private val productDao: ProductDao,
     private val imageDao: ImageDao,
-    private val categoryDao: CategoryDao,
+    private val categoryDao: ProductCategoryDao,
     private val productCategoryDao: ProductCategoryCrossRefDao
 ) : ProductLocalDataSource {
     override fun getProductsPaged(): Flow<PagingData<ProductWithAllDetails>> {
@@ -71,9 +71,9 @@ class ProductLocalDataSourceImp @Inject constructor(
                 }
             }
 
-            val categoryEntity = productResponse.products.flatMap { product ->
+            val productCategoryEntity = productResponse.products.flatMap { product ->
                 product.categories.map { category ->
-                    CategoryEntity(
+                    ProductCategoryEntity(
                         categoryIdJson = category.id,
                         categoryName = category.name
                     )
@@ -89,7 +89,7 @@ class ProductLocalDataSourceImp @Inject constructor(
             }
             val insertProductsDeferred = async { productDao.insertProducts(productEntity) }
             val insertImagesDeferred = async { imageDao.insertImages(imageEntity) }
-            val insertCategoriesDeferred = async { categoryDao.insertCategories(categoryEntity) }
+            val insertCategoriesDeferred = async { categoryDao.insertCategories(productCategoryEntity) }
             val insertCrossRefDeferred =
                 async { productCategoryDao.insertProductCategoryCrossRef(crossRefEntity) }
             insertProductsDeferred.await()

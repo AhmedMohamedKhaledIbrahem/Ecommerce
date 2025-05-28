@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.product.modules
 
-import com.example.ecommerce.core.database.data.dao.category.CategoryDao
+import com.example.ecommerce.core.database.data.dao.category.ProductCategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
 import com.example.ecommerce.core.database.data.dao.product.ProductDao
@@ -25,13 +25,13 @@ object DataModule {
     fun provideProductLocalDataSource(
         productDao: ProductDao,
         imageDao: ImageDao,
-        categoryDao: CategoryDao,
+        productCategoryDao: ProductCategoryDao,
         productCategoryCrossRefDao: ProductCategoryCrossRefDao
     ): ProductLocalDataSource {
         return ProductLocalDataSourceImp(
             productDao = productDao,
             imageDao = imageDao,
-            categoryDao = categoryDao,
+            categoryDao = productCategoryDao,
             productCategoryDao = productCategoryCrossRefDao
         )
     }

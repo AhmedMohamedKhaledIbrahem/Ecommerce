@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
         android:layout_marginVertical="10dp"
-        android:backgroundTint="?attr/colorBackgroundFloating"
+        style="@style/customCardStyle"
         android:clickable="true"
         android:visibility="visible"
         app:cardElevation="15dp"
@@ -25,17 +25,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:paddingVertical="10dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingVertical="10dp">
+
             <ImageView
                 android:id="@+id/selected_address_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/verify_icon"
-                android:contentDescription="@string/selected_address_icon"
                 android:layout_marginHorizontal="10dp"
-                android:visibility="gone"
-                />
+                android:contentDescription="@string/selected_address_icon"
+                android:src="@drawable/verify_icon"
+                android:visibility="gone" />
+
             <ImageView
                 android:id="@+id/editAddressImageView"
                 android:layout_width="wrap_content"
@@ -54,7 +55,7 @@
                 android:layout_marginHorizontal="10dp"
                 android:clickable="true"
                 android:contentDescription="@string/delete_address"
-                android:src="@drawable/cross_icon" />
+                android:src="@drawable/round_close_24" />
 
         </LinearLayout>
 
@@ -64,92 +65,90 @@
             android:orientation="vertical"
             android:paddingHorizontal="15dp"
             android:paddingVertical="10dp">
-
-
             <TextView
                 android:id="@+id/fullNameAddressTextView"
+                style="@style/headLine2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/raleway_bold"
                 android:lines="1"
                 android:maxLines="1"
                 android:text=""
                 android:textColor="?attr/colorOnSecondary"
-                android:textSize="16sp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/emailAddressTextView"
+                style="@style/headLine2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/raleway_bold"
                 android:lines="1"
                 android:maxLines="1"
                 android:text=""
                 android:textColor="?attr/colorOnSecondary"
-                android:textSize="16sp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/phoneNumberTextView"
+                style="@style/headLine2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/raleway_bold"
                 android:lines="1"
                 android:maxLines="1"
                 android:text=""
                 android:textColor="?attr/colorOnSecondary"
-                android:textSize="16sp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/streetAddressTextView"
+                style="@style/headLine2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/raleway_bold"
                 android:lines="1"
                 android:maxLines="1"
                 android:text=""
                 android:textColor="?attr/colorOnSecondary"
-                android:textSize="16sp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/countryTextView"
+                style="@style/headLine2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/raleway_bold"
                 android:lines="1"
                 android:maxLines="1"
                 android:text=""
                 android:textColor="?attr/colorOnSecondary"
-                android:textSize="16sp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/cityTextView"
+                style="@style/headLine2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/raleway_bold"
                 android:lines="1"
                 android:maxLines="1"
                 android:text=""
                 android:textColor="?attr/colorOnSecondary"
-                android:textSize="16sp" />
+                android:textStyle="bold" />
 
 
             <TextView
                 android:id="@+id/postCodeTextView"
+                style="@style/headLine2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/raleway_bold"
                 android:lines="1"
                 android:maxLines="1"
                 android:text=""
                 android:textColor="?attr/colorOnSecondary"
-                android:textSize="16sp" />
+                android:textStyle="bold" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

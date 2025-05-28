@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.ecommerce.MainNavigationActivity
+import com.example.ecommerce.MainActivity
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.languageCodeMap
 import com.example.ecommerce.core.ui.event.UiEvent
@@ -138,7 +138,7 @@ class LanguageFragment : DialogFragment() {
 
     private fun updateLocale() {
         val intent =
-            Intent(requireContext(), MainNavigationActivity::class.java)
+            Intent(requireContext(), MainActivity::class.java)
         intent.apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         }

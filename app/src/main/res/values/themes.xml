@@ -1,18 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.ECommerce" parent="Theme.Material3.DayNight.NoActionBar">
-
-        <!-- Navigation bar color -->
-        <item name="android:navigationBarColor">@color/purple</item>
-
-        <!-- Status bar color -->
-        <item name="android:statusBarColor">@color/black</item>
-
         <item name="colorPrimary">@color/blueSky</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSecondary">@color/black</item>
-        <item name="colorOnSecondary">@color/dimGray</item>
+        <item name="colorSecondary">@color/softWhite</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorError">@color/red</item>
         <item name="colorBackgroundFloating">@color/white</item>
+        <item name="toolbarColor">@color/softWhite</item>
     </style>
 
     <style name="Theme.ECommerce" parent="Base.Theme.ECommerce" />

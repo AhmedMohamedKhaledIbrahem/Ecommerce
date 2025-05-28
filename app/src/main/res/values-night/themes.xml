@@ -3,8 +3,10 @@
     <style name="Base.Theme.ECommerce" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/blueSky</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSecondary">@color/black</item>
-        <item name="colorOnSecondary">@color/dimGray</item>
+        <item name="colorSecondary">@color/charcoal</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorError">@color/red</item>
         <item name="colorBackgroundFloating">@color/black</item>
+        <item name="toolbarColor">@color/charcoal</item>
     </style>
 </resources>

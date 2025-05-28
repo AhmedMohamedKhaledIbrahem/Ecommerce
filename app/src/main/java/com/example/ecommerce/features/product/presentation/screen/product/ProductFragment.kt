@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -16,25 +17,30 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkManager
-import com.example.ecommerce.core.constants.Page
-import com.example.ecommerce.core.constants.PerPage
+import com.example.ecommerce.core.database.data.entities.category.CategoryEntity
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.navigationWithArgs
-import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.core.utils.removeItemDecoration
+import com.example.ecommerce.databinding.FilterBottomSheetLayoutBinding
 import com.example.ecommerce.databinding.FragmentProductBinding
+import com.example.ecommerce.features.category.presentation.event.CategoryEvent
+import com.example.ecommerce.features.category.presentation.screen.adapter.CategoryAdapter
+import com.example.ecommerce.features.category.presentation.viewmodel.CategoryViewModel
 import com.example.ecommerce.features.product.presentation.event.ProductEvent
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductShimmerAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.SearchAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.item.ProductShimmerItem
 import com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetails
+import com.example.ecommerce.features.product.presentation.viewmodel.ExpandedBottomSheetFilterViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.ProductSearchViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.ProductViewModel
 import com.facebook.shimmer.ShimmerFrameLayout
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -43,14 +49,19 @@ import kotlinx.coroutines.launch
 class ProductFragment : Fragment() {
     private var _binding: FragmentProductBinding? = null
     private val binding get() = _binding!!
+    var category: List<CategoryEntity> = emptyList()
+    var selectedCategoryIds = mutableSetOf<Int>()
+    var bottomSheetDialog: BottomSheetDialog? = null
     private lateinit var productAdapter: ProductAdapter
     private lateinit var productShimmerAdapter: ProductShimmerAdapter
     private lateinit var productShimmerRecyclerView: RecyclerView
-    private val productViewModel: ProductViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var productShimmerLayout: ShimmerFrameLayout
     private var screenOrientation: Int = 0
+    private val productViewModel: ProductViewModel by viewModels()
     private val productSearchViewModel: ProductSearchViewModel by viewModels()
+    private val categoryViewModel: CategoryViewModel by viewModels()
+    private lateinit var expandedBottomSheetFilterViewModel: ExpandedBottomSheetFilterViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -73,6 +84,8 @@ class ProductFragment : Fragment() {
         recyclerView = binding.productRecyclerView
         productShimmerLayout = binding.productShimmerFrameLayout
         productShimmerRecyclerView = binding.productShimmerInclude.productShimmerRecyclerView
+        expandedBottomSheetFilterViewModel =
+            ViewModelProvider(requireActivity())[ExpandedBottomSheetFilterViewModel::class.java]
     }
 
 
@@ -80,20 +93,75 @@ class ProductFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initShimmerRecycleView()
         initProductRecycleView()
+        fetchCategory()
         fetchProductRemote()
         fetchProductRemoteState()
         fetchProductPaging()
         fetchProductPagingState()
+        loadCategory()
         productEvent()
+        categoryEvent()
+        categoryState()
         searchEvent()
         searchState()
         detectScrollEnd(recyclerView, 3)
+        expandBottomSheetFilter()
+
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
         fetchProductPaging()
         fetchProductPagingState()
+    }
+
+    private fun expandBottomSheetFilter() {
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                expandedBottomSheetFilterViewModel.expandedFilter.collectLatest { expanded ->
+                    if (expanded) {
+                        val binding = FilterBottomSheetLayoutBinding.inflate(
+                            LayoutInflater.from(requireContext()),
+                            null,
+                            false
+                        )
+                        bottomSheetDialog = BottomSheetDialog(requireContext()).apply {
+                            setContentView(binding.root)
+                            setOnDismissListener {
+                                expandedBottomSheetFilterViewModel.setExpandedFilter(false)
+                            }
+                            show()
+                        }
+
+                        val categoryAdapter = CategoryAdapter(
+                            categories = category,
+                            selectedCategoryIds = selectedCategoryIds,
+                            onFilterCategoryClick = { category ->
+                                if (selectedCategoryIds.contains(category.id)) {
+                                    selectedCategoryIds.remove(category.id)
+                                } else {
+                                    selectedCategoryIds.add(category.id)
+
+                                }
+                                productViewModel.onEvent(
+                                    ProductEvent.Input.FilterByCategory(
+                                        category = selectedCategoryIds.toList()
+                                    )
+                                )
+                                productViewModel.onEvent(ProductEvent.OnFilterCategoryClick)
+                            }
+                        )
+
+                        val recyclerView = binding.categoryRecyclerView
+                        recyclerView.adapter = categoryAdapter
+                        recyclerView.layoutManager =
+                            GridLayoutManager(requireContext(), 2)
+                    }
+
+                }
+            }
+        }
     }
 
     private fun productEvent() {
@@ -131,6 +199,7 @@ class ProductFragment : Fragment() {
         productViewModel.onEvent(ProductEvent.FetchProductRemote)
     }
 
+
     private fun fetchProductRemoteState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -155,9 +224,11 @@ class ProductFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 productViewModel.productPagedState.collectLatest { state ->
                     if (state.isLoading) {
-                    Log.d("TAG", "fetchProductPagingState: loading")
+                        Log.d("TAG", "fetchProductPagingState: loading")
                     } else {
                         productAdapter.submitData(state.products)
+                        selectedCategoryIds = state.category.toMutableSet()
+
                     }
 
                 }
@@ -204,15 +275,59 @@ class ProductFragment : Fragment() {
         }
     }
 
+    private fun fetchCategory() {
+        categoryViewModel.onEvent(CategoryEvent.FetchCategory)
+    }
+
+    private fun loadCategory() {
+        categoryViewModel.onEvent(CategoryEvent.LoadCategory)
+    }
+
+    private fun categoryEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                categoryViewModel.categoryEvent.collectLatest { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            checkIsMessageOrResourceId(
+                                event = event,
+                                context = requireContext(),
+                                root = binding.root
+                            )
+                        }
+
+                        else -> Unit
+                    }
+
+                }
+            }
+        }
+    }
+
+    private fun categoryState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                categoryViewModel.categoryState.collectLatest { state ->
+                    val categories = state.categories
+                    if (categories.isNotEmpty()) {
+                        category = categories
+
+                    }
+                }
+            }
+        }
+    }
+
     private fun initProductRecycleView() {
+
         searchAdapter = SearchAdapter { query ->
-            productSearchViewModel.onEvent(ProductEvent.SearchQuery(query))
+            productSearchViewModel.onEvent(ProductEvent.Input.SearchQuery(query))
             productSearchViewModel.onEvent(ProductEvent.Searched)
         }
         productAdapter = ProductAdapter { product ->
             val productDetails = productDetails(product)
             productViewModel.onEvent(
-                ProductEvent.InputProductDetails(
+                ProductEvent.Input.InputProductDetails(
                     productDetails
                 )
             )
@@ -239,6 +354,7 @@ class ProductFragment : Fragment() {
 
     }
 
+
     private fun productDetails(product: ProductWithAllDetails): ProductDetails {
         return ProductDetails(
             productId = product.product.productIdJson.toString(),
@@ -251,7 +367,6 @@ class ProductFragment : Fragment() {
             rating = product.product.ratingCount.toDouble()
         )
     }
-
 
 
     private fun shimmerProducts(): List<ProductShimmerItem> {
@@ -299,11 +414,13 @@ class ProductFragment : Fragment() {
         )
         return products
     }
+
     private fun initShimmerRecycleView() {
         productShimmerAdapter = ProductShimmerAdapter(shimmerProducts())
         productShimmerRecyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         productShimmerRecyclerView.adapter = productShimmerAdapter
     }
+
     private fun shimmerStopWhenDataSuccess() {
         productShimmerLayout.apply {
             stopShimmer()
@@ -311,6 +428,7 @@ class ProductFragment : Fragment() {
         }
         recyclerView.visibility = View.VISIBLE
     }
+
     private fun shimmerStartWhenLoading() {
         productShimmerLayout.apply {
             visibility = View.VISIBLE
@@ -318,8 +436,6 @@ class ProductFragment : Fragment() {
         }
         recyclerView.visibility = View.GONE
     }
-
-
 
 
     override fun onDestroy() {

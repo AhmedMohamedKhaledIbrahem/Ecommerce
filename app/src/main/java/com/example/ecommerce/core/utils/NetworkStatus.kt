@@ -2,7 +2,7 @@ package com.example.ecommerce.core.utils
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import com.example.ecommerce.MainNavigationActivity
+import com.example.ecommerce.MainActivity
 import com.example.ecommerce.R
 import com.example.ecommerce.core.network.checknetwork.ConnectivityStatus
 
@@ -11,7 +11,7 @@ import com.example.ecommerce.core.network.checknetwork.ConnectivityStatus
 fun checkInternetConnection(
     lifecycleOwner: LifecycleOwner,
     networkStatus: LiveData<ConnectivityStatus?>,
-    activity: MainNavigationActivity
+    activity: MainActivity
 ):Boolean {
     val rootView = activity.binding.root
     val loadingDialog = activity.loadingDialog

@@ -12,31 +12,35 @@
 
     <style name="headLine1">
         <item name="android:fontFamily">@font/raleway_bold</item>
-        <item name="android:textSize">32sp</item>
-        <item name="android:lineHeight">34sp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:lineHeight">24sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
     </style>
 
     <!-- H2 Style -->
     <style name="headLine2">
         <item name="android:fontFamily">@font/raleway_semibold</item>
-        <item name="android:textSize">26sp</item>
-        <item name="android:lineHeight">20sp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight">22sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
     </style>
 
     <!-- Paragraph Style -->
     <style name="paragraphStyle">
         <item name="android:fontFamily">@font/poppins_regular</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:lineHeight">12sp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
     </style>
 
     <style name="roundedCornerStyle" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">16dp</item>
     </style>
+
     <style name="roundedCornerProductStyle" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">20dp</item>
@@ -44,14 +48,50 @@
 
     <style name="CustomBottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
         <!-- Remove the default ripple effect -->
-        <item name="itemBackground">@android:color/transparent</item> <!-- Set transparent background -->
+        <item name="itemBackground">@android:color/transparent
+        </item> <!-- Set transparent background -->
         <item name="itemIconSize">24dp</item> <!-- Optional: Adjust icon size -->
-        <item name="itemActiveIndicatorStyle">@style/CustomActiveIndicator</item> <!-- Optional: Active indicator customization -->
+        <item name="itemActiveIndicatorStyle">@style/CustomActiveIndicator
+        </item> <!-- Optional: Active indicator customization -->
     </style>
 
+    <style name="customCardStyle">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardBackgroundColor">?attr/colorSecondary</item>
+    </style>
+
+    <style name="customColorTextStyle">
+        android:textColorHint="?attr/colorOnSecondary"
+        app:errorTextColor="?attr/colorError"</style>
+
+    <style name="customEditTextStyle">
+        android:textColorHint="?attr/colorOnSecondary"
+        app:errorTextColor="?attr/colorError"
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+
+    </style>
+
+    <style name="CustomSearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="android:editTextColor">"?attr/colorOnSecondary"</item>
+        <item name="android:textColor">"?attr/colorOnSecondary"</item>
+        <item name="android:textColorHint">"?attr/colorOnSecondary"</item>
+    </style>
+
+    <style name="CurveTextFieldStyle" parent="">
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+        <item name="cornerSizeBottomLeft">16dp</item>
+        <item name="cornerSizeBottomRight">16dp</item>
+    </style>
     <!-- Optional: Customize the active indicator style -->
     <style name="CustomActiveIndicator">
-        <item name="android:color">@android:color/transparent</item> <!-- Change active item color -->
+        <item name="android:color">@android:color/transparent
+        </item> <!-- Change active item color -->
         <!-- Optional: Set the active indicator shape -->
     </style>
 

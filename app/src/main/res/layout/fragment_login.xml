@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorBackgroundFloating"
     android:padding="16dp"
     tools:context=".features.authentication.presentation.screens.loginscreen.LoginFragment">
 
@@ -15,14 +16,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="58dp"
         android:text="@string/helloAgain"
-        android:textColor="?attr/colorSecondary"
+        android:textColor="?attr/colorOnSecondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/loginParagraphTextView"
-        style="@style/paragraphStyle"
+        style="@style/headLine2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -35,16 +36,14 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/loginCardView"
+        style="@style/customCardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="?attr/colorBackgroundFloating"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.50">
+        app:layout_constraintTop_toBottomOf="@+id/loginParagraphTextView"
+        app:layout_constraintVertical_bias="0.350">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,10 +53,10 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/userNameOrEmailTextFieldInputLayout"
+                style="@style/customColorTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/usernameOrEmail"
-                android:textColorHint="?attr/colorOnSecondary"
                 app:errorEnabled="true"
                 app:hintTextAppearance="@style/CustomHintTextAppearance">
 
@@ -74,10 +73,10 @@
             <!-- Fourth TextField -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/passwordLoginTextFieldInputLayout"
+                style="@style/customColorTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/password"
-                android:textColorHint="?attr/colorOnSecondary"
                 app:endIconMode="password_toggle"
                 app:errorEnabled="true"
                 app:hintTextAppearance="@style/CustomHintTextAppearance"
@@ -163,7 +162,7 @@
                     android:clickable="true"
                     android:gravity="center"
                     android:text="@string/SignUpNow"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="?attr/colorOnSecondary"
                     android:textStyle="bold" />
 
             </LinearLayout>

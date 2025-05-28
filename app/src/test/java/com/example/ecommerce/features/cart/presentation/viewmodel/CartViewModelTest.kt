@@ -149,6 +149,7 @@ class CartViewModelTest {
     @Test
     fun `getCart should call getCartUseCase and update cartState`() = runTest {
         val cartWithItems = mockk<CartWithItems>()
+        coEvery { getCartCountUseCase() } returns 1
         coEvery { getCartUseCase.invoke() } returns cartWithItems
         viewModel.onEvent(CartEvent.LoadCart)
         advanceUntilIdle()
@@ -159,6 +160,7 @@ class CartViewModelTest {
 
     @Test
     fun `getCart should catch Failures and send ShowSnackBar event`() = runTest {
+        coEvery { getCartCountUseCase() } returns 1
         coEvery { getCartUseCase.invoke() } throws Failures.ServerFailure(errorMessage)
         val eventDeferred = async { viewModel.cartEvent.first() }
         viewModel.onEvent(CartEvent.LoadCart)
@@ -172,8 +174,8 @@ class CartViewModelTest {
 
     @Test
     fun `getCart should catch Exception and send ShowSnackBar event`() = runTest {
+        coEvery { getCartCountUseCase() } returns 1
         coEvery { getCartUseCase.invoke() } throws Exception(errorMessage)
-
         val eventDeferred = async { viewModel.cartEvent.first() }
         viewModel.onEvent(CartEvent.LoadCart)
         advanceUntilIdle()
@@ -182,6 +184,16 @@ class CartViewModelTest {
         assertTrue(event is UiEvent.ShowSnackBar)
         assertEquals(errorMessage, (event as UiEvent.ShowSnackBar).message)
         assertFalse(viewModel.cartLoadState.value.isGetLoading)
+    }
+    @Test
+    fun `getCart should return nothing when cart count is not equal 0`() = runTest {
+        coEvery { getCartCountUseCase() } returns 0
+
+        viewModel.onEvent(CartEvent.LoadCart)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.cartLoadState.value.isGetLoading)
+        coVerify(exactly = 0) { getCartUseCase.invoke()   }
     }
 
     @Test

@@ -122,7 +122,7 @@
     <string name="empty_message">%1$s</string>
     <string name="empty_cart_message">عربة التسوق فارغة</string>
     <string name="empty_orders_message">لا توجد طلبات</string>
-    <string name="search_products">Search Products</string>
+    <string name="search_products">البحث عن المنتجات</string>
     <string name="edit_address">تعديل العنوان</string>
     <string name="delete_address">حذف العنوان</string>
     <string name="add_address">إضافة عنوان</string>
@@ -165,5 +165,13 @@
     <string name="title_login">تسجيل الدخول</string>
     <string name="title_signup">إنشاء حساب</string>
     <string name="title_orders">الطلبات</string>
+    <string name="user_name_already_exist">اسم المستخدم موجود بالفعل</string>
+    <string name="no_regions_available">لا توجد مناطق متاحة</string>
+    <string name="unknown">غير معروف</string>
+    <string name="select_country">اختر الدولة</string>
+    <string name="select_state">اختر الولاية</string>
+    <string name="filter">تصفية</string>
+    <string name="filter_icon">رمز التصفية</string>
+    <string name="select">Select</string>
 
 </resources>

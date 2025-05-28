@@ -108,6 +108,7 @@ class CheckOutViewModelTest {
         every { ItemMapper.mapCartWithItemsToLineItemRequest(cartWithItems) } returns mockLineItem
 
         coEvery { createOrderUseCase(any()) } returns orderResponse
+        coEvery { saveOrderLocallyUseCase(orderResponse) } just Runs
         coEvery { clearCartUseCase() } just Runs
 
         val events = mutableListOf<UiEvent>()
@@ -122,6 +123,7 @@ class CheckOutViewModelTest {
         coVerify(exactly = 1) { getSelectAddressUseCase(viewModel.checkOutState.value.customerId) }
         coVerify(exactly = 1) { getCartUseCase() }
         coVerify(exactly = 1) { createOrderUseCase(any()) }
+        coVerify(exactly = 1) { saveOrderLocallyUseCase(orderResponse) }
         coVerify(exactly = 1) { clearCartUseCase() }
 
 

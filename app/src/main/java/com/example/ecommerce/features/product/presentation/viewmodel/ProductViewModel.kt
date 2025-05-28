@@ -3,9 +3,11 @@ package com.example.ecommerce.features.product.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.Page
 import com.example.ecommerce.core.constants.PerPage
+import com.example.ecommerce.core.constants.Unknown_Error
 import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.ui.event.UiEvent
@@ -23,6 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -66,14 +69,22 @@ class ProductViewModel @Inject constructor(
                 fetchProductPaging()
             }
 
-            is ProductEvent.InputProductDetails -> {
+            is ProductEvent.Input.InputProductDetails -> {
                 _productDetailsState.update { it.copy(product = event.product) }
+            }
+
+            is ProductEvent.Input.FilterByCategory -> {
+                _productPagedState.update { it.copy(category = event.category) }
             }
 
             is ProductEvent.OnClickProductCard -> {
                 viewModelScope.launch {
                     onProductCardClick()
                 }
+            }
+
+            is ProductEvent.OnFilterCategoryClick -> {
+                onFilterCategoryClick()
             }
 
             else -> Unit
@@ -103,6 +114,7 @@ class ProductViewModel @Inject constructor(
                 .onStart {
                     _productPagedState.update { it.copy(isLoading = true) }
                 }.onEach { pagingData ->
+
                     _productPagedState.update { it.copy(products = pagingData, isLoading = false) }
                 }.catch {
                     when (it) {
@@ -138,6 +150,41 @@ class ProductViewModel @Inject constructor(
                 _productDetailsState.update { it.copy(isLoading = false) }
             }
         }
+    }
+
+    fun onFilterCategoryClick() {
+        productRepository.getProducts()
+            .map { pagingData ->
+                val selected = productPagedState.value.category
+                if (selected.isEmpty()) {
+                    pagingData
+                } else {
+                    pagingData.filter { product ->
+                        product.categories.any {
+                            selected.contains(it.categoryIdJson)
+                        }
+                    }
+                }
+            }
+            .cachedIn(viewModelScope)
+            .onStart {
+                _productPagedState.update { it.copy(isLoading = true) }
+            }
+            .onEach { filteredPagingData ->
+                _productPagedState.update {
+                    it.copy(
+                        products = filteredPagingData,
+                        isLoading = false
+                    )
+                }
+            }
+            .catch {
+                _productPagedEvent.send(
+                    UiEvent.ShowSnackBar(it.message ?: Unknown_Error)
+                )
+            }
+            .launchIn(viewModelScope)
+
     }
 
 

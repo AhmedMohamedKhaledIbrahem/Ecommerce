@@ -41,7 +41,7 @@ class ProductSearchViewModel @Inject constructor(
 
     fun onEvent(event: ProductEvent) {
         when (event) {
-            is ProductEvent.SearchQuery -> {
+            is ProductEvent.Input.SearchQuery -> {
                 _searchState.update { it.copy(query = event.query) }
             }
 

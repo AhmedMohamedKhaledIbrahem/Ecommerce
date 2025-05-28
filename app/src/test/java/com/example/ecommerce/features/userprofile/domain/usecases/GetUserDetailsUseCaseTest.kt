@@ -14,7 +14,7 @@ import org.mockito.kotlin.verify
 import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
-class GetUserNameDetailsUseCaseTest {
+class GetUserDetailsUseCaseTest {
     @Mock
     private lateinit var repository: UserProfileRepository
     private lateinit var fetchUpdateUserDetailsUseCase: FetchUpdateUserDetailsUseCase
@@ -31,7 +31,6 @@ class GetUserNameDetailsUseCaseTest {
         `when`(repository.fetchUpdateUserDetails()).thenReturn(name)
         val result = fetchUpdateUserDetailsUseCase.invoke()
         assertEquals(name, result)
-        //ToDo dont forget update this test
         verify(repository).fetchUpdateUserDetails()
         verifyNoMoreInteractions(repository)
     }

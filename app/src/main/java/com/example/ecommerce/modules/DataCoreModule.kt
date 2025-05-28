@@ -8,6 +8,7 @@ import com.example.ecommerce.core.database.data.dao.address.AddressDao
 import com.example.ecommerce.core.database.data.dao.cart.CartDao
 import com.example.ecommerce.core.database.data.dao.cart.ItemCartDao
 import com.example.ecommerce.core.database.data.dao.category.CategoryDao
+import com.example.ecommerce.core.database.data.dao.category.ProductCategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderItemDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
@@ -73,8 +74,8 @@ object DataCoreModule {
 
     @Provides
     @Singleton
-    fun provideCategoryDao(database: AppDatabase): CategoryDao {
-        return database.categoryDao()
+    fun provideProductCategoryDao(database: AppDatabase): ProductCategoryDao {
+        return database.productCategoryDao()
     }
 
     @Provides
@@ -111,6 +112,12 @@ object DataCoreModule {
     @Singleton
     fun provideTokenManager(preferences: SharedPreferences): TokenManager {
         return TokenManagerImp(preferences = preferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCategoryDao(appDatabase: AppDatabase): CategoryDao {
+        return appDatabase.categoryDao()
     }
 
     @Provides

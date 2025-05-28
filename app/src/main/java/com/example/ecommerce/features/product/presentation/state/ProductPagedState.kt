@@ -5,6 +5,7 @@ import com.example.ecommerce.core.database.data.entities.relation.ProductWithAll
 
 data class ProductPagedState(
     val products: PagingData<ProductWithAllDetails> = PagingData.empty(),
+    val category: List<Int> = emptyList(),
     val isLoading: Boolean = false,
 )
 

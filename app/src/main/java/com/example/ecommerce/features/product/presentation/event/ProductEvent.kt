@@ -8,7 +8,12 @@ sealed class ProductEvent {
     data object FetchProductPaging : ProductEvent()
     data object FetchProductRemote : ProductEvent()
     data object Searched : ProductEvent()
-    data class SearchQuery(val query: String) : ProductEvent()
+    sealed class Input : ProductEvent() {
+        data class SearchQuery(val query: String) : Input()
+        data class InputProductDetails(val product: ProductDetails) : Input()
+        data class FilterByCategory(val category: List<Int>) : Input()
+    }
+    data object OnFilterCategoryClick : ProductEvent()
     data object OnClickProductCard : ProductEvent()
-    data class InputProductDetails(val product: ProductDetails) : ProductEvent()
+
 }
