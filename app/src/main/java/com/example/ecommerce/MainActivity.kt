@@ -54,8 +54,7 @@ class MainActivity : AppCompatActivity() {
     private val mainNavigationViewModel: MainNavigationViewModel by viewModels()
     private val networkStatusViewModel: NetworkHelperViewModel by viewModels()
     private lateinit var expandedBottomSheetFilterViewModel: ExpandedBottomSheetFilterViewModel
-
-
+    private var isFilterMenuVisible: Boolean = false
     internal lateinit var binding: ActivityMainNavigationBinding
 
     @Inject
@@ -114,6 +113,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.tool_bar_item, menu)
+        val filterItem = menu.findItem(R.id.filter_icon)
+        filterItem?.isVisible = isFilterMenuVisible
         return true
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -145,6 +146,7 @@ class MainActivity : AppCompatActivity() {
     private fun navigationChangeListener(navController: NavController) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             visibilityBottomNavigationBar(destination = destination)
+            checkIsFilterMenuVisible(destination = destination)
         }
     }
 
@@ -163,6 +165,14 @@ class MainActivity : AppCompatActivity() {
         } else {
             binding.bottomNavigationBar.visibility = View.VISIBLE
         }
+    }
+    private fun checkIsFilterMenuVisible(destination: NavDestination): Boolean {
+        isFilterMenuVisible = when (destination.id) {
+            R.id.productFragment -> true
+            else -> false
+        }
+        invalidateOptionsMenu()
+        return isFilterMenuVisible
     }
 
 
