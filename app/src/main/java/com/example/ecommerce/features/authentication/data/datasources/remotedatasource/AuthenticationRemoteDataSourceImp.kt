@@ -4,7 +4,9 @@ import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.authentication.data.datasources.AuthenticationApi
 import com.example.ecommerce.features.authentication.data.models.AuthenticationRequestModel
 import com.example.ecommerce.features.authentication.data.models.AuthenticationResponseModel
+import com.example.ecommerce.features.authentication.data.models.ChangePasswordRequestModel
 import com.example.ecommerce.features.authentication.data.models.CheckVerificationRequestModel
+import com.example.ecommerce.features.authentication.data.models.ConfirmPasswordResetRequestModel
 import com.example.ecommerce.features.authentication.data.models.EmailRequestModel
 import com.example.ecommerce.features.authentication.data.models.MessageResponseModel
 import com.example.ecommerce.features.authentication.data.models.SignUpRequestModel
@@ -116,5 +118,41 @@ class AuthenticationRemoteDataSourceImp @Inject constructor(
             throw FailureException("${e.message}")
         }
 
+    }
+
+    override suspend fun confirmPasswordChange(confirmPasswordChange: ConfirmPasswordResetRequestModel): MessageResponseModel {
+        return try {
+            val response =
+                api.confirmPasswordReset(request = confirmPasswordChange)
+            if (response.isSuccessful) {
+                response.body() ?: throw FailureException("Empty Response Body")
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val errorMessage = errorBody?.let {
+                    JSONObject(it).optString("message", "Unknown error")
+                } ?: "Unknown error"
+                throw FailureException(errorMessage)
+            }
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
+        }
+    }
+
+    override suspend fun changePassword(changePasswordParams: ChangePasswordRequestModel): MessageResponseModel {
+        return try {
+            val response =
+                api.changePasswordRequest(request = changePasswordParams)
+            if (response.isSuccessful) {
+                response.body() ?: throw FailureException("Empty Response Body")
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val errorMessage = errorBody?.let {
+                    JSONObject(it).optString("message", "Unknown error")
+                } ?: "Unknown error"
+                throw FailureException(errorMessage)
+            }
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
+        }
     }
 }

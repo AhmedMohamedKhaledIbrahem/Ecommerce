@@ -1,8 +1,12 @@
 package com.example.ecommerce.features.authentication.modules
 
 import com.example.ecommerce.features.authentication.domain.repositories.AuthenticationRepository
+import com.example.ecommerce.features.authentication.domain.usecases.change_password.ChangePasswordUseCase
+import com.example.ecommerce.features.authentication.domain.usecases.change_password.ChangePasswordUseCaseImp
 import com.example.ecommerce.features.authentication.domain.usecases.checkverificationcode.CheckVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.checkverificationcode.ICheckVerificationCodeUseCase
+import com.example.ecommerce.features.authentication.domain.usecases.confirm_password_reset.ConfirmPasswordChangeUseCase
+import com.example.ecommerce.features.authentication.domain.usecases.confirm_password_reset.ConfirmPasswordChangeUseCaseImp
 import com.example.ecommerce.features.authentication.domain.usecases.login.ILoginUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.login.LoginUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.logout.ILogoutUseCase
@@ -60,5 +64,17 @@ object DomainModule {
     fun provideCheckVerificationCode(authenticationRepository: AuthenticationRepository)
             : ICheckVerificationCodeUseCase {
         return CheckVerificationCodeUseCase(repository = authenticationRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideConfirmPasswordChange(authenticationRepository: AuthenticationRepository): ConfirmPasswordChangeUseCase {
+        return ConfirmPasswordChangeUseCaseImp(repository = authenticationRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideChangePassword(authenticationRepository: AuthenticationRepository): ChangePasswordUseCase {
+        return ChangePasswordUseCaseImp(repository = authenticationRepository)
     }
 }

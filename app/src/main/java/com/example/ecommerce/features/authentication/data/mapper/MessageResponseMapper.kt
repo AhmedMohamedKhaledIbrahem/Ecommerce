@@ -11,3 +11,11 @@ object MessageResponseMapper {
         )
     }
 }
+
+fun MessageResponseModel.toDomain(): MessageResponseEntity {
+    return MessageResponseEntity(
+        message = this.message,
+        verified = this.verified
+    )
+
+}

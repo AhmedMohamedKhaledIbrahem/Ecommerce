@@ -173,6 +173,10 @@
     <string name="select_state">Select State</string>
     <string name="filter">Filter</string>
     <string name="select">Select</string>
+    <string name="change_password_error">Please check your passowrd or Email</string>
+    <string name="unknown_message">Unknown message</string>
+    <string name="unsupported_event">Unsupported event</string>
+    <string name="not_work">not work</string>
 
 
 </resources>

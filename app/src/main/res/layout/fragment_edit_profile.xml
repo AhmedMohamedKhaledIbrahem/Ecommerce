@@ -141,6 +141,31 @@
         android:visibility="gone">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/passwordTextFieldInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="35dp"
+            android:layout_marginVertical="1dp"
+            android:hint="@string/password"
+            android:textColorHint="?attr/colorOnSecondary"
+            app:endIconMode="password_toggle"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/CustomHintTextAppearance"
+            app:passwordToggleDrawable="@drawable/round_visibility_off_24"
+            app:passwordToggleEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/passwordEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone|flagNoFullscreen"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/newPasswordTextFieldInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -148,33 +173,41 @@
             android:layout_marginVertical="1dp"
             android:hint="@string/new_password"
             android:textColorHint="?attr/colorOnSecondary"
+            android:visibility="gone"
+            app:endIconMode="password_toggle"
             app:errorEnabled="true"
-            app:hintTextAppearance="@style/CustomHintTextAppearance">
+            app:hintTextAppearance="@style/CustomHintTextAppearance"
+            app:passwordToggleDrawable="@drawable/round_visibility_off_24"
+            app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/newPasswordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/confirmPasswordTextFieldInputLayout"
+            android:id="@+id/otpTextFieldInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="35dp"
             android:layout_marginVertical="1dp"
-            android:hint="@string/confirm_password"
+            android:hint="@string/otp_code"
             android:textColorHint="?attr/colorOnSecondary"
+            android:visibility="gone"
             app:errorEnabled="true"
             app:hintTextAppearance="@style/CustomHintTextAppearance">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/confirmPasswordEditText"
+                android:id="@+id/otpPasswordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
+                android:inputType="number"
+                android:imeOptions="actionDone|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -187,15 +220,33 @@
             android:gravity="end"
             android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/ChangePasswordButton"
-                style="@style/customButtonStyle"
+            <FrameLayout
+                android:id="@+id/ChangePasswordButtonContainer"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:backgroundTint="?attr/colorPrimary"
-                android:text="@string/change"
-                android:textColor="?attr/colorOnPrimary" />
+                android:layout_height="wrap_content">
+
+                <ProgressBar
+                    android:id="@+id/progressBarButtonChangePassword"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:elevation="14dp"
+                    android:visibility="gone"
+
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ChangePasswordButton"
+                    style="@style/customButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:elevation="2dp"
+                    android:enabled="true"
+                    android:text="@string/change"
+                    android:textColor="?attr/colorOnPrimary" />
+            </FrameLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/CancelChangeButton"

@@ -7,6 +7,6 @@ class LogoutUseCase @Inject constructor(
     private val repository: AuthenticationRepository
 ) : ILogoutUseCase {
     override suspend operator fun invoke() {
-        return repository.logout()
+
     }
 }

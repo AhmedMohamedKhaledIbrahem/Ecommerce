@@ -160,7 +160,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Fifth TextField -->
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/ConfirmPasswordTextFieldInputLayout"
                     android:layout_width="match_parent"

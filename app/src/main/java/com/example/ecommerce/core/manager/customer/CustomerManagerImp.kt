@@ -14,20 +14,19 @@ class CustomerManagerImp @Inject constructor(
         private const val CUSTOMER_KEY = "customer_key"
     }
 
-    override suspend fun getCustomerId(): Int {
-        return withContext(Dispatchers.IO) {
-            try {
-                sharedPreferences.getInt(CUSTOMER_KEY, 0)
-            } catch (e: Exception) {
-                throw Failures.CacheFailure("${e.message}")
-            }
+    override fun getCustomerId(): Int {
+        return try {
+            sharedPreferences.getInt(CUSTOMER_KEY, 0)
+        } catch (e: Exception) {
+            throw Failures.CacheFailure("${e.message}")
         }
+
     }
 
     override suspend fun setCustomerId(customerId: Int) {
         withContext(Dispatchers.IO) {
             try {
-                sharedPreferences.edit{ putInt(CUSTOMER_KEY, customerId) }
+                sharedPreferences.edit { putInt(CUSTOMER_KEY, customerId) }
             } catch (e: Exception) {
                 throw Failures.CacheFailure("${e.message}")
             }
