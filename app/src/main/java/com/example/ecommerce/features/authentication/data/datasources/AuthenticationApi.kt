@@ -20,7 +20,7 @@ interface AuthenticationApi {
     @POST("wp-json/custom/v1/register")
     suspend fun signUpRequest(@Body request: SignUpRequestModel): Response<MessageResponseModel>
 
-    @POST("wp-json/custom/v1/reset-password")
+    @POST("wp-json/custom/v1/forget-password")
     suspend fun resetPasswordRequest(@Body request: EmailRequestModel): Response<MessageResponseModel>
 
     @POST("wp-json/custom/v1/verify-email")
@@ -29,10 +29,10 @@ interface AuthenticationApi {
     @POST("wp-json/custom/v1/check-verification-status")
     suspend fun checkVerificationCodeRequest(@Body request: CheckVerificationRequestModel): Response<MessageResponseModel>
 
-    @POST("wp-json/custom/v1/password-reset")
+    @POST("wp-json/custom/v1/change-password")
     suspend fun changePasswordRequest(@Body request: ChangePasswordRequestModel): Response<MessageResponseModel>
 
-    @POST("wp-json/custom/v1/confirm-password-reset")
+    @POST("wp-json/custom/v1/confirm-change-password")
     suspend fun confirmPasswordReset(@Body request: ConfirmPasswordResetRequestModel): Response<MessageResponseModel>
 
 }
