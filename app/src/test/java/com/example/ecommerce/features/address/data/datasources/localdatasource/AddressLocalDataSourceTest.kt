@@ -1,18 +1,14 @@
 package com.example.ecommerce.features.address.data.datasources.localdatasource
 
 import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import com.example.ecommerce.core.database.data.dao.address.AddressDao
-import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.address.addressError
 import com.example.ecommerce.features.address.id
-import com.example.ecommerce.features.address.noAddressFound
 import com.example.ecommerce.features.address.tAddressRequestModel
 import com.example.ecommerce.features.address.tCustomerAddressEntity
 import com.example.ecommerce.features.address.tCustomerAddressEntityUpdate
+import com.example.ecommerce.features.address.tCustomerId
 import com.example.ecommerce.features.address.tListCustomerAddressEntity
-import com.example.ecommerce.features.address.unKnownError
-import com.example.ecommerce.features.address.unknownError
 import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.failureException
 import io.mockk.mockk
@@ -21,30 +17,25 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.doNothing
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 @ExperimentalCoroutinesApi
 class AddressLocalDataSourceTest {
 
     @Mock
     private lateinit var addressDao: AddressDao
-
-
     private lateinit var context: Context
     private lateinit var localDataSource: AddressLocalDataSource
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        context =  mockk(relaxed = true)
+        context = mockk(relaxed = true)
         localDataSource = AddressLocalDataSourceImp(dao = addressDao, context = context)
 
     }
@@ -118,26 +109,113 @@ class AddressLocalDataSourceTest {
     @Test
     fun `insertAddress should throw a FailureException when unexpected error occurs`() =
         runTest {
-            `when`(addressDao.insertAddress(tCustomerAddressEntity)).thenThrow(RuntimeException(errorMessage))
-            val exception = failureException{
+            `when`(addressDao.insertAddress(tCustomerAddressEntity)).thenThrow(
+                RuntimeException(
+                    errorMessage
+                )
+            )
+            val exception = failureException {
                 localDataSource.insertAddress(tAddressRequestModel)
             }
             assertEquals(errorMessage, exception.message)
         }
+
+    @Test
+    fun `deleteAllAddress should delete the All address `() = runTest {
+        `when`(addressDao.deleteAllAddress()).thenReturn(Unit)
+        localDataSource.deleteAllAddress()
+        verify(addressDao).deleteAllAddress()
+
+    }
+
+    @Test
+    fun `deleteAllAddress should throw a FailureException when unexpected error occurs`() =
+        runTest {
+            `when`(addressDao.deleteAllAddress()).thenThrow(RuntimeException(errorMessage))
+            val exception = failureException {
+                localDataSource.deleteAllAddress()
+            }
+            assertEquals(errorMessage, exception.message)
+        }
+
     @Test
     fun `deleteAddress should delete the All address `() = runTest {
-        `when`(addressDao.deleteAllAddress()).thenReturn(Unit)
-        localDataSource.deleteAddress()
-        verify(addressDao).deleteAllAddress()
+        `when`(addressDao.deleteAddress(tCustomerAddressEntity)).thenReturn(Unit)
+        localDataSource.deleteAddress(tCustomerAddressEntity)
+        verify(addressDao).deleteAddress(tCustomerAddressEntity)
 
     }
 
     @Test
     fun `deleteAddress should throw a FailureException when unexpected error occurs`() =
         runTest {
-            `when`(addressDao.deleteAllAddress()).thenThrow(RuntimeException(errorMessage))
-            val exception = failureException{
-                localDataSource.deleteAddress()
+            `when`(addressDao.deleteAddress(tCustomerAddressEntity)).thenThrow(
+                RuntimeException(
+                    errorMessage
+                )
+            )
+            val exception = failureException {
+                localDataSource.deleteAddress(tCustomerAddressEntity)
+            }
+            assertEquals(errorMessage, exception.message)
+        }
+
+    @Test
+    fun `getSelectAddress should return the select address `() = runTest {
+        `when`(addressDao.getSelectAddress(tCustomerId)).thenReturn(tCustomerAddressEntity)
+        val result = localDataSource.getSelectAddress(tCustomerId)
+        assertEquals(tCustomerAddressEntity, result)
+    }
+
+    @Test
+    fun `getSelectAddress should throw a FailureException when unexpected error occurs `() =
+        runTest {
+            `when`(addressDao.getSelectAddress(tCustomerId)).thenThrow(
+                RuntimeException(
+                    errorMessage
+                )
+            )
+            val exception = failureException {
+                localDataSource.getSelectAddress(tCustomerId)
+            }
+            assertEquals(errorMessage, exception.message)
+        }
+
+    @Test
+    fun `selectAddress should select the address `() = runTest {
+        `when`(addressDao.selectAddress(tCustomerId)).thenReturn(Unit)
+        localDataSource.selectAddress(tCustomerId)
+        verify(addressDao).selectAddress(tCustomerId)
+    }
+    @Test
+    fun `selectAddress should throw a FailureException when unexpected error occurs `() =
+        runTest {
+            `when`(addressDao.selectAddress(tCustomerId)).thenThrow(
+                RuntimeException(
+                    errorMessage
+                )
+            )
+            val exception = failureException {
+                localDataSource.selectAddress(tCustomerId)
+            }
+            assertEquals(errorMessage, exception.message)
+        }
+    @Test
+    fun `unSelectAddress should unselect all address unless the selected address `() = runTest {
+        `when`(addressDao.unSelectAddress(tCustomerId)).thenReturn(Unit)
+        localDataSource.unSelectAddress(tCustomerId)
+        verify(addressDao).unSelectAddress(tCustomerId)
+    }
+    @Test
+    fun `unselectAddress should throw a FailureException when unexpected error occurs `() =
+        runTest {
+            `when`(addressDao.unSelectAddress(tCustomerId)).thenThrow(
+                RuntimeException(
+                    errorMessage
+                )
+            )
+            val exception = failureException {
+                localDataSource.unSelectAddress(tCustomerId)
             }
             assertEquals(errorMessage, exception.message)
         }

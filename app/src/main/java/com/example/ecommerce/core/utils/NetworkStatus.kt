@@ -1,70 +1,48 @@
 package com.example.ecommerce.core.utils
 
-import android.util.Log
-import android.view.View
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import com.example.ecommerce.MainActivity
 import com.example.ecommerce.R
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.network.checknetwork.ConnectivityStatus
 
-object NetworkStatus {
-    fun checkInternetConnection(
-        lifecycleOwner: LifecycleOwner,
-        networkStatus: LiveData<ConnectivityStatus?>,
-        loadingDialog: LoadingDialogFragment,
-        fragmentManager: FragmentManager,
-        rootView: View
-    ):Boolean {
-        var flag = false
-        networkStatus.observe(lifecycleOwner) { connectivityStatus ->
-            when (connectivityStatus) {
-                ConnectivityStatus.CONNECTED -> {
-                    if (flag) {
-                        loadingDialog.dismissLoading()
-                        SnackBarCustom.showSnackbar(
-                            rootView,
-                            "Your Internet has been Restored",
-                            R.drawable.baseline_wifi_24
-                        )
-                        flag = false
-                    }
-                }
-                ConnectivityStatus.DISCONNECTED -> {
-                    loadingDialog.showLoading(fragmentManager)
+
+
+fun checkInternetConnection(
+    lifecycleOwner: LifecycleOwner,
+    networkStatus: LiveData<ConnectivityStatus?>,
+    activity: MainActivity
+):Boolean {
+    val rootView = activity.binding.root
+    val loadingDialog = activity.loadingDialog
+    val context = activity.applicationContext
+    val fragmentManager = activity.supportFragmentManager
+    var isDisconnected = false
+    networkStatus.observe(lifecycleOwner) { connectivityStatus ->
+        when (connectivityStatus) {
+            ConnectivityStatus.CONNECTED -> {
+                if (isDisconnected) {
+                    loadingDialog.dismissLoading()
                     SnackBarCustom.showSnackbar(
                         rootView,
-                        "You are currently offline",
-                        R.drawable.baseline_wifi_off_24
+                        context.getString(R.string.your_internet_has_been_restored),
+                        R.drawable.baseline_wifi_24
                     )
-                    flag = true
+                    isDisconnected = false
                 }
-                null -> {}
             }
-        }
-        return flag
-    }
-    fun checkInternetConnection2(
-        lifecycleOwner: LifecycleOwner,
-        networkStatus: LiveData<ConnectivityStatus?>,
-    ):Boolean {
-        var flag = false
-        networkStatus.observe(lifecycleOwner) { connectivityStatus ->
-            when (connectivityStatus) {
-                ConnectivityStatus.CONNECTED -> {
-                    if (flag) {
-                        Log.e("connection","connection is back")
-                        flag = false
-                    }
-                }
-                ConnectivityStatus.DISCONNECTED -> {
-                    Log.e("connection","connection is not back")
-                    flag = true
-                }
-                null -> {}
+            ConnectivityStatus.DISCONNECTED -> {
+                loadingDialog.showLoading(fragmentManager)
+                SnackBarCustom.showSnackbar(
+                    rootView,
+                    context.getString(R.string.you_are_currently_offline),
+                    R.drawable.baseline_wifi_off_24
+                )
+                isDisconnected = true
             }
+            null -> Unit
         }
-        return flag
     }
+    return isDisconnected
 }
+

@@ -4,5 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class MessageResponseModel(
     @SerializedName("message")
-    val message:String
+    val message: String,
+    @SerializedName("verified")
+    val verified: Boolean
 )

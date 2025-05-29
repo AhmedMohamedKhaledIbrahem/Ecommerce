@@ -30,42 +30,26 @@
         tools:targetApi="tiramisu">
 
         <activity
-            android:name=".MainNavigationActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"
-            />
-        <activity
-            android:name=".features.authentication.presentation.screens.checkverificationcodescreen.CheckVerificationCodeActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"
-            />
-
-        <activity
-            android:name=".features.authentication.presentation.screens.forgetpasswordscreen.ForgetPasswordActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"
-            />
-        <activity
-            android:name=".features.authentication.presentation.screens.loginscreen.LoginActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"
-            />
-        <activity
-            android:name=".features.authentication.presentation.screens.signupscreen.SignUpActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"
-            />
-        <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize"
-            >
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+<!--        <activity-->
+<!--            android:name=".MainActivity"-->
+<!--            android:exported="true"-->
+<!--            android:windowSoftInputMode="adjustResize"-->
+<!--            >-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
 
         <service
             android:name=".core.service.FCMHandler"

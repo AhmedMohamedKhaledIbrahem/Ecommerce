@@ -2,20 +2,28 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="softWhite">#EDEDED</color>
+    <color name="charcoal">#212121</color>
+    <color name="blue">#0000FF</color>
     <color name="blueSky">#0D6EFD</color>
     <color name="brightBlue">#1483C2 </color>
+    <color name="gray">#808080</color>
     <color name="slateGray">#707B81</color>
     <color name="dimGray">#6A6A6A </color>
-    <color name="charcoal">#2B2B2B </color>
-    <color name="vermilion">#FF4C24</color>
-    <color name="purple">#FF8A80</color>
-    <color name="ripple_color">#FF6200EE</color>
     <color name="shimmer_color">#C2C2C2</color>
-    <color name="order_processing">#FFA500</color>  <!-- Orange -->
-    <color name="order_completed">#008000</color>   <!-- Green -->
-    <color name="order_pending">#0000FF</color>     <!-- Blue -->
-    <color name="order_on_hold">#FFFF00</color>     <!-- Yellow -->
-    <color name="order_cancelled">#808080</color>   <!-- Gray -->
-    <color name="order_refunded">#800080</color>    <!-- Purple -->
-    <color name="order_failed">#FF0000</color>      <!-- Red -->
+    <color name="vermilion">#FF4C24</color>
+    <color name="red">#FF0000</color>
+    <color name="ripple_color">#FF6200EE</color>
+    <color name="purple">#800080</color>
+    <color name="orange">#FFA500</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="green">#008000</color>
+
+
+
+
+
+
+
 </resources>
+

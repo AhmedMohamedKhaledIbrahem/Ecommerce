@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.notification.presentation.viewmodel.notificationmanager
 
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.state.UiState
 import kotlinx.coroutines.flow.SharedFlow
 
 interface INotificationManagerViewModel {

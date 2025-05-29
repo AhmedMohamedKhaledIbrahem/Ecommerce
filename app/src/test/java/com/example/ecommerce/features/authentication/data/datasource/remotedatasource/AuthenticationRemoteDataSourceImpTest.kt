@@ -3,76 +3,63 @@ package com.example.ecommerce.features.authentication.data.datasource.remotedata
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.authentication.data.datasources.AuthenticationApi
 import com.example.ecommerce.features.authentication.data.datasources.remotedatasource.AuthenticationRemoteDataSourceImp
-import com.example.ecommerce.features.authentication.data.mapper.AuthenticationMapper
-import com.example.ecommerce.features.authentication.data.mapper.EmailRequestMapper
-import com.example.ecommerce.features.authentication.data.mapper.SignUpRequestMapper
+import com.example.ecommerce.features.authentication.data.models.AuthenticationRequestModel
 import com.example.ecommerce.features.authentication.data.models.AuthenticationResponseModel
+import com.example.ecommerce.features.authentication.data.models.ChangePasswordRequestModel
+import com.example.ecommerce.features.authentication.data.models.EmailRequestModel
 import com.example.ecommerce.features.authentication.data.models.MessageResponseModel
-import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
-import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
-import com.example.ecommerce.features.authentication.domain.entites.SignUpRequestEntity
+import com.example.ecommerce.features.authentication.data.models.SignUpRequestModel
+import com.example.ecommerce.features.errorBody
+import com.example.ecommerce.features.errorJsonBody
+import com.example.ecommerce.features.errorMessage
+import com.example.ecommerce.features.failureException
 import com.example.ecommerce.resources.fixture
 import com.google.gson.Gson
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
 import retrofit2.Response
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 @ExperimentalCoroutinesApi
 class AuthenticationRemoteDataSourceImpTest {
-    @Mock
-    private lateinit var authenticationApi: AuthenticationApi
+
+    private val authenticationApi: AuthenticationApi = mockk<AuthenticationApi>()
     private lateinit var remoteDataSource: AuthenticationRemoteDataSourceImp
 
     @Before
     fun setUp() {
-        MockitoAnnotations.openMocks(this)
         remoteDataSource = AuthenticationRemoteDataSourceImp(api = authenticationApi)
     }
 
-    private val authenticationRequestEntity =
-        AuthenticationRequestEntity(userName = "test", password = "123456")
-    private val tLoginParams = AuthenticationMapper.mapToModel(entity = authenticationRequestEntity)
+
     private val loginResponse = fixture("login.json").run {
         Gson().fromJson(this, AuthenticationResponseModel::class.java)
     }
-
-    private val signUpRequestEntity = SignUpRequestEntity(
-        username = "test",
-        email = "test@gmail.com",
-        firstName = "jino",
-        lastName = "pero",
-        password = "123456",
-    )
-    private val tSignUpParams = SignUpRequestMapper.mapToModel(entity = signUpRequestEntity)
-
-    private val tEmailRequestEntity = EmailRequestEntity(email = "test@gmail.com")
-    private val tEmailParams = EmailRequestMapper.mapToModel(entity = tEmailRequestEntity)
     private val messageResponse = fixture("message.json").run {
         Gson().fromJson(this, MessageResponseModel::class.java)
     }
-
+    private val tLoginParams = mockk<AuthenticationRequestModel>()
+    private val tEmailParams = mockk<EmailRequestModel>()
+    private val tSignUpParams = mockk<SignUpRequestModel>()
 
 
     @Test
     fun `login should return the AuthenticationResponse when the call remote Data Source is successful `(): Unit =
         runTest {
             val response = Response.success(loginResponse)
-            `when`(authenticationApi.loginRequest(tLoginParams)).thenReturn(response)
+
+            coEvery { authenticationApi.loginRequest(tLoginParams) } returns response
             val result = remoteDataSource.login(loginParams = tLoginParams)
             assertEquals(loginResponse, result)
-            verify(authenticationApi).loginRequest(tLoginParams)
-
+            coVerify(exactly = 1) {
+                authenticationApi.loginRequest(tLoginParams)
+            }
         }
 
     @Test
@@ -81,21 +68,21 @@ class AuthenticationRemoteDataSourceImpTest {
 
             val response = Response.error<AuthenticationResponseModel>(
                 400,
-                "{'message': 'Some error message'}".toResponseBody(null)
+                errorBody
             )
-            `when`(authenticationApi.loginRequest(tLoginParams)).thenReturn(response)
-
-            val result = assertFailsWith<FailureException> {
+            coEvery { authenticationApi.loginRequest(tLoginParams) } returns response
+            val result = failureException {
                 remoteDataSource.login(tLoginParams)
             }
-            assertEquals("Some error message", result.message)
+            assertEquals(errorMessage, result.message)
         }
 
     @Test
     fun `signUp should return the MessageResponse when the call remote data source is successful`(): Unit =
         runTest {
+
             val response = Response.success(messageResponse)
-            `when`(authenticationApi.signUpRequest(tSignUpParams)).thenReturn(response)
+            coEvery { authenticationApi.signUpRequest(tSignUpParams) } returns response
             val result = remoteDataSource.signUp(tSignUpParams)
             assertEquals(messageResponse, result)
         }
@@ -105,14 +92,13 @@ class AuthenticationRemoteDataSourceImpTest {
         runTest {
             val response = Response.error<MessageResponseModel>(
                 400,
-                "{'message': 'Some error message'}".toResponseBody(null)
+                errorBody
             )
-            `when`(authenticationApi.signUpRequest(tSignUpParams)).thenReturn(response)
-            val result = assertFailsWith<FailureException> {
+            coEvery { authenticationApi.signUpRequest(tSignUpParams) } returns response
+            val result = failureException {
                 remoteDataSource.signUp(tSignUpParams)
             }
-
-            assertEquals("Some error message", result.message)
+            assertEquals(errorMessage, result.message)
 
         }
 
@@ -120,7 +106,7 @@ class AuthenticationRemoteDataSourceImpTest {
     fun `resetPassword should return the MessageResponse when the call remote data source is successful`(): Unit =
         runTest {
             val response = Response.success(messageResponse)
-            `when`(authenticationApi.resetPasswordRequest(tEmailParams)).thenReturn(response)
+            coEvery { authenticationApi.resetPasswordRequest(tEmailParams) } returns response
             val result = remoteDataSource.resetPassword(tEmailParams)
             assertEquals(messageResponse, result)
         }
@@ -130,14 +116,25 @@ class AuthenticationRemoteDataSourceImpTest {
         runTest {
             val response = Response.error<MessageResponseModel>(
                 400,
-                "{'message': 'Some error message'}".toResponseBody(null)
+                errorJsonBody
             )
-            `when`(authenticationApi.resetPasswordRequest(tEmailParams)).thenReturn(response)
+            coEvery { authenticationApi.resetPasswordRequest(tEmailParams) } returns response
             val result = assertFailsWith<FailureException> {
                 remoteDataSource.resetPassword(tEmailParams)
             }
-            assertEquals("Some error message", result.message)
+            assertEquals(errorMessage, result.message)
         }
 
+    @Test
+    fun `changePassword should return the MessageResponse when the call remote data source is successful`() =
+        runTest {
+            val changePasswordRequest = mockk<ChangePasswordRequestModel>()
+            val changePasswordResponse = mockk<MessageResponseModel>()
+            val response = Response.success(changePasswordResponse)
+            coEvery { authenticationApi.changePasswordRequest(changePasswordRequest) } returns response
+            val result = remoteDataSource.changePassword(changePasswordRequest)
+            assertEquals(changePasswordResponse, result)
+
+        }
 
 }

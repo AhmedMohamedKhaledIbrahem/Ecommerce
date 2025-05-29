@@ -6,28 +6,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    android:background="@color/white"
-    tools:context=".MainNavigationActivity">
+    android:background="?attr/colorBackgroundFloating"
+    tools:context=".MainActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/profileToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/purple"
+        android:background="?attr/toolbarColor"
+        android:elevation="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:titleTextAppearance="@style/headLine2"
+        app:titleTextColor="?attr/colorOnSecondary"
+        app:menu="@menu/tool_bar_item">
 
-        <TextView
-            android:id="@+id/titleToolBarTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:fontFamily="@font/raleway_bold"
-            android:text=""
-            android:textColor="@color/white"
-            android:textSize="25sp" />
-    </androidx.appcompat.widget.Toolbar>
+
+
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainer"
@@ -48,16 +45,18 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        >
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationBar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/white"
+            android:layout_height="66dp"
+            android:background="@color/charcoal"
             app:itemActiveIndicatorStyle="@style/CustomActiveIndicator"
-            app:itemIconSize="30dp"
+            app:itemIconSize="24dp"
+
+            app:itemIconTint="@color/bottom_nav_color_selector"
+            app:itemTextColor="@color/bottom_nav_color_selector"
             app:menu="@menu/bottom_nav_bar_menu" />
 
     </LinearLayout>

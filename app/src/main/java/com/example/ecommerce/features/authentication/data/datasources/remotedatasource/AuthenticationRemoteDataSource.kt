@@ -2,7 +2,9 @@ package com.example.ecommerce.features.authentication.data.datasources.remotedat
 
 import com.example.ecommerce.features.authentication.data.models.AuthenticationRequestModel
 import com.example.ecommerce.features.authentication.data.models.AuthenticationResponseModel
+import com.example.ecommerce.features.authentication.data.models.ChangePasswordRequestModel
 import com.example.ecommerce.features.authentication.data.models.CheckVerificationRequestModel
+import com.example.ecommerce.features.authentication.data.models.ConfirmPasswordResetRequestModel
 import com.example.ecommerce.features.authentication.data.models.EmailRequestModel
 import com.example.ecommerce.features.authentication.data.models.MessageResponseModel
 import com.example.ecommerce.features.authentication.data.models.SignUpRequestModel
@@ -13,4 +15,7 @@ interface AuthenticationRemoteDataSource {
     suspend fun resetPassword(resetPasswordParams: EmailRequestModel): MessageResponseModel
     suspend fun sendVerificationCode(sendVerificationCodeParams: EmailRequestModel): MessageResponseModel
     suspend fun checkVerificationCode(checkVerificationCodeParams: CheckVerificationRequestModel): MessageResponseModel
+    suspend fun confirmPasswordChange(confirmPasswordChangeParams: ConfirmPasswordResetRequestModel): MessageResponseModel
+    suspend fun changePassword(changePasswordParams: ChangePasswordRequestModel): MessageResponseModel
+
 }

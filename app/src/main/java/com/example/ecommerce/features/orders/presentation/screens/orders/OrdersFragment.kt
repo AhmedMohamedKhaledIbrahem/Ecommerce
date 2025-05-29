@@ -10,130 +10,114 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.ecommerce.R
+import com.example.ecommerce.core.database.data.entities.orders.OrderItemEntity
 import com.example.ecommerce.core.database.data.entities.orders.OrderWithItems
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.ui.event.UiEvent
+import com.example.ecommerce.core.ui.event.navigationWithArgs
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.detectScrollEnd
+import com.example.ecommerce.databinding.FragmentOrdersBinding
+import com.example.ecommerce.features.orders.presentation.event.OrderEvent
 import com.example.ecommerce.features.orders.presentation.screens.adapter.order_adapter.OrderAdapter
-import com.example.ecommerce.features.orders.presentation.viewmodel.IOrderViewModel
 import com.example.ecommerce.features.orders.presentation.viewmodel.OrderViewModel
-import com.example.ecommerce.features.product.presentation.screen.product.ProductFragmentDirections
-import com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetailsFragmentArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class OrdersFragment : Fragment() {
 
-    private lateinit var recyclerView: RecyclerView
     private lateinit var orderAdapter: OrderAdapter
-    private val orderViewModel: IOrderViewModel by viewModels<OrderViewModel>()
+    private val orderViewModel by viewModels<OrderViewModel>()
     private lateinit var root: View
+    private var _binding: FragmentOrdersBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_orders, container, false)
-        initView(view)
-        return view
+        _binding = FragmentOrdersBinding.inflate(inflater, container, false)
+        root = binding.root
+        return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        orderViewModel.getOrders()
-        detectScrollEnd(recyclerView)
+        detectScrollEnd(binding.ordersRecyclerView)
+        orderViewModel.onEvent(OrderEvent.LoadOrders)
         orderState()
+        orderEvent()
 
     }
 
-    private fun initView(view: View) {
-        root = view
-        recyclerView = view.findViewById(R.id.ordersRecyclerView)
-    }
 
     private fun orderRecyclerView(orderWithItems: List<OrderWithItems>) {
-        println(orderWithItems)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.ordersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         orderAdapter = OrderAdapter(
-            context = requireContext(),
             orderWithItems = orderWithItems
         ) {
-            val action = OrdersFragmentDirections.actionOrdersFragmentToOrderDetailsFragment(
-                orderDetailsArgs = it.toTypedArray()
 
-            )
-            findNavController().navigate(action)
+            orderViewModel.onEvent(OrderEvent.OnOrderItemCardClick(it.toTypedArray()))
+            orderViewModel.onEvent(OrderEvent.OnOrderCardClick)
+
         }
-        recyclerView.adapter = orderAdapter
+        binding.ordersRecyclerView.adapter = orderAdapter
     }
 
     private fun orderState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 orderViewModel.orderState.collect { state ->
-                    orderUiState(state)
+                    val orders = state.orders
+                    if (!state.isOrdersLoading) {
+                        orderRecyclerView(orderWithItems = orders)
+                    }
                 }
 
             }
         }
     }
 
-    private fun orderUiState(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                orderLoadingState(state)
-            }
-
-            is UiState.Success -> {
-                orderSuccessState(state)
-            }
-
-            is UiState.Error -> {
-                orderErrorState(state)
-            }
-        }
-    }
-
-    private fun orderLoadingState(state: UiState.Loading) {
-        when (state.source) {
-            "getOrders" -> {
-
-            }
-        }
-    }
-
-    private fun orderSuccessState(state: UiState.Success<Any>) {
-        when (state.source) {
-            "getOrders" -> {
-                orderItemCollect()
-            }
-        }
-    }
-
-    private fun orderItemCollect() {
+    private fun orderEvent() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                orderViewModel.orderItemState.collect { orderWithItems ->
-                    orderRecyclerView(orderWithItems)
+                orderViewModel.orderEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            SnackBarCustom.showSnackbar(
+                                view = root,
+                                message = event.message,
+                            )
+                        }
+
+                        is UiEvent.Navigation.OrderDetails -> {
+                            navigationWithArgs(
+                                event = event,
+                                onNavigate = { _, args ->
+                                    val orderItems = args as? Array<OrderItemEntity> ?: emptyArray()
+                                    val action =
+                                        OrdersFragmentDirections.actionOrdersFragmentToOrderDetailsFragment(
+                                            orderItems
+
+                                        )
+                                    findNavController().navigate(action)
+                                }
+                            )
+                        }
+
+                        else -> Unit
+                    }
                 }
+
             }
         }
     }
 
-    private fun orderErrorState(state: UiState.Error) {
-        when (state.source) {
-            "getOrders" -> {
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = state.message
-                )
-            }
-        }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 

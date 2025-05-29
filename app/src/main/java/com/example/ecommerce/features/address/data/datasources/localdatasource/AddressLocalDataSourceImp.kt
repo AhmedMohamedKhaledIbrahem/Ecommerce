@@ -6,12 +6,14 @@ import com.example.ecommerce.core.database.data.dao.address.AddressDao
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.database.data.mapper.CustomerAddressMapper
 import com.example.ecommerce.core.errors.FailureException
+import com.example.ecommerce.core.manager.address.AddressManager
 import com.example.ecommerce.features.address.data.models.AddressRequestModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class AddressLocalDataSourceImp @Inject constructor(
     private val dao: AddressDao,
+
     @ApplicationContext private val context: Context
 ) : AddressLocalDataSource {
 
@@ -42,6 +44,7 @@ class AddressLocalDataSourceImp @Inject constructor(
             val customerAddressEntity =
                 CustomerAddressMapper.mapToEntity(addressRequestParams)
             dao.insertAddress(customerAddressEntity = customerAddressEntity)
+
         } catch (e: Exception) {
             throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
         }
@@ -65,9 +68,57 @@ class AddressLocalDataSourceImp @Inject constructor(
         }
     }
 
-    override suspend fun deleteAddress() {
+    override suspend fun deleteAllAddress() {
         try {
             dao.deleteAllAddress()
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+    }
+
+    override suspend fun deleteAddress(customerAddressEntity: CustomerAddressEntity) {
+        try {
+            dao.deleteAddress(customerAddressEntity = customerAddressEntity)
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+    }
+
+    override suspend fun getSelectAddress(customerId: Int): CustomerAddressEntity {
+        return try {
+            dao.getSelectAddress(customerAddressId = customerId)
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+    }
+
+    override suspend fun unSelectAddress(customerId: Int) {
+        try {
+            dao.unSelectAddress(customerAddressId = customerId)
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+    }
+
+    override suspend fun selectAddress(customerId: Int) {
+        try {
+            dao.selectAddress(customerAddressId = customerId)
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+    }
+
+    override suspend fun isEmailExist(email: String): Int {
+        return try {
+            dao.isEmailExist(email = email)
+        } catch (e: Exception) {
+            throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
+        }
+    }
+
+    override suspend fun getCustomerId(email: String): Int {
+        return try {
+            dao.getCustomerId(email = email)
         } catch (e: Exception) {
             throw FailureException(e.localizedMessage ?: context.getString(R.string.unknown_error))
         }

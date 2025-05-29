@@ -20,14 +20,11 @@ import javax.inject.Inject
 class InternetConnectionCheckerImp @Inject constructor(
     private val context: Context,
 ):InternetConnectionChecker {
-    private val checkInterval: Long = 1000L
+    private val checkInterval: Long = 5000L
     private val checkOptions: List<AddressCheckOption> = defaultCheckOptions
     companion object {
         private val defaultCheckOptions = listOf(
             AddressCheckOption("https://1.1.1.1"),
-            AddressCheckOption("https://icanhazip.com"),
-            AddressCheckOption("https://jsonplaceholder.typicode.com/todos/1"),
-            AddressCheckOption("https://reqres.in/api/users/1")
         )
     }
     private  val _statusFlow = MutableStateFlow<ConnectivityStatus?>(ConnectivityStatus.CONNECTED)
@@ -39,20 +36,14 @@ class InternetConnectionCheckerImp @Inject constructor(
         startMonitoring()
     }
 
-    /*private fun sendNetworkStatusBroadcast(isConnected: Boolean) {
-        val intent = Intent("NETWORK_STATUS")
-        intent.putExtra("isConnected", isConnected)
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-    }*/
+
 
        override fun startMonitoring() {
         scope.launch {
             while (isActive) {
-                /**/
                 val isConnected = hasConnection()
                 withContext(Dispatchers.Main) {
                     _statusFlow.emit(if (isConnected) ConnectivityStatus.CONNECTED else ConnectivityStatus.DISCONNECTED)
-                   // sendNetworkStatusBroadcast(isConnected = isConnected)
 
                 }
                 delay(checkInterval)
@@ -61,21 +52,6 @@ class InternetConnectionCheckerImp @Inject constructor(
     }
 
     override  suspend fun hasConnection(): Boolean {
-        /* val connectivityManager =
-             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-             val network = connectivityManager.activeNetwork
-             val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
-             networkCapabilities != null && (
-                     networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                             networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-                             networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
-                     )
-         } else {
-             // For devices below API level 23, use the deprecated methods
-             val activeNetworkInfo = connectivityManager.activeNetworkInfo
-             activeNetworkInfo != null && activeNetworkInfo.isConnected
-         } || checkUrls()*/
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork

@@ -55,4 +55,12 @@ class UserProfileLocalDataSourceImp @Inject constructor(
             }
 
     }
+
+    override suspend fun getUserCount(userId: Int, displayName: String): Int {
+        return try {
+            dao.getUserExist(userId, displayName)
+        } catch (e: Exception) {
+            throw FailureException("${e.message}")
+        }
+    }
 }

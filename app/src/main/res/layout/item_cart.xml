@@ -10,11 +10,13 @@
         android:id="@+id/itemCartFrameLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        style="@style/customCardStyle"
         android:layout_marginHorizontal="10dp"
         android:layout_marginVertical="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        >
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/cartItemImage"
@@ -23,7 +25,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="37dp"
-
             android:contentDescription="@string/product_image"
             android:scaleType="centerCrop"
             android:src="@drawable/round_placeholder_24"
@@ -35,7 +36,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="98dp"
             android:layout_marginTop="30dp"
-            android:text="" />
+            android:text=""
+            android:textColor="?attr/colorOnSecondary"
+            style="@style/headLine2"
+            android:textStyle="bold"
+            />
 
         <TextView
             android:id="@+id/priceItemCartText"
@@ -43,7 +48,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="98dp"
             android:layout_marginTop="48dp"
-            android:text="" />
+            android:textColor="?attr/colorOnSecondary"
+            android:text=""
+            style="@style/headLine2"
+            android:textStyle="bold"
+            />
 
         <LinearLayout
             android:id="@+id/counterContainerLayout"
@@ -54,29 +63,32 @@
             android:paddingStart="8dp"
             android:paddingBottom="5dp">
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/itemCartDecreaseCounter"
                 android:layout_width="80dp"
                 android:layout_height="30dp"
                 android:layout_gravity="center"
-                android:clickable="true"
-                android:contentDescription="@string/itemcartdecreasecounter"
-                android:src="@drawable/minus" />
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/item_cart_decrease_counter"
+                android:src="@drawable/minus"
+                />
 
             <TextView
                 android:id="@+id/cartItemPriceTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textSize="18sp" />
+                style="@style/headLine1"
+                />
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/itemCartIncreaseCounter"
                 android:layout_width="80dp"
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:clickable="true"
-                android:contentDescription="@string/itemcartincreasecounter"
+                android:contentDescription="@string/item_cart_increase_counter"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/add" />
         </LinearLayout>
 

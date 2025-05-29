@@ -68,6 +68,6 @@ val tCustomerAddressEntityUpdate = CustomerAddressMapper.mapToEntity(
 )
 const val addressError = "No address found"
 const val unknownError = "Unknown error"
-
+const val tCustomerId = 1
 const val tErrorResponseAddressJson = """{"message": "error message"}"""
 val tErrorResponseAddressTokenBody = tErrorResponseAddressJson.toResponseBody("application/json".toMediaType())

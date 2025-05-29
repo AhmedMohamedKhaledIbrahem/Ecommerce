@@ -1,9 +1,11 @@
 package com.example.ecommerce.features.address.data.mapper
 
+import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.features.address.data.models.AddressDataResponseModel
 import com.example.ecommerce.features.address.data.models.AddressRequestModel
 import com.example.ecommerce.features.address.data.models.UpdateAddressResponseModel
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
+import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
 import com.example.ecommerce.features.address.domain.entites.UpdateAddressResponseEntity
 
 object AddressMapper {
@@ -15,20 +17,31 @@ object AddressMapper {
 
     fun mapToModel(entity: AddressRequestEntity): AddressRequestModel {
         return AddressRequestModel(
-            billing = entity.billing?.let { BillingInfoMapper.mapToModel(it) },
-            shipping = entity.shipping?.let { ShippingInfoMapper.mapToModel(it) },
+            billing = BillingInfoMapper.mapToModel(entity.billing) ,
+            shipping =   ShippingInfoMapper.mapToModel(entity.shipping) ,
         )
     }
 
     fun mapAddressResponseModelToAddressRequestModel(model: AddressDataResponseModel): AddressRequestModel {
 
         return AddressRequestModel(
-            billing = model.billing?.let {
-                BillingInfoMapper.mapBillingInfoResponseModelToBillingInfoRequestModel(
-                    it
-                )
-            },
+            billing = BillingInfoMapper.mapBillingInfoResponseModelToBillingInfoRequestModel(
+                model.billing
+            ),
         )
 
+    }
+
+    fun mapCustomerAddressEntityToBillingInfoRequest(addressEntity: CustomerAddressEntity): BillingInfoRequestEntity {
+        return BillingInfoRequestEntity(
+            firstName = addressEntity.firstName,
+            lastName = addressEntity.lastName,
+            address = addressEntity.address,
+            city = addressEntity.city,
+            country = addressEntity.country,
+            postCode = addressEntity.zipCode,
+            phone = addressEntity.phone,
+            email = addressEntity.email,
+        )
     }
 }

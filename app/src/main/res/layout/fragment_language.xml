@@ -4,37 +4,24 @@
     android:id="@+id/radio_group_language"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginHorizontal="10dp"
+    android:background="?attr/colorSecondary"
     android:orientation="vertical"
     tools:context=".features.preferences.presentation.screen.LanguageFragment">
 
     <RadioButton
         android:id="@+id/radio_english"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/english" />
+        android:text="@string/english"
+        android:textColor="?attr/colorOnSecondary" />
 
-    <RadioButton
-        android:id="@+id/radio_french"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/french" />
-
-    <RadioButton
-        android:id="@+id/radio_italian"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/italian" />
-
-    <RadioButton
-        android:id="@+id/radio_germany"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/germany" />
 
     <RadioButton
         android:id="@+id/radio_arabic"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/arabic" />
+        android:text="@string/arabic"
+        android:textColor="?attr/colorOnSecondary" />
 
 </RadioGroup>

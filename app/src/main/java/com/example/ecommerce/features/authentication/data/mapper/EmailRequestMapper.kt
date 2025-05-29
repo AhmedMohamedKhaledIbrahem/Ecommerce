@@ -10,3 +10,9 @@ object EmailRequestMapper {
         )
     }
 }
+fun EmailRequestEntity.toModel(): EmailRequestModel{
+    return EmailRequestModel(
+        email = this.email
+    )
+
+}

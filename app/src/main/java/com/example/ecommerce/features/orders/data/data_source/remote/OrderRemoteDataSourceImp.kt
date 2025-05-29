@@ -1,6 +1,6 @@
 package com.example.ecommerce.features.orders.data.data_source.remote
 
-import com.example.ecommerce.core.customer.CustomerManager
+import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.orders.data.data_source.OrderApi
 import com.example.ecommerce.features.orders.data.models.OrderRequestModel

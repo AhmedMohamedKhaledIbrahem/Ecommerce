@@ -4,6 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ecommerce.R
+import com.example.ecommerce.databinding.ItemCartBinding
+import com.example.ecommerce.databinding.ItemSearchBarBinding
 
 class SearchAdapter(private val onSearchQueryChanged: (String) -> Unit) :
     RecyclerView.Adapter<SearchViewHolder>() {
@@ -13,9 +15,9 @@ class SearchAdapter(private val onSearchQueryChanged: (String) -> Unit) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_search_bar, parent, false)
-        return SearchViewHolder(view, onSearchQueryChanged)
+        val binding =
+            ItemSearchBarBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return SearchViewHolder(binding, onSearchQueryChanged)
     }
 
     override fun getItemCount(): Int = 1

@@ -9,6 +9,8 @@ import com.example.ecommerce.features.cart.data.data_soruce.remote.CartRemoteDat
 import com.example.ecommerce.features.cart.data.mapper.AddItemRequestMapper
 import com.example.ecommerce.features.cart.domain.entities.AddItemRequestEntity
 import com.example.ecommerce.features.cart.domain.repository.CartRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 class CartRepositoryImp @Inject constructor(
@@ -40,6 +42,8 @@ class CartRepositoryImp @Inject constructor(
     override suspend fun getCart(): CartWithItems {
         return try {
             if (internetConnectionChecker.hasConnection()) {
+
+
                 localDataSource.getCart()
             } else {
                 throw Failures.ConnectionFailure("No Internet Connection")
@@ -50,21 +54,28 @@ class CartRepositoryImp @Inject constructor(
 
     }
 
-    override suspend fun removeItem(keyItem: String) {
-        if (internetConnectionChecker.hasConnection()) {
-            try {
-                remoteDataSource.removeItem(itemHash = keyItem)
-            } catch (failure: FailureException) {
-                throw Failures.ServerFailure("${failure.message}")
-            }
-            try {
-                localDataSource.removeItem(keyItem = keyItem)
-            } catch (failure: FailureException) {
-                throw Failures.CacheFailure("${failure.message}")
-            }
-        } else {
+    override suspend fun removeItem(keyItem: String) = coroutineScope {
+        if (!internetConnectionChecker.hasConnection()) {
             throw Failures.ConnectionFailure("No Internet Connection")
         }
+
+        val local = async {
+            try {
+                localDataSource.removeItem(keyItem)
+            } catch (e: Exception) {
+                throw Failures.CacheFailure(e.message ?: "Local deletion failed")
+            }
+        }
+        val remote = async {
+            try {
+                remoteDataSource.removeItem(itemHash = keyItem)
+            } catch (e: Exception) {
+                throw Failures.ServerFailure(e.message ?: "Remote deletion failed")
+            }
+        }
+        local.await()
+        remote.await()
+
     }
 
     override suspend fun updateQuantity(itemId: Int, newQuantity: Int) {
@@ -93,6 +104,14 @@ class CartRepositoryImp @Inject constructor(
             }
         } catch (failure: FailureException) {
             throw Failures.ServerFailure("${failure.message}")
+        }
+    }
+
+    override suspend fun getCartCount(): Int {
+        return try {
+            localDataSource.getCartCount()
+        } catch (failure: FailureException) {
+            throw Failures.CacheFailure("${failure.message}")
         }
     }
 

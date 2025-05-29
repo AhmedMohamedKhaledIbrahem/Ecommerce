@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_bottom_bar"
-    app:startDestination="@id/productFragment">
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/productFragment"
         android:name="com.example.ecommerce.features.product.presentation.screen.product.ProductFragment"
-        android:label="fragment_product"
-        tools:layout="@layout/fragment_product" >
+        android:label="@string/title_product"
+        tools:layout="@layout/fragment_product">
         <action
             android:id="@+id/action_productFragment_to_productDetailsFragment"
             app:destination="@id/productDetailsFragment"
@@ -21,8 +21,8 @@
     <fragment
         android:id="@+id/settingFragment"
         android:name="com.example.ecommerce.features.userprofile.presentation.screens.settingscreen.SettingFragment"
-        android:label="fragment_setting"
-        tools:layout="@layout/fragment_setting" >
+        android:label="@string/title_setting"
+        tools:layout="@layout/fragment_setting">
         <action
             android:id="@+id/action_settingFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment"
@@ -48,13 +48,13 @@
     <dialog
         android:id="@+id/editProfileFragment"
         android:name="com.example.ecommerce.features.userprofile.presentation.screens.editscreen.EditProfileFragment"
-        android:label="fragment_edit_profile"
+        android:label="@string/title_edit_profile"
         tools:layout="@layout/fragment_edit_profile" />
     <fragment
         android:id="@+id/addressFragment"
         android:name="com.example.ecommerce.features.address.presentation.screen.address.AddressFragment"
-        android:label="fragment_address"
-        tools:layout="@layout/fragment_address" >
+        android:label="@string/title_address"
+        tools:layout="@layout/fragment_address">
         <action
             android:id="@+id/action_addressFragment_to_editAddressFragment"
             app:destination="@id/editAddressFragment"
@@ -62,22 +62,23 @@
             app:exitAnim="@android:anim/fade_out"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+
     </fragment>
     <fragment
         android:id="@+id/editAddressFragment"
         android:name="com.example.ecommerce.features.address.presentation.screen.editaddress.EditAddressFragment"
-        android:label="fragment_edit_address"
+        android:label="@string/title_edit_address"
         tools:layout="@layout/fragment_edit_address" />
     <dialog
         android:id="@+id/languageFragment"
         android:name="com.example.ecommerce.features.preferences.presentation.screen.LanguageFragment"
-        android:label="language"
+        android:label="@string/title_language"
         tools:layout="@layout/fragment_language" />
     <fragment
         android:id="@+id/productDetailsFragment"
         android:name="com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetailsFragment"
-        android:label="Product Details"
-        tools:layout="@layout/fragment_product_details" >
+        android:label="@string/title_product_details"
+        tools:layout="@layout/fragment_product_details">
         <argument
             android:name="product"
             app:argType="com.example.ecommerce.features.product.presentation.screen.product_details.ProductDetails" />
@@ -92,13 +93,13 @@
     <fragment
         android:id="@+id/cartFragment"
         android:name="com.example.ecommerce.features.cart.presentation.screens.cart.CartFragment"
-        android:label="cart"
+        android:label="@string/title_cart"
         tools:layout="@layout/fragment_cart" />
     <fragment
         android:id="@+id/ordersFragment"
         android:name="com.example.ecommerce.features.orders.presentation.screens.orders.OrdersFragment"
-        android:label="orders"
-        tools:layout="@layout/fragment_orders" >
+        android:label="@string/title_orders"
+        tools:layout="@layout/fragment_orders">
         <action
             android:id="@+id/action_ordersFragment_to_orderDetailsFragment"
             app:destination="@id/orderDetailsFragment"
@@ -110,10 +111,50 @@
     <fragment
         android:id="@+id/orderDetailsFragment"
         android:name="com.example.ecommerce.features.orders.presentation.screens.orders.OrderDetailsFragment"
-        android:label="fragment_order_details"
-        tools:layout="@layout/fragment_order_details" >
+        android:label="@string/title_order_details"
+        tools:layout="@layout/fragment_order_details">
         <argument
             android:name="orderDetailsArgs"
             app:argType="com.example.ecommerce.core.database.data.entities.orders.OrderItemEntity[]" />
+    </fragment>
+    <fragment
+        android:id="@+id/checkVerificationCodeFragment"
+        android:name="com.example.ecommerce.features.authentication.presentation.screens.checkverificationcodescreen.CheckVerificationCodeFragment"
+        android:label="@string/title_check_verification_code"
+        tools:layout="@layout/fragment_check_verification_code">
+        <argument
+            android:name="emailArg"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/forgetPasswordFragment"
+        android:name="com.example.ecommerce.features.authentication.presentation.screens.forgetpasswordscreen.ForgetPasswordFragment"
+        android:label="@string/title_forget_password"
+        tools:layout="@layout/fragment_forget_password" />
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.ecommerce.features.authentication.presentation.screens.loginscreen.LoginFragment"
+        android:label="@string/title_login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_checkVerificationCodeFragment"
+            app:destination="@id/checkVerificationCodeFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.ecommerce.features.authentication.presentation.screens.signupscreen.SignUpFragment"
+        android:label="@string/title_signup"
+        tools:layout="@layout/fragment_sign_up">
+        <action
+            android:id="@+id/action_signUpFragment_to_checkVerificationCodeFragment"
+            app:destination="@id/checkVerificationCodeFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
 </navigation>

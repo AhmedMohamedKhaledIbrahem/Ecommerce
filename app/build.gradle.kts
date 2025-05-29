@@ -32,6 +32,10 @@ android {
             )
         }
     }
+    buildFeatures {
+        viewBinding = true
+
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -39,7 +43,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-
 
 
 }
@@ -74,7 +77,7 @@ dependencies {
     kapt(libs.androidx.room.compiler)
     annotationProcessor(libs.androidx.hilt.compiler.v100)
     //firebase
-    implementation (libs.firebase.messaging)
+    implementation(libs.firebase.messaging)
 
     implementation(libs.recyclerview.swipedecorator)
     implementation(libs.coil)

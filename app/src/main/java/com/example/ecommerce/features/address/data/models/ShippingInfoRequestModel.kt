@@ -3,11 +3,11 @@ package com.example.ecommerce.features.address.data.models
 import com.google.gson.annotations.SerializedName
 
 data class ShippingInfoRequestModel(
-    @SerializedName("first_name") val firstName: String? = null ?: "",
-    @SerializedName("last_name") val lastName: String? = null ?: "",
-    @SerializedName("address_1") val address: String? = null ?: "",
-    @SerializedName("city") val city: String? = null ?: "",
-    @SerializedName("state") val state: String? = null ?: "",
-    @SerializedName("postcode") val postCode: String? = null ?: "",
-    @SerializedName("country") val country: String? = null ?: "",
+    @SerializedName("first_name") val firstName: String =  "",
+    @SerializedName("last_name") val lastName: String =  "",
+    @SerializedName("address_1") val address: String =  "",
+    @SerializedName("city") val city: String =  "",
+    @SerializedName("state") val state: String =  "",
+    @SerializedName("postcode") val postCode: String =  "",
+    @SerializedName("country") val country: String =  "",
 )

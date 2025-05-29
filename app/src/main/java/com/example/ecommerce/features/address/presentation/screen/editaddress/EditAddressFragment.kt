@@ -25,23 +25,33 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
+import com.example.ecommerce.core.constants.EditAddress
+import com.example.ecommerce.core.constants.InsertAddress
+import com.example.ecommerce.core.constants.countryCode
 import com.example.ecommerce.core.constants.countryStateMap
 import com.example.ecommerce.core.constants.regionCodeMap
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
+import com.example.ecommerce.core.ui.event.UiEvent
+import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.AddressUtil
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.databinding.FragmentEditAddressBinding
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
 import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
 import com.example.ecommerce.features.address.domain.entites.ShippingInfoRequestEntity
-import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
-import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
+import com.example.ecommerce.features.address.presentation.event.AddressEvent
+import com.example.ecommerce.features.address.presentation.viewmodel.address.AddressViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.AddressActionViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.IAddressActionViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.customer.CustomerViewModel
+import com.example.ecommerce.features.address.presentation.viewmodel.customer.ICustomerViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.button.MaterialButton
@@ -50,12 +60,15 @@ import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
 @AndroidEntryPoint
 class EditAddressFragment : Fragment() {
+    private var _binding: FragmentEditAddressBinding? = null
+    private val binding get() = _binding!!
     private lateinit var firstNameAddressEditText: TextInputEditText
     private lateinit var lastNameAddressEditText: TextInputEditText
     private lateinit var emailNameAddressEditText: TextInputEditText
@@ -70,19 +83,19 @@ class EditAddressFragment : Fragment() {
     private lateinit var phoneNumberAddressTextFieldInputLayout: TextInputLayout
     private lateinit var cityAddressTextFieldInputLayout: TextInputLayout
     private lateinit var postCodeAddressTextFieldInputLayout: TextInputLayout
+    private val customerViewModel: ICustomerViewModel by activityViewModels<CustomerViewModel>()
+    private val addressActionViewModel: IAddressActionViewModel by activityViewModels<AddressActionViewModel>()
     private lateinit var buttonSave: MaterialButton
     private lateinit var buttonLocation: MaterialButton
     private lateinit var spinnerCountry: Spinner
     private lateinit var spinnerState: Spinner
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private val addressViewModel: IAddressViewModel by viewModels<AddressViewModel>()
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance(parentFragmentManager)
-    }
+    private val addressViewModel by viewModels<AddressViewModel>()
+
 
     private lateinit var root: View
-
+    private lateinit var customerAddressEntity: CustomerAddressEntity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,68 +113,94 @@ class EditAddressFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_edit_address, container, false)
-        initView(view)
-
-        return view
+        _binding = FragmentEditAddressBinding.inflate(inflater, container, false)
+        root = binding.root
+        return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        initView()
         spinnerCountryOnItemSelected()
         textWatchers()
         saveButtonOnClickedListener()
         addressState()
+        addressEvent()
         showInitAddress()
         if (isLocationPermissionGranted()) {
             locationButtonOnClickedListener()
         }
-        //checkLocationIsEnableOrNot()
+        customerAddressObserver()
 
 
     }
 
-    private fun initView(view: View) {
-        firstNameAddressEditText = view.findViewById(R.id.firstNameAddressEditText)
-        lastNameAddressEditText = view.findViewById(R.id.lastNameAddressEditText)
-        emailNameAddressEditText = view.findViewById(R.id.emailNameAddressEditText)
-        phoneNumberAddressEditText = view.findViewById(R.id.phoneNumberAddressEditText)
-        cityAddressEditText = view.findViewById(R.id.cityAddressEditText)
-        postCodeAddressEditText = view.findViewById(R.id.postCodeAddressEditText)
-        streetAddressEditText = view.findViewById(R.id.streetAddressEditText)
+    private fun customerAddressObserver() {
+        customerViewModel.customerEntity.observe(viewLifecycleOwner) {
+            if (addressActionObserver() == EditAddress) {
+                customerAddressEntity = it
+                populateFields(address = it)
+            }
+
+        }
+    }
+
+    private fun addressActionObserver(): String {
+        var addressAction = ""
+        addressActionViewModel.addressAction.observe(viewLifecycleOwner) {
+            addressAction = it
+        }
+        return addressAction
+    }
+
+    private fun initView() {
+        firstNameAddressEditText = binding.firstNameAddressEditText
+        lastNameAddressEditText = binding.lastNameAddressEditText
+        emailNameAddressEditText = binding.emailNameAddressEditText
+        phoneNumberAddressEditText = binding.phoneNumberAddressEditText
+        cityAddressEditText = binding.cityAddressEditText
+        postCodeAddressEditText = binding.postCodeAddressEditText
+        streetAddressEditText = binding.streetAddressEditText
         firstNameAddressTextFieldInputLayout =
-            view.findViewById(R.id.firstNameAddressTextFieldInputLayout)
+            binding.firstNameAddressTextFieldInputLayout
         lastNameAddressTextFieldInputLayout =
-            view.findViewById(R.id.lastNameAddressTextFieldInputLayout)
-        emailAddressTextFieldInputLayout = view.findViewById(R.id.emailAddressTextFieldInputLayout)
+            binding.lastNameAddressTextFieldInputLayout
+        emailAddressTextFieldInputLayout = binding.emailAddressTextFieldInputLayout
         phoneNumberAddressTextFieldInputLayout =
-            view.findViewById(R.id.phoneNumberAddressTextFieldInputLayout)
-        cityAddressTextFieldInputLayout = view.findViewById(R.id.cityAddressTextFieldInputLayout)
+            binding.phoneNumberAddressTextFieldInputLayout
+        cityAddressTextFieldInputLayout = binding.cityAddressTextFieldInputLayout
         postCodeAddressTextFieldInputLayout =
-            view.findViewById(R.id.postCodeAddressTextFieldInputLayout)
+            binding.postCodeAddressTextFieldInputLayout
         streetAddressTextFieldInputLayout =
-            view.findViewById(R.id.streetAddressTextFieldInputLayout)
-        buttonSave = view.findViewById(R.id.buttonSave)
-        buttonLocation = view.findViewById(R.id.buttonLocation)
-        spinnerCountry = view.findViewById(R.id.spinnerCountry)
-        spinnerState = view.findViewById(R.id.spinnerState)
-        root = view
+            binding.streetAddressTextFieldInputLayout
+        buttonSave = binding.buttonSave
+        buttonLocation = binding.buttonLocation
+        spinnerCountry = binding.spinnerCountry
+        spinnerState = binding.spinnerState
+
     }
 
 
     private fun spinnerCountryOnItemSelected() {
-        val countries = countryStateMap.keys.toList()
+        val countries = countryStateMap.keys.map {
+            if (it is Int) getString(it) else it.toString()
+        }
         val countryAdapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, countries)
         countryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerCountry.adapter = countryAdapter
 
         spinnerCountry.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                val selectedCountry = countries[p2]
-                val regions = countryStateMap[selectedCountry] ?: listOf("No regions available")
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+                val selectedCountry = countries[position]
+                val selectedKey = countryStateMap.keys.firstOrNull {
+                    (it is Int && getString(it) == selectedCountry) || (it.toString() == selectedCountry)
+                }
+                val regionsRaw = countryStateMap[selectedKey] ?: listOf(R.string.no_regions_available)
+                val regions = regionsRaw.map {
+                    if (it is Int) getString(it) else it.toString()
+                }
                 spinnerRegionAdapter(regions)
             }
 
@@ -171,6 +210,21 @@ class EditAddressFragment : Fragment() {
 
 
         }
+    }
+
+    private fun populateFields(address: CustomerAddressEntity?) {
+        if (address == null) return
+        firstNameAddressEditText.setText(address.firstName)
+        lastNameAddressEditText.setText(address.lastName)
+        emailNameAddressEditText.setText(address.email)
+        phoneNumberAddressEditText.setText(address.phone)
+        cityAddressEditText.setText(address.city)
+        streetAddressEditText.setText(address.address)
+        postCodeAddressEditText.setText(address.zipCode)
+        val countryIndex =
+            (spinnerCountry.adapter as ArrayAdapter<String>).getPosition(address.country)
+        spinnerCountry.setSelection(countryIndex)
+
     }
 
     private fun spinnerRegionAdapter(regions: List<String>) {
@@ -327,7 +381,7 @@ class EditAddressFragment : Fragment() {
 
     private fun streetAddressValidateInput(): Boolean {
         var isValid = true
-        val streetAddressPattern = Regex("^[a-zA-Z0-9_]+$")
+        val streetAddressPattern = Regex("^[a-zA-Z0-9_\\s]+$")
         if (streetAddressEditText.text.toString().isBlank()) {
             streetAddressTextFieldInputLayout.error = getString(R.string.street_address_is_required)
             streetAddressTextFieldInputLayout.errorIconDrawable = null
@@ -347,7 +401,6 @@ class EditAddressFragment : Fragment() {
     private fun saveButtonOnClickedListener() {
         buttonSave.setOnClickListener {
             val firstName = firstNameAddressEditText.text.toString()
-            Log.e("firstName", firstName)
             val lastName = lastNameAddressEditText.text.toString()
             val email = emailNameAddressEditText.text.toString()
             val phoneNumber = phoneNumberAddressEditText.text.toString()
@@ -356,7 +409,8 @@ class EditAddressFragment : Fragment() {
             val postCode = postCodeAddressEditText.text.toString()
             val country = spinnerCountry.selectedItem.toString()
             val state = spinnerState.selectedItem.toString()
-            val stateCode = regionCodeMap[state] ?: "unknown"
+            val stateCode = regionCodeMap[state] ?: getString(R.string.unknown)
+            val countryCode = countryCode[country] ?: getString(R.string.unknown)
             if (
                 firstNameValidateInput() &&
                 lastNameValidateInput() &&
@@ -365,8 +419,8 @@ class EditAddressFragment : Fragment() {
                 cityValidateInput() &&
                 postCodeValidateInput() &&
                 streetAddressValidateInput() &&
-                spinnerCountry.selectedItem.toString() != "Select Country" &&
-                spinnerState.selectedItem.toString() != "Select State"
+                spinnerCountry.selectedItem.toString() != getString(R.string.select_country) &&
+                spinnerState.selectedItem.toString() != getString(R.string.select_state)
             ) {
                 val billingInfoAddressRequest = BillingInfoRequestEntity(
                     firstName = firstName,
@@ -374,8 +428,8 @@ class EditAddressFragment : Fragment() {
                     email = email,
                     address = address,
                     city = city,
-                    state = stateCode,
-                    country = country,
+
+                    country = countryCode,
                     postCode = postCode,
                     phone = phoneNumber,
                 )
@@ -385,16 +439,14 @@ class EditAddressFragment : Fragment() {
                     address = address,
                     city = city,
                     state = stateCode,
-                    country = country,
+                    country = countryCode,
                     postCode = postCode,
                 )
                 val addressRequestEntity = AddressRequestEntity(
                     shipping = shippingInfoAddressRequest,
                     billing = billingInfoAddressRequest,
                 )
-                Log.e("addressRequest", "$addressRequestEntity")
-                updateAddress(addressRequestEntity = addressRequestEntity)
-
+                addressAction(addressRequestEntity)
             } else if (
                 spinnerCountry.selectedItem.toString() == "Select Country" ||
                 spinnerState.selectedItem.toString() == "Select State"
@@ -410,74 +462,118 @@ class EditAddressFragment : Fragment() {
 
     }
 
+    private fun addressAction(addressRequestEntity: AddressRequestEntity) {
+        when (addressActionObserver()) {
+            InsertAddress -> {
+                insertAddress(addressRequestEntity = addressRequestEntity)
+            }
+
+            EditAddress -> {
+                updateAddress(addressRequestEntity = addressRequestEntity)
+            }
+
+        }
+    }
+
     private fun updateAddress(addressRequestEntity: AddressRequestEntity) {
-      //  addressViewModel.updateAddress(updateAddressParams = addressRequestEntity)
+        addressViewModel.onEvent(
+            AddressEvent.Input.UpdateAddress(
+                id = customerAddressEntity.id,
+                addressRequestEntity = addressRequestEntity
+            )
+        )
+        addressViewModel.onEvent(AddressEvent.Button.UpdateAddressButton)
+    }
+
+    private fun insertAddress(addressRequestEntity: AddressRequestEntity) {
+        addressViewModel.onEvent(
+            AddressEvent.Input.InsertAddress(
+                addressRequestEntity = addressRequestEntity
+            )
+        )
+        addressViewModel.onEvent(AddressEvent.Button.InsertAddressButton)
     }
 
     private fun addressState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                addressViewModel.addressState.collect { state ->
-                    addressUiStates(state)
+                addressViewModel.addressState.collectLatest { state ->
+
+                    if (state.isInsertLoading || state.isUpdateLoading) {
+                        showProgressBar()
+                        disableLocationButton()
+                    } else {
+                        hideProgressBar()
+                        enableLocationButton()
+                    }
+
                 }
             }
         }
 
     }
 
-    private fun addressUiStates(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                addressUiSourceStateLoading(state)
-            }
-
-            is UiState.Success -> {
-                addressUiSourceStateSuccess(state)
-            }
-
-            is UiState.Error -> {
-                addressUiSourceStateError(state)
-            }
-        }
+    private fun showProgressBar() {
+        buttonSave.isEnabled = false
+        buttonSave.text = ""
+        binding.buttonSaveProgress.visibility = View.VISIBLE
     }
 
-    private fun addressUiSourceStateLoading(state: UiState.Loading) {
-        when (state.source) {
-            "updateAddress" -> {
-                loadingDialog.showLoading(parentFragmentManager)
-            }
-        }
+    private fun hideProgressBar() {
+        buttonSave.isEnabled = true
+        buttonSave.text = getString(R.string.save)
+        binding.buttonSaveProgress.visibility = View.GONE
     }
 
-    private fun addressUiSourceStateSuccess(state: UiState.Success<Any>) {
-        when (state.source) {
-            "updateAddress" -> {
-                val navController = findNavController()
-                loadingDialog.dismissLoading()
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.address_updated_successfully), Toast.LENGTH_SHORT
-                ).show()
+    private fun enableLocationButton() {
+        buttonLocation.isEnabled = true
+    }
 
-                lifecycleScope.launch {
-                    delay(500L)
-                    navController.navigate(R.id.addressFragment)
+    private fun disableLocationButton() {
+        buttonLocation.isEnabled = false
+    }
+
+    private fun addressEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                addressViewModel.addressEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            if (event.message != "" && event.resId == -1) {
+                                SnackBarCustom.showSnackbar(
+                                    view = binding.root,
+                                    message = event.message
+                                )
+                            }
+                        }
+
+                        is UiEvent.CombinedEvents -> {
+                            combinedEvents(
+                                events = event.events,
+                                onShowSnackBar = { message, resId ->
+                                    if (message == "" && resId != -1) {
+                                        val message = getString(resId)
+                                        SnackBarCustom.showSnackbar(
+                                            view = binding.root,
+                                            message = message,
+
+                                            )
+                                    }
+                                },
+                                onNavigate = { destinationId, _ ->
+                                    findNavController().navigate(destinationId)
+
+                                }
+                            )
+                        }
+
+                        else -> Unit
+                    }
                 }
-
-
-            }
-        }
-
-    }
-
-    private fun addressUiSourceStateError(state: UiState.Error) {
-        when (state.source) {
-            "updateAddress" -> {
-                loadingDialog.dismissLoading()
-                SnackBarCustom.showSnackbar(root, state.message)
             }
         }
     }
+
 
     @SuppressLint("MissingPermission")
     private fun getLastLocation() {
@@ -499,10 +595,11 @@ class EditAddressFragment : Fragment() {
                 ).show()
             }
         } else {
-            // Request permission if not granted
+
             requestPermissionLauncher().launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
+
 
     private fun getAddressFromLatLngLegacy(latitude: Double, longitude: Double) {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
@@ -526,14 +623,6 @@ class EditAddressFragment : Fragment() {
         val state = address.adminArea.replace("Governorate", "").trim()
         val country = address.countryName
         val postalCode = address.postalCode
-        val addressList = listOf(street, city, state, country, postalCode)
-        /*val stringAddress = """
-                        Address: ${extractStreetAddress(address.getAddressLine(0))}
-                        City: ${address.locality}
-                        State: ${address.adminArea}
-                        Country: ${address.countryName}
-                        postCode: ${address.postalCode}
-                    """.trimIndent()*/
         lifecycleScope.launch {
             withContext(Dispatchers.Main) {
                 streetAddressEditText.setText(street)
@@ -577,7 +666,7 @@ class EditAddressFragment : Fragment() {
             postCodeAddressEditText.setText(it.zipCode)
             streetAddressEditText.setText(it.address)
             spinnerCountry.setSelection(countryStateMap.keys.indexOf(it.country))
-            //spinnerState.setSelection(countryStateMap[it.country]?.indexOf(it.state) ?: 0)
+
 
         }
 
@@ -602,11 +691,11 @@ class EditAddressFragment : Fragment() {
     private fun locationButtonOnClickedListener() {
         buttonLocation.setOnClickListener {
             if (isLocationEnabled(requireContext())) {
-                loadingDialog.showLoading(parentFragmentManager)
+                //loadingDialog.showLoading(parentFragmentManager)
                 lifecycleScope.launch {
                     delay(500L)
                     getLastLocation()
-                    loadingDialog.dismissLoading()
+                    // loadingDialog.dismissLoading()
                 }
             } else {
                 openLocationSettings()
@@ -654,4 +743,8 @@ class EditAddressFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

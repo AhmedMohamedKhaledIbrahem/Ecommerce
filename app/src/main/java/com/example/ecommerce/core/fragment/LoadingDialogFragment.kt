@@ -1,21 +1,25 @@
 package com.example.ecommerce.core.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import com.example.ecommerce.R
+import com.example.ecommerce.databinding.FragmentLoadingDialogBinding
 
 
 class LoadingDialogFragment : DialogFragment() {
+    private var _binding: FragmentLoadingDialogBinding? = null
+    private val binding get() = _binding!!
 
-    fun getInstance(fragmentManager: FragmentManager): LoadingDialogFragment {
-        val existingDialog =
-            fragmentManager.findFragmentByTag("loadingDialog") as? LoadingDialogFragment
-        return existingDialog ?: LoadingDialogFragment()
+    companion object {
+        fun getInstance(fragmentManager: FragmentManager): LoadingDialogFragment {
+            return fragmentManager.findFragmentByTag(TAG) as? LoadingDialogFragment
+                ?: LoadingDialogFragment()
+        }
+
+        private const val TAG = "loadingDialog"
     }
 
 
@@ -29,9 +33,9 @@ class LoadingDialogFragment : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
-        return inflater.inflate(R.layout.fragment_loading_dialog, container, false)
+    ): View {
+        _binding = FragmentLoadingDialogBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,28 +43,20 @@ class LoadingDialogFragment : DialogFragment() {
         dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
     }
 
-    @SuppressLint("SuspiciousIndentation")
     fun showLoading(fragmentManager: FragmentManager) {
-        if (!isAdded) {
-            if (!fragmentManager.isStateSaved)
-                this.show(fragmentManager, "loadingDialog")
+        if (!isAdded && !fragmentManager.isStateSaved) {
+            show(fragmentManager, TAG)
         }
     }
 
     fun dismissLoading() {
-//        val existingDialog =
-//            parentFragmentManager.findFragmentByTag("loadingDialog") as? LoadingDialogFragment
-//        existingDialog?.let {
-//            if (it.isAdded) {
-//                parentFragmentManager.beginTransaction().remove(it).commitAllowingStateLoss()
-//            }
-//        }
-        if (isAdded){
-            dismiss()
+        if (isAdded && dialog?.isShowing == true) {
+            dismissAllowingStateLoss()
         }
-
     }
 
-
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

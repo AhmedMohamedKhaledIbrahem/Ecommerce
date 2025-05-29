@@ -3,19 +3,22 @@ package com.example.ecommerce.modules
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.room.Room
-import com.example.ecommerce.core.customer.CustomerManager
-import com.example.ecommerce.core.customer.CustomerManagerImp
 import com.example.ecommerce.core.database.AppDatabase
 import com.example.ecommerce.core.database.data.dao.address.AddressDao
 import com.example.ecommerce.core.database.data.dao.cart.CartDao
 import com.example.ecommerce.core.database.data.dao.cart.ItemCartDao
 import com.example.ecommerce.core.database.data.dao.category.CategoryDao
+import com.example.ecommerce.core.database.data.dao.category.ProductCategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderItemDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
 import com.example.ecommerce.core.database.data.dao.product.ProductDao
 import com.example.ecommerce.core.database.data.dao.user.UserDao
+import com.example.ecommerce.core.manager.address.AddressManager
+import com.example.ecommerce.core.manager.address.AddressManagerImp
+import com.example.ecommerce.core.manager.customer.CustomerManager
+import com.example.ecommerce.core.manager.customer.CustomerManagerImp
 import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.manager.fcm.FcmDeviceTokenImp
 import com.example.ecommerce.core.manager.prdouct.ProductHandler
@@ -71,8 +74,8 @@ object DataCoreModule {
 
     @Provides
     @Singleton
-    fun provideCategoryDao(database: AppDatabase): CategoryDao {
-        return database.categoryDao()
+    fun provideProductCategoryDao(database: AppDatabase): ProductCategoryDao {
+        return database.productCategoryDao()
     }
 
     @Provides
@@ -113,8 +116,20 @@ object DataCoreModule {
 
     @Provides
     @Singleton
+    fun provideCategoryDao(appDatabase: AppDatabase): CategoryDao {
+        return appDatabase.categoryDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideCustomerManager(preferences: SharedPreferences): CustomerManager {
         return CustomerManagerImp(sharedPreferences = preferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAddressManager(preferences: SharedPreferences): AddressManager {
+        return AddressManagerImp(sharedPreferences = preferences)
     }
 
     @Provides
@@ -123,6 +138,7 @@ object DataCoreModule {
         return FcmDeviceTokenImp(sharedPreferences = preferences)
 
     }
+
     @Provides
     @Singleton
     fun provideProductHandler(preferences: SharedPreferences): ProductHandler {

@@ -1,6 +1,5 @@
 package com.example.ecommerce.features.cart.presentation.screens.cart
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,118 +8,120 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.ecommerce.R
-import com.example.ecommerce.core.customer.CustomerManager
-import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
-import com.example.ecommerce.core.database.data.entities.cart.CartWithItems
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.manager.address.AddressManager
+import com.example.ecommerce.core.manager.customer.CustomerManager
+import com.example.ecommerce.core.ui.event.UiEvent
+import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.detectScrollEnd
-import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
-import com.example.ecommerce.features.address.presentation.viewmodel.AddressViewModel
-import com.example.ecommerce.features.address.presentation.viewmodel.IAddressViewModel
+import com.example.ecommerce.databinding.FragmentCartBinding
 import com.example.ecommerce.features.cart.data.data_soruce.local.calculateTotalPrice
+import com.example.ecommerce.features.cart.presentation.event.CartEvent
+import com.example.ecommerce.features.cart.presentation.event.CheckOutEvent
 import com.example.ecommerce.features.cart.presentation.screens.adapter.CartAdapter
 import com.example.ecommerce.features.cart.presentation.screens.adapter.CheckAdapter
 import com.example.ecommerce.features.cart.presentation.viewmodel.CartViewModel
-import com.example.ecommerce.features.cart.presentation.viewmodel.ICartViewModel
-import com.example.ecommerce.features.orders.domain.entities.LineItemRequestEntity
-import com.example.ecommerce.features.orders.domain.entities.OrderRequestEntity
-import com.example.ecommerce.features.orders.domain.entities.OrderResponseEntity
-import com.example.ecommerce.features.orders.presentation.viewmodel.IOrderViewModel
-import com.example.ecommerce.features.orders.presentation.viewmodel.OrderViewModel
-import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
+import com.example.ecommerce.features.cart.presentation.viewmodel.CheckOutViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class CartFragment : Fragment() {
-    private lateinit var cartRecyclerView: RecyclerView
-    private lateinit var cartSwipeRefreshLayout: SwipeRefreshLayout
+    private var _binding: FragmentCartBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var root: View
     private lateinit var cartAdapter: CartAdapter
     private lateinit var checkAdapter: CheckAdapter
 
     @Inject
     lateinit var customerManager: CustomerManager
-    private lateinit var detectViewModel: DetectScrollEndViewModel
-    private lateinit var root: View
-    private var itemHashKeys: MutableList<ItemCartEntity> = mutableListOf()
-    private val cartViewModel: ICartViewModel by viewModels<CartViewModel>()
-    private val addressViewModel: IAddressViewModel by viewModels<AddressViewModel>()
-    private val orderViewModel: IOrderViewModel by viewModels<OrderViewModel>()
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance(parentFragmentManager)
-    }
 
+    @Inject
+    lateinit var addressManager: AddressManager
+    private val cartViewModel: CartViewModel by viewModels<CartViewModel>()
+    private val checkOutViewModel by viewModels<CheckOutViewModel>()
+
+    private var itemHashKeys: MutableList<ItemCartEntity> = mutableListOf()
+    private var itemCart: ItemCartEntity? = null
+
+
+    private lateinit var loadingDialog: LoadingDialogFragment
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_cart, container, false)
-        initView(view)
-        initViewModel()
-        return view
+        _binding = FragmentCartBinding.inflate(inflater, container, false)
+        root = binding.root
+
+        return root
     }
 
-    private fun initView(view: View) {
-        cartRecyclerView = view.findViewById(R.id.cartRecyclerView)
-        cartSwipeRefreshLayout = view.findViewById(R.id.cartSwipeRefreshViewLayout)
-        root = view
-    }
-
-    private fun initViewModel() {
-        detectViewModel =
-            ViewModelProvider(requireActivity())[DetectScrollEndViewModel::class.java]
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         getCartWithItems()
+        cartEvent()
         cartState()
-        addressState()
-        orderState()
-        detectScrollEnd(cartRecyclerView)
+        cartLoad()
+        setAddressId()
+        checkOutState()
+        checkOutEvent()
+        detectScrollEnd(binding.cartRecyclerView)
 
     }
 
 
-    @SuppressLint("SetTextI18n", "DefaultLocale")
     private fun initRecyclerView(items: MutableList<ItemCartEntity>) {
-        cartRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        checkAdapter = CheckAdapter {
-            getAddressByCustomerId()
-        }
+
+        binding.cartRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        checkAdapter = CheckAdapter(
+            onCheckoutClick = {
+                lifecycleScope.launch {
+                    checkOutViewModel.onEvent(
+                        CheckOutEvent.Input.AddressId(
+                            addressManager.getAddressId()
+                        )
+                    )
+                    checkOutViewModel.onEvent(
+                        CheckOutEvent.Input.CustomerId(
+                            customerManager.getCustomerId()
+                        )
+                    )
+                    checkOutViewModel.onEvent(CheckOutEvent.CheckoutButton)
+                }
+            },
+        )
         cartAdapter = CartAdapter(
-            items,
-            onCounterUpdate = { item, newQuantity ->
+            cartItems = items,
+            onIncrease = { item, newQuantity ->
                 updateItemQuantity(items, item, newQuantity)
+                cartViewModel.onEvent(CartEvent.Input.ItemId(item.itemId))
+                cartViewModel.onEvent(CartEvent.Input.IncreaseQuantity(newQuantity))
+                cartViewModel.onEvent(CartEvent.Button.IncreaseQuantity)
+
+            },
+            onDecrease = { item, newQuantity ->
+                updateItemQuantity(items, item, newQuantity)
+                cartViewModel.onEvent(CartEvent.Input.ItemId(item.itemId))
+                cartViewModel.onEvent(CartEvent.Input.DecreaseQuantity(newQuantity))
+                cartViewModel.onEvent(CartEvent.Button.DecreaseQuantity)
+
             },
             onDeleteItem = { item ->
-                val position = items.indexOf(item)
-                if (position != -1) {
-                    cartViewModel.removeItem(item.itemHashKey)
-                    items.removeAt(position)
-                    cartAdapter.notifyItemRemoved(position)
-                    val totalPrice = calculateTotalPrice(items)
-                    checkAdapter.updateTotalPrice(totalPrice)
-                    if (items.isEmpty()) {
-                        cartRecyclerView.adapter = cartAdapter
-                    }
-                }
-
+                itemCart = item
+                cartViewModel.onEvent(CartEvent.Input.RemoveItem(item.itemHashKey))
+                cartViewModel.onEvent(CartEvent.Button.RemoveItem)
             }
         )
         updateAdapter(items)
@@ -139,350 +140,169 @@ class CartFragment : Fragment() {
             cartAdapter.notifyItemChanged(index)
             val totalPrice = calculateTotalPrice(items)
             checkAdapter.updateTotalPrice(totalPrice)
-            updateItemQuantityViewModel(item.itemId, newQuantity)
+
         }
     }
 
     private fun updateAdapter(items: MutableList<ItemCartEntity>) {
-
         if (items.isNotEmpty()) {
-            cartRecyclerView.adapter = ConcatAdapter(cartAdapter, checkAdapter)
-            Log.e("cartRecyclerView", "updateAdapter: items is not empty")
+            binding.cartRecyclerView.adapter = ConcatAdapter(cartAdapter, checkAdapter)
         } else {
-            Log.e("cartRecyclerView", "updateAdapter: items is empty")
-            cartRecyclerView.adapter = cartAdapter
-
+            binding.cartRecyclerView.adapter = cartAdapter
         }
 
     }
 
     private fun getCartWithItems() {
-        cartViewModel.getCart()
+        cartViewModel.onEvent(CartEvent.LoadCart)
     }
 
-    private fun updateItemQuantityViewModel(itemId: Int, newQuantity: Int) {
-        cartViewModel.updateQuantity(itemId = itemId, newQuantity = newQuantity)
+
+    private fun cartEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                cartViewModel.cartEvent.collectLatest { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            Log.d("TAG", "cartEvent: ${event.message}")
+                            SnackBarCustom.showSnackbar(
+                                view = root,
+                                message = event.message
+                            )
+                        }
+
+
+                        else -> Unit
+                    }
+                }
+
+            }
+        }
+    }
+
+    private fun checkOutEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                checkOutViewModel.checkOutEvent.collectLatest { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            Log.d("TAG", "cartEvent: ${event.message}")
+                            SnackBarCustom.showSnackbar(
+                                view = root,
+                                message = event.message
+                            )
+
+                        }
+
+                        is UiEvent.CombinedEvents -> {
+
+                            combinedEvents(
+                                events = event.events,
+                                onShowSnackBar = { message, _  ->
+                                    SnackBarCustom.showSnackbar(
+                                        view = root,
+                                        message = message
+                                    )
+                                },
+                                onNavigate = { destinationId, _ ->
+                                    findNavController().navigate(destinationId)
+
+                                }
+                            )
+                        }
+
+                        else -> Unit
+                    }
+
+                }
+            }
+        }
     }
 
     private fun cartState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                cartViewModel.cartState.collect { state ->
-                    cartUiState(state)
+                cartViewModel.cartState.collectLatest { state ->
+                    itemHashKeys = state.cartWithItems.items.toMutableList()
                 }
             }
         }
     }
 
-    private fun addressState() {
+    private fun cartLoad() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                addressViewModel.addressState.collect { state ->
-                    addressUiState(state)
+                cartViewModel.cartLoadState.collect { state ->
+                    if (!state.isGetLoading) {
+                        initRecyclerView(itemHashKeys)
+
+                    }
+                    if (::cartAdapter.isInitialized && ::checkAdapter.isInitialized) {
+                        cartAdapter.setRemoveLoadingState(state.isRemoveLoading)
+                        checkAdapter.setLoadingState(state.isRemoveLoading)
+                    }
+
+                    if (!state.isRemoveLoading) {
+                        deleteItem()
+                    }
+
+
                 }
             }
         }
     }
 
-    private fun orderState() {
+    private fun checkOutState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                orderViewModel.orderState.collect { state ->
-                    orderUiState(state)
+                checkOutViewModel.checkOutState.collect { state ->
+
+                    if (::cartAdapter.isInitialized && ::checkAdapter.isInitialized) {
+                        Log.d("TAG", "checkOutState: ${state.isCheckingOut}")
+                        checkAdapter.setLoadingState(state.isCheckingOut)
+                    }
+
+
                 }
             }
         }
     }
 
+    private fun deleteItem() {
+        val position = itemHashKeys.indexOf(itemCart)
+        if (position != -1) {
+            getCartWithItems()
+            val totalPrice = calculateTotalPrice(itemHashKeys)
+            checkAdapter.updateTotalPrice(totalPrice)
 
-    private fun cartUiState(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                cartLoadingState(state)
-            }
-
-            is UiState.Success -> {
-                cartSuccessState(state)
-            }
-
-            is UiState.Error -> {
-                cartErrorState(state)
-
+            if (itemHashKeys.isEmpty()) {
+                binding.cartRecyclerView.adapter = cartAdapter
             }
         }
     }
 
-    private fun addressUiState(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                addressLoadingState(state)
-            }
-
-            is UiState.Success -> {
-                addressSuccessState(state)
-            }
-
-            is UiState.Error -> {
-                addressErrorState(state)
-            }
-        }
-    }
-
-    private fun orderUiState(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                orderLoadingState(state)
-            }
-
-            is UiState.Success -> {
-                orderSuccessState(state)
-            }
-
-            is UiState.Error -> {
-                orderErrorState(state)
-            }
-        }
-    }
-
-    private fun addressLoadingState(state: UiState.Loading) {
-        when (state.source) {
-            "getAddressById" -> {
-                loadingDialog.showLoading(fragmentManager = parentFragmentManager)
-            }
-        }
-    }
-
-    private fun addressSuccessState(state: UiState.Success<Any>) {
-        when (state.source) {
-            "getAddressById" -> {
-                val address = state.data as? CustomerAddressEntity
-                if (address != null) {
-
-                    val billingEntity = billingInfoRequestEntity(address)
-                    val lineItemRequestEntity: List<LineItemRequestEntity> =
-                        lineItemRequestEntities()
-                    val orderRequestEntity =
-                        orderRequestEntity(billingEntity, lineItemRequestEntity)
-
-                    createOrder(orderRequestEntity)
-                }
-
-            }
-        }
-    }
-
-
-    private fun addressErrorState(state: UiState.Error) {
-        when (state.source) {
-            "getAddressById" -> {
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = state.message
-                )
-            }
-        }
-    }
-
-    private fun orderLoadingState(state: UiState.Loading) {
-        when (state.source) {
-            "createOrder" -> {
-            }
-
-            "saveOrderLocally" -> {
-
-            }
-        }
-    }
-
-    private fun orderSuccessState(state: UiState.Success<Any>) {
-        when (state.source) {
-            "createOrder" -> {
-                val orderResponseEntity = state.data as? OrderResponseEntity ?: return
-                orderViewModel.saveOrderLocally(orderResponseEntity = orderResponseEntity)
-            }
-
-            "saveOrderLocally" -> {
-                loadingDialog.dismissLoading()
-                cartViewModel.clearCart()
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = getString(R.string.order_has_been_created_successfully)
-                )
-                findNavController().navigate(R.id.ordersFragment)
-            }
-        }
-    }
-
-    private fun orderErrorState(state: UiState.Error) {
-        when (state.source) {
-            "createOrder" -> {
-                loadingDialog.dismissLoading()
-                Log.e("orderErrorState", "orderErrorState: ${state.message}")
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = state.message
-                )
-            }
-
-            "saveOrderLocally" -> {
-                loadingDialog.dismissLoading()
-                Log.e("orderErrorState", "orderErrorState: ${state.message}")
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = state.message
-                )
-            }
-        }
-    }
-
-    private fun getAddressByCustomerId() {
-        //addressViewModel.getAddress(id = customerManager.getCustomerId())
-    }
-
-    private fun createOrder(orderRequestEntity: OrderRequestEntity) {
-        orderViewModel.createOrder(orderRequestEntity)
-    }
-
-    private fun cartLoadingState(state: UiState.Loading) {
-        when (state.source) {
-            "getCart" -> {}
-            "removeItem" -> {}
-            "updateItemsCart" -> {}
-            "updateQuantity" -> {}
-            "clearCart" -> {}
-        }
-    }
-
-    private fun cartSuccessState(state: UiState.Success<Any>) {
-        when (state.source) {
-            "getCart" -> {
-                val cartWithItems = state.data as? CartWithItems
-
-
-                if (cartWithItems != null) {
-                    itemHashKeys = cartWithItems.items.toMutableList()
-                }
-                initRecyclerView(itemHashKeys)
-
-
-            }
-
-            "removeItem" -> {
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = getString(R.string.the_item_has_been_removed_successfully)
-                )
-            }
-
-            "updateItemsCart" -> {
-                cartViewModel.getCart()
-            }
-
-            "updateQuantity" -> {}
-            "clearCart" -> {}
-
-        }
-    }
-
-
-    private fun cartErrorState(state: UiState.Error) {
-        when (state.source) {
-            "getCart" -> {
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = state.message
-                )
-                Log.e("cartErrorGetCartState", "cartErrorState: ${state.message}")
-            }
-
-            "removeItem" -> {
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = state.message
-                )
-                Log.e("cartErrorRemoveItemState", "cartErrorState: ${state.message}")
-            }
-
-            "updateItemsCart" -> {
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = state.message
-                )
-
-            }
-
-            "updateQuantity" -> {
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = state.message
-                )
-            }
-
-            "clearCart" -> {
-                SnackBarCustom.showSnackbar(
-                    view = root,
-                    message = state.message
-                )
-            }
-        }
-    }
-
-    private fun orderRequestEntity(
-        billingEntity: BillingInfoRequestEntity,
-        lineItemRequestEntity: List<LineItemRequestEntity>
-    ): OrderRequestEntity {
-        var customerId = 0
+    private fun setAddressId() {
         lifecycleScope.launch {
-            customerId = customerManager.getCustomerId()
-        }
-        val orderRequestEntity = OrderRequestEntity(
-            paymentMethod = "cod",
-            paymentMethodTitle = "Cash On Delivery",
-            setPaid = false,
-            billing = billingEntity,
-            lineItems = lineItemRequestEntity,
-            customerId = customerId
-        )
-        return orderRequestEntity
-    }
-
-    private fun lineItemRequestEntities(): List<LineItemRequestEntity> {
-        val lineItemRequestEntity: List<LineItemRequestEntity> =
-            itemHashKeys.map { item ->
-                LineItemRequestEntity(
-                    productId = item.itemId,
-                    quantity = item.quantity
+            val addressId = addressManager.getAddressId()
+            Log.d("TAG", "setAddressId: $addressId")
+            if (addressId == -1) return@launch
+            checkOutViewModel.onEvent(
+                CheckOutEvent.Input.AddressId(
+                    addressId
                 )
-            }
-        return lineItemRequestEntity
-    }
-
-
-    private fun billingInfoRequestEntity(address: CustomerAddressEntity): BillingInfoRequestEntity {
-        val billingEntity = BillingInfoRequestEntity(
-            firstName = address.firstName,
-            lastName = address.lastName,
-            address = address.address,
-            city = address.city,
-            //state = address.state,
-            country = address.country,
-            postCode = address.zipCode,
-            phone = address.phone,
-            email = address.email,
-        )
-        return billingEntity
-    }
-
-    private fun onSwipeRefreshListener() {
-        cartSwipeRefreshLayout.setOnRefreshListener {
-            lifecycleScope.launch {
-                delay(1000)
-                cartViewModel.updateItemsCart()
-                cartSwipeRefreshLayout.isRefreshing = false
-
-
-            }
+            )
+            checkOutViewModel.onEvent(
+                CheckOutEvent.Input.CustomerId(
+                    customerManager.getCustomerId()
+                )
+            )
         }
+
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 

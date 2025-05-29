@@ -2,11 +2,12 @@ package com.example.ecommerce.features.authentication.data.datasources
 
 import com.example.ecommerce.features.authentication.data.models.AuthenticationRequestModel
 import com.example.ecommerce.features.authentication.data.models.AuthenticationResponseModel
+import com.example.ecommerce.features.authentication.data.models.ChangePasswordRequestModel
 import com.example.ecommerce.features.authentication.data.models.CheckVerificationRequestModel
+import com.example.ecommerce.features.authentication.data.models.ConfirmPasswordResetRequestModel
 import com.example.ecommerce.features.authentication.data.models.EmailRequestModel
 import com.example.ecommerce.features.authentication.data.models.MessageResponseModel
 import com.example.ecommerce.features.authentication.data.models.SignUpRequestModel
-import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -27,5 +28,11 @@ interface AuthenticationApi {
 
     @POST("wp-json/custom/v1/check-verification-status")
     suspend fun checkVerificationCodeRequest(@Body request: CheckVerificationRequestModel): Response<MessageResponseModel>
+
+    @POST("wp-json/custom/v1/password-reset")
+    suspend fun changePasswordRequest(@Body request: ChangePasswordRequestModel): Response<MessageResponseModel>
+
+    @POST("wp-json/custom/v1/confirm-password-reset")
+    suspend fun confirmPasswordReset(@Body request: ConfirmPasswordResetRequestModel): Response<MessageResponseModel>
 
 }

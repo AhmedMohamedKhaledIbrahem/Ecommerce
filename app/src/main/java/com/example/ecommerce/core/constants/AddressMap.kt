@@ -1,8 +1,10 @@
 package com.example.ecommerce.core.constants
 
+import com.example.ecommerce.R
+
 val countryStateMap = mapOf(
-    "select the country" to listOf(
-        "select the state"
+    R.string.select_country to listOf(
+        R.string.select_state
     ),
     "Egypt" to listOf(
         "Cairo",
@@ -33,7 +35,7 @@ val countryStateMap = mapOf(
         "Suez"
     )
 )
- val regionCodeMap = mapOf(
+val regionCodeMap = mapOf(
     "Cairo" to "EGC",
     "Aswan" to "EGS",
     "Asyut" to "EGY",
@@ -60,4 +62,8 @@ val countryStateMap = mapOf(
     "Sohag" to "EGO",
     "South Sinai" to "EGJ",
     "Suez" to "EGS"
+)
+
+val countryCode = mapOf(
+    "Egypt" to "EG"
 )

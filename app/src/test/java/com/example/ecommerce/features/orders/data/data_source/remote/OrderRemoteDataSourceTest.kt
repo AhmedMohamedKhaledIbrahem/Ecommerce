@@ -1,12 +1,12 @@
 package com.example.ecommerce.features.orders.data.data_source.remote
 
-import com.example.ecommerce.core.customer.CustomerManager
+import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.errorBody
+import com.example.ecommerce.features.errorJsonBody
 import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.errorResponseBody
 import com.example.ecommerce.features.failureException
-import com.example.ecommerce.features.orders.customerId
 import com.example.ecommerce.features.orders.data.data_source.OrderApi
 import com.example.ecommerce.features.orders.data.models.OrderResponseModel
 import com.example.ecommerce.features.orders.tCreateOrderRequestModel
@@ -63,7 +63,7 @@ class OrderRemoteDataSourceTest {
         runTest {
             val response = Response.error<OrderResponseModel>(
                 400,
-                errorBody
+                errorJsonBody
             )
             `when`(api.createOrder(tCreateOrderRequestModel)).thenReturn(response)
             val exception = failureException{

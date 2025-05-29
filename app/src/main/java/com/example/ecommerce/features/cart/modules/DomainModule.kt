@@ -7,6 +7,8 @@ import com.example.ecommerce.features.cart.domain.use_case.clear_cart.ClearCartU
 import com.example.ecommerce.features.cart.domain.use_case.clear_cart.IClearCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.GetCartUseCase
 import com.example.ecommerce.features.cart.domain.use_case.get_cart.IGetCartUseCase
+import com.example.ecommerce.features.cart.domain.use_case.get_cart_count.IGetCartCountUseCase
+import com.example.ecommerce.features.cart.domain.use_case.get_cart_count.GetCartCountUseCase
 import com.example.ecommerce.features.cart.domain.use_case.remove_Item.IRemoveItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.remove_Item.RemoveItemUseCase
 import com.example.ecommerce.features.cart.domain.use_case.update_item_cart.IUpdateItemsCartUseCase
@@ -59,6 +61,13 @@ object DomainModule {
     @Singleton
     fun provideClearCartUseCase(cartRepository: CartRepository): IClearCartUseCase {
         return ClearCartUseCase(cartRepository)
+
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetCartCountUseCase(cartRepository: CartRepository): IGetCartCountUseCase {
+        return GetCartCountUseCase(cartRepository)
 
     }
 

@@ -1,253 +1,429 @@
 package com.example.ecommerce.features.userprofile.presentation.screens.editscreen
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.RadioButton
-import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
-import com.example.ecommerce.core.database.data.entities.user.UserEntity
+import com.example.ecommerce.core.constants.Edit_profile_result
+import com.example.ecommerce.core.constants.Message
 import com.example.ecommerce.core.fragment.LoadingDialogFragment
-import com.example.ecommerce.core.state.UiState
+import com.example.ecommerce.core.manager.customer.CustomerManager
+import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.utils.SnackBarCustom
-import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
+import com.example.ecommerce.databinding.FragmentEditProfileBinding
+import com.example.ecommerce.features.authentication.presentation.event.ChangePasswordEvent
+import com.example.ecommerce.features.authentication.presentation.event.ConfirmPasswordEvent
+import com.example.ecommerce.features.authentication.presentation.viewmodel.change_password.ChangePasswordViewModel
+import com.example.ecommerce.features.authentication.presentation.viewmodel.confirm_password.ConfirmPasswordViewModel
+import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserDetailsRequestEntity
+import com.example.ecommerce.features.userprofile.presentation.event.UserDetailsEvent
+import com.example.ecommerce.features.userprofile.presentation.event.UserProfileEvent
 import com.example.ecommerce.features.userprofile.presentation.screens.settingscreen.UpdateDisplayNameViewModel
-import com.example.ecommerce.features.userprofile.presentation.viewmodel.usernamedetailsprofile.IUserNameDetailsProfileViewModel
-import com.example.ecommerce.features.userprofile.presentation.viewmodel.usernamedetailsprofile.UserNameDetailsProfileViewModel
-import com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile.IUserProfileViewModel
+import com.example.ecommerce.features.userprofile.presentation.viewmodel.fetch_update_user_details.UserDetailsViewModel
 import com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile.UserProfileViewModel
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class EditProfileFragment : DialogFragment() {
-    private lateinit var radioEditName: RadioButton
-    private lateinit var radioChangePassword: RadioButton
-    private lateinit var layoutEditName: LinearLayout
-    private lateinit var layoutChangePassword: LinearLayout
-    private lateinit var firstNameTextFieldLayout: TextInputLayout
-    private lateinit var lastNameTextFieldLayout: TextInputLayout
-    private lateinit var newPasswordTextFieldLayout: TextInputLayout
-    private lateinit var confirmPasswordTextFieldLayout: TextInputLayout
-    private lateinit var firstNameTextField: TextInputEditText
-    private lateinit var lastNameTextField: TextInputEditText
-    private lateinit var newPasswordTextField: TextInputEditText
-    private lateinit var confirmPasswordTextField: TextInputEditText
-    private lateinit var editButton: Button
-    private lateinit var cancelEditButton: Button
-    private lateinit var changeButton: Button
-    private lateinit var cancelChangeButton: Button
     private lateinit var root: View
+    private var _binding: FragmentEditProfileBinding? = null
+    private val binding get() = _binding!!
     private var idUser by Delegates.notNull<Int>()
-    private val loadingDialog by lazy {
-        LoadingDialogFragment().getInstance(parentFragmentManager)
-    }
-    private val userNameDetailsViewModel: IUserNameDetailsProfileViewModel by
-    viewModels<UserNameDetailsProfileViewModel>()
-    private val userProfileViewModel: IUserProfileViewModel by viewModels<UserProfileViewModel>()
-    private lateinit var updateDisplayNameViewModel :UpdateDisplayNameViewModel
+    private lateinit var loadingDialog: LoadingDialogFragment
+
+    @Inject
+    lateinit var customerId: CustomerManager
+    private val userDetailsViewModel by viewModels<UserDetailsViewModel>()
+    private val userProfileViewModel by viewModels<UserProfileViewModel>()
+    private val changePasswordViewModel by viewModels<ChangePasswordViewModel>()
+    private val confirmPasswordViewModel by viewModels<ConfirmPasswordViewModel>()
+    private lateinit var updateDisplayNameViewModel: UpdateDisplayNameViewModel
 
 
     override fun onStart() {
         super.onStart()
         dialog?.window?.setLayout(
-            ViewGroup.LayoutParams.WRAP_CONTENT, // Adjust width as needed
+            ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         dialog?.window?.setBackgroundDrawableResource(R.drawable.dialog_background)
-        dialog?.window?.decorView?.setPadding(0, 0, 0, 0) // Remove default padding
+        dialog?.window?.decorView?.setPadding(0, 0, 0, 0)
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(requireContext())
-        val inflater = requireActivity().layoutInflater
-        val view = inflater.inflate(R.layout.fragment_edit_profile, null, false)
-        initView(view)
-        builder.setView(view)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentEditProfileBinding.inflate(inflater, container, false)
+        root = binding.root
+        return binding.root
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         radioOnCheckedChangeListener()
         buttonCancelOnClickListener()
-        updateDisplayNameViewModel = ViewModelProvider(requireActivity())[UpdateDisplayNameViewModel::class.java]
         getUserProfile()
         getUserProfileState()
+        getUserProfileEvent()
         updateUserNameDetailsProfile()
-        updateUserNameDetailsState()
-        return builder.create()
+        userDetailsState()
+        userDetailsEvent()
+        changePasswordState()
+        changePasswordEvent()
+        confirmPasswordState()
+        confirmPasswordEvent()
+
+        updateDisplayNameViewModel =
+            ViewModelProvider(requireActivity())[UpdateDisplayNameViewModel::class.java]
     }
 
-    private fun initView(view: View) {
-        radioEditName = view.findViewById(R.id.radioEditName)
-        radioChangePassword = view.findViewById(R.id.radioChangePassword)
-        layoutEditName = view.findViewById(R.id.layoutEditName)
-        layoutChangePassword = view.findViewById(R.id.layoutChangePassword)
-        firstNameTextFieldLayout = view.findViewById(R.id.firstNameTextFieldInputLayout)
-        lastNameTextFieldLayout = view.findViewById(R.id.lastNameTextFieldInputLayout)
-        newPasswordTextFieldLayout = view.findViewById(R.id.newPasswordTextFieldInputLayout)
-        confirmPasswordTextFieldLayout = view.findViewById(R.id.confirmPasswordTextFieldInputLayout)
-        firstNameTextField = view.findViewById(R.id.firstNameEditText)
-        lastNameTextField = view.findViewById(R.id.lastNameEditText)
-        newPasswordTextField = view.findViewById(R.id.newPasswordEditText)
-        confirmPasswordTextField = view.findViewById(R.id.confirmPasswordEditText)
-        editButton = view.findViewById(R.id.buttonEdit)
-        cancelEditButton = view.findViewById(R.id.buttonCancelEdit)
-        changeButton = view.findViewById(R.id.buttonChangePassword)
-        cancelChangeButton = view.findViewById(R.id.buttonCancelChange)
-        root = view
-    }
 
     private fun radioOnCheckedChangeListener() {
-        radioEditName.setOnCheckedChangeListener { _, isChecked ->
+        binding.radioEditName.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                layoutEditName.visibility = View.VISIBLE
-                layoutChangePassword.visibility = View.GONE
+                binding.layoutEditName.visibility = View.VISIBLE
+                binding.layoutChangePassword.visibility = View.GONE
             }
         }
-        radioChangePassword.setOnCheckedChangeListener { _, isChecked ->
+        binding.radioChangePassword.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                layoutEditName.visibility = View.GONE
-                layoutChangePassword.visibility = View.VISIBLE
+                binding.layoutEditName.visibility = View.GONE
+                binding.layoutChangePassword.visibility = View.VISIBLE
             }
         }
     }
 
 
     private fun buttonCancelOnClickListener() {
-        cancelEditButton.setOnClickListener { dialog?.dismiss()
+        binding.CancelChangeButton.setOnClickListener {
+            dialog?.dismiss()
         }
-        cancelChangeButton.setOnClickListener { dialog?.dismiss()
+        binding.CancelEditButton.setOnClickListener {
+            dialog?.dismiss()
         }
     }
 
     private fun getUserProfile() {
-        userProfileViewModel.getUserProfile()
+        userProfileViewModel.onEvent(event = UserProfileEvent.UserProfileLoad)
     }
 
     private fun getUserProfileState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 userProfileViewModel.userProfileState.collect { state ->
-                    getUserProfileUiStates(state)
+                    if (state.userEntity != null) {
+                        binding.firstNameEditText.setText(state.userEntity.firstName)
+                        binding.lastNameEditText.setText(state.userEntity.lastName)
+                        idUser = state.userEntity.userId
+                    }
                 }
             }
 
         }
     }
 
-    private fun getUserProfileUiStates(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                when (state.source) {
-                    "getUserProfile" -> {}
-                }
+    private fun getUserProfileEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                userProfileViewModel.userProfileEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            checkIsMessageOrResourceId(
+                                event = event,
+                                root = root,
+                                context = requireContext()
+                            )
+                        }
 
-            }
-            is UiState.Success -> {
-                when (state.source) {
-                    "getUserProfile" -> {
-                        val userProfile = state.data as UserEntity
-                        firstNameTextField.setText(userProfile.firstName)
-                        lastNameTextField.setText(userProfile.lastName)
-                        idUser = userProfile.userId
+                        else -> Unit
                     }
                 }
             }
         }
     }
 
-    private fun updateUserNameDetailsProfile() {
 
-        editButton.setOnClickListener {
-            val firstName = firstNameTextField.text.toString()
-            val lastName = lastNameTextField.text.toString()
+    private fun updateUserNameDetailsProfile() {
+        binding.EditButton.setOnClickListener {
+            val firstName = binding.firstNameEditText.text.toString()
+            val lastName = binding.lastNameEditText.text.toString()
             val userUpdateDisplayName =
-                firstNameTextField.text.toString() + lastNameTextField.text.toString()
+                binding.firstNameEditText.text.toString().plus(" ")
+                    .plus(binding.lastNameEditText.text.toString())
             if (firstName.isNotEmpty() && lastName.isNotEmpty()) {
-                val updateUserNameDetailsParams = UpdateUserNameDetailsRequestEntity(
+
+                val updateUserNameDetailsParams = UpdateUserDetailsRequestEntity(
                     id = idUser,
                     firstName = firstName,
                     lastName = lastName,
-                    displayName = firstName + lastName
+                    displayName = firstName.plus(" ").plus(lastName)
                 )
-                userNameDetailsViewModel.updateUserNameDetails(
-                    updateUserNameDetailsParams = updateUserNameDetailsParams
+                userDetailsViewModel.onEvent(
+                    UserDetailsEvent.UserDetailsUpdateInput(
+                        updateUserNameDetailsParams
+                    )
                 )
-
+                userDetailsViewModel.onEvent(UserDetailsEvent.UserDetailsUpdateButton)
                 updateDisplayNameViewModel.updateDisplayName(userUpdateDisplayName)
+
+
+            } else {
+                SnackBarCustom.showSnackbar(
+                    view = root,
+                    message = getString(R.string.not_work)
+                )
             }
         }
 
     }
 
-    private fun updateUserNameDetailsState() {
+    private fun userDetailsState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                userNameDetailsViewModel.userNameDetailsProfileState.collect { state ->
-                    updateUserNameDetailsUiState(state)
+                userDetailsViewModel.userDetailsState.collect { state ->
+                    if (state.isUpdateLoading) {
+                        changeStateEditUserDetailsView(false, View.VISIBLE, text = "")
+                        changeStateView(false)
+                    } else {
+                        changeStateEditUserDetailsView(
+                            true,
+                            View.GONE,
+                            text = getString(R.string.edit)
+                        )
+                        changeStateView(true)
 
+                    }
+                    if (state.isUpdateSuccess) {
+                        dialog?.dismiss()
+                    }
                 }
             }
 
         }
     }
 
-    private fun updateUserNameDetailsUiState(state: UiState<Any>) {
-        when (state) {
-            is UiState.Loading -> {
-                when (state.source) {
-                    "updateUserNameDetails" -> {
-                        loadingDialog.showLoading(fragmentManager = parentFragmentManager)
+    private fun userDetailsEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                userDetailsViewModel.userDetailsEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            parentFragmentManager.setFragmentResult(
+                                Edit_profile_result, bundleOf(
+                                    Message to event.message
+                                )
+                            )
+                        }
+
+                        else -> Unit
                     }
+
                 }
             }
+        }
+    }
 
-            is UiState.Success -> {
-                when (state.source) {
-                    "updateUserNameDetails" -> {
-
-
-                        loadingDialog.dismissLoading()
-                        val navController = findNavController()
-                        navController.navigate(R.id.settingFragment)
-                        Toast.makeText(
-                            requireContext(),
-                            "Edit Name successfully",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                }
-                }
-            }
-
-            is UiState.Error -> {
-                when (state.source) {
-                    "updateUserNameDetails" -> {
-                        loadingDialog.dismissLoading()
-                        SnackBarCustom.showSnackbar(
-                            view = root,
-                            message = state.message,
+    private fun changePasswordState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                changePasswordViewModel.changePasswordState.collect { state ->
+                    if (state.isLoading) {
+                        changeStateChangePasswordView(false, View.VISIBLE, text = "")
+                        changeStateView(false)
+                    } else {
+                        changeStateChangePasswordView(
+                            true,
+                            View.GONE,
+                            text = getString(R.string.change)
                         )
+                        changeStateView(true)
+                    }
+                    if (state.isFinished) {
+                        confirmPasswordInput()
+                        changeVisibilityConfirmPasswordView(View.VISIBLE, false)
+
+                    } else {
+                        changePasswordInput()
+                        changeVisibilityConfirmPasswordView(View.GONE, true)
+
                     }
                 }
+            }
+        }
+    }
+
+    private fun changePasswordEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                changePasswordViewModel.changePasswordEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            parentFragmentManager.setFragmentResult(
+                                Edit_profile_result, bundleOf(
+                                    Message to checkIsMessageOrResourceId(
+                                        event = event,
+                                        context = requireContext()
+                                    )
+                                )
+                            )
+                        }
+
+                        else -> Unit
+
+                    }
+                }
+            }
+
+        }
+    }
+
+    private fun confirmPasswordState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                confirmPasswordViewModel.confirmPasswordState.collect { state ->
+                    if (state.isLoading) {
+                        changeStateChangePasswordView(false, View.VISIBLE, text = "")
+                        changeStateView(false)
+
+                    } else {
+                        changeStateChangePasswordView(
+                            true,
+                            View.GONE,
+                            text = getString(R.string.change)
+                        )
+                        changeStateView(true)
+                    }
+
+                }
+            }
+        }
+
+    }
+
+    private fun confirmPasswordEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                confirmPasswordViewModel.confirmPasswordEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            parentFragmentManager.setFragmentResult(
+                                Edit_profile_result, bundleOf(
+                                    Message to checkIsMessageOrResourceId(
+                                        event = event,
+                                        context = requireContext()
+                                    )
+                                )
+                            )
+                        }
+
+                        else -> Unit
+                    }
+
+                }
+            }
+        }
+    }
+
+    private fun changeStateEditUserDetailsView(
+        isEnable: Boolean,
+        visibility: Int,
+        text: String
+    ) {
+        binding.EditButton.isEnabled = isEnable
+        binding.EditButton.text = text
+        binding.CancelEditButton.isEnabled = isEnable
+        binding.progressBarButtonEdit.visibility = visibility
+    }
+
+    private fun changeStateChangePasswordView(
+        isEnable: Boolean,
+        visibility: Int,
+        text: String
+    ) {
+        binding.ChangePasswordButton.isEnabled = isEnable
+        binding.ChangePasswordButton.text = text
+        binding.CancelChangeButton.isEnabled = isEnable
+        binding.progressBarButtonChangePassword.visibility = visibility
+    }
+
+    private fun changeVisibilityConfirmPasswordView(visibility: Int, enable: Boolean) {
+        binding.passwordTextFieldInputLayout.isEnabled = enable
+        binding.newPasswordTextFieldInputLayout.visibility = visibility
+        binding.otpTextFieldInputLayout.visibility = visibility
+    }
+
+    private fun changeStateView(isEnable: Boolean) {
+        binding.radioEditName.isEnabled = isEnable
+        binding.radioChangePassword.isEnabled = isEnable
+    }
+
+    private fun changePasswordInput() {
+        binding.ChangePasswordButton.setOnClickListener {
+            val password = binding.passwordEditText.text.toString()
+            changePasswordViewModel.onEvent(
+                ChangePasswordEvent.PasswordInput(
+                    password = password
+                )
+            )
+            changePasswordViewModel.onEvent(
+                ChangePasswordEvent.UserIdInput(
+                    userId = customerId.getCustomerId()
+                )
+            )
+            changePasswordViewModel.onEvent(ChangePasswordEvent.ChangePasswordButton)
+        }
+    }
+
+    private fun confirmPasswordInput() {
+
+
+        binding.ChangePasswordButton.setOnClickListener {
+            val password = binding.passwordEditText.text.toString()
+            val otpText = binding.otpPasswordEditText.text.toString()
+
+            if (password.isNotEmpty() && otpText.isNotEmpty()) {
+                confirmPasswordViewModel.onEvent(
+                    ConfirmPasswordEvent.UserIdInput(
+                        userId = customerId.getCustomerId()
+                    )
+                )
+                confirmPasswordViewModel.onEvent(
+                    ConfirmPasswordEvent.NewPasswordInput(
+                        newPassword = password
+                    )
+                )
+                confirmPasswordViewModel.onEvent(
+                    ConfirmPasswordEvent.OtpInput(
+                        otp = otpText.toInt()
+                    )
+                )
+                confirmPasswordViewModel.onEvent(ConfirmPasswordEvent.ConfirmPasswordButton)
+            } else {
+                binding.ChangePasswordButton.isEnabled = false
             }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        lifecycleScope.coroutineContext.cancelChildren() // Cancel all child coroutines
+        lifecycleScope.coroutineContext.cancelChildren()
+        _binding = null
     }
 
 }

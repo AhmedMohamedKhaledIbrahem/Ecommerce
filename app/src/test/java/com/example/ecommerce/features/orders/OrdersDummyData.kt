@@ -84,7 +84,6 @@ val tBillingInfoRequestEntity = BillingInfoRequestEntity(
     lastName = "Doe",
     address = "123 Main St",
     city = "Springfield",
-    state = "IL",
     postCode = "62701",
     country = "US",
     email = "billing@example.com",

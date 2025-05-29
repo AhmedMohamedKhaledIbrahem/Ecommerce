@@ -7,28 +7,35 @@
     android:layout_height="match_parent"
     tools:context=".features.userprofile.presentation.screens.settingscreen.SettingFragment">
 
-    <View
-        android:id="@+id/topCurveView"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:background="@drawable/top_curve"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-
-        />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/userSettingCardView"
+        style="@style/customCardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topCurveView"
-        app:cardElevation="10dp"
-        android:backgroundTint="?attr/colorBackgroundFloating"
-        >
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmerUserImageLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/shimmerUserImageView"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_marginHorizontal="10dp"
+                android:clickable="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/profile_circle"
+                app:shapeAppearanceOverlay="@style/roundedCornerStyle" />
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/userImageView"
@@ -38,44 +45,44 @@
             android:clickable="true"
             android:scaleType="centerCrop"
             android:src="@drawable/profile_circle"
-            app:shapeAppearanceOverlay="@style/roundedCornerStyle"/>
+            android:visibility="visible"
+            app:shapeAppearanceOverlay="@style/roundedCornerStyle" />
 
         <LinearLayout
             android:id="@+id/userTextLinearLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginHorizontal="88dp"
             android:layout_marginVertical="14dp"
-            >
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/userNameTextView"
+                style="@style/headLine1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="18sp"
-                android:fontFamily="@font/raleway_bold"
-                android:textColor="?attr/colorSecondary"
-                android:maxLines="1"
                 android:ellipsize="end"
                 android:lines="1"
+                android:maxLines="1"
                 android:scrollHorizontally="false"
-                />
+                android:text=""
+                android:textColor="?attr/colorOnSecondary" />
+
             <TextView
                 android:id="@+id/userEmailTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""
-                android:textColor="?attr/colorOnSecondary"
-                android:fontFamily="@font/raleway_bold"
-                android:maxLines="1"
                 android:ellipsize="end"
                 android:lines="1"
+                android:maxLines="1"
                 android:scrollHorizontally="false"
+                android:text=""
+                android:textColor="?attr/colorOnSecondary"
+                style="@style/headLine2"
+                android:textStyle="bold"
                 />
 
         </LinearLayout>
-
 
 
     </com.google.android.material.card.MaterialCardView>

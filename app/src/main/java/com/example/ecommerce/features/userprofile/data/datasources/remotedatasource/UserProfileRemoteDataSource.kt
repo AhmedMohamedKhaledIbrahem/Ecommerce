@@ -5,7 +5,6 @@ import com.example.ecommerce.features.userprofile.data.models.GetImageProfileRes
 import com.example.ecommerce.features.userprofile.data.models.UpdateUserNameDetailsRequestModel
 import com.example.ecommerce.features.userprofile.data.models.UpdateUserNameDetailsResponseModel
 import com.example.ecommerce.features.userprofile.data.models.UploadImageProfileResponseModel
-import com.example.ecommerce.features.userprofile.domain.entites.UpdateUserNameDetailsRequestEntity
 import java.io.File
 
 interface UserProfileRemoteDataSource {

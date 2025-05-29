@@ -35,7 +35,7 @@ class AuthenticationSharedPreferencesDataSourceImpTest {
    private var tToken = userResponse.token
    @Test
    fun`should save token from authenticationResponseModel is successful`():Unit= runTest {
-       doNothing().`when`(tokenManger).saveToken(tToken)
+       `when`(tokenManger.saveToken(tToken)).thenReturn(Unit)
        sharedPreferences.saveToken(tToken)
        verify(tokenManger).saveToken(tToken)
    }
@@ -49,7 +49,7 @@ class AuthenticationSharedPreferencesDataSourceImpTest {
    }
    @Test
    fun`should clear token when is logout successful`():Unit = runTest {
-       doNothing().`when`(tokenManger).clearToken()
+       `when`(tokenManger.clearToken()).thenReturn(Unit)
        sharedPreferences.clearToken()
        verify(tokenManger).clearToken()
    }

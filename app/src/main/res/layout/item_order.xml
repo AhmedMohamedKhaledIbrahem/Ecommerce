@@ -10,9 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="8dp"
-        android:elevation="10dp"
-
-        >
+        style="@style/customCardStyle">
 
         <TextView
             android:id="@+id/statusText"
@@ -20,8 +18,9 @@
             android:layout_height="match_parent"
             android:paddingHorizontal="10dp"
             android:text=""
+            style="@style/paragraphStyle"
             android:textStyle="bold"
-            android:textSize="14sp"
+            android:textColor="?attr/colorOnSecondary"
             />
 
 
@@ -34,7 +33,8 @@
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="8dp"
         android:clickable="true"
-        android:elevation="10dp">
+        style="@style/customCardStyle"
+        >
 
         <LinearLayout
             android:id="@+id/orderLinearLayout"
@@ -48,28 +48,27 @@
                 android:id="@+id/orderTagNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Order: #219"
+                android:text=""
+                style="@style/paragraphStyle"
+                android:textColor="?attr/colorOnSecondary"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/orderDateCreate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Data : February 11, 2025"
+                android:text=""
+                style="@style/paragraphStyle"
+                android:textColor="?attr/colorOnSecondary"
                 android:textStyle="bold" />
-
-<!--            <TextView-->
-<!--                android:id="@+id/orderStatus"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Status : Pending"-->
-<!--                android:textStyle="bold" />-->
 
             <TextView
                 android:id="@+id/orderTotal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Total : 30.00 EGP For 1 Item"
+                android:text=""
+                style="@style/paragraphStyle"
+                android:textColor="?attr/colorOnSecondary"
                 android:textStyle="bold" />
 
         </LinearLayout>
