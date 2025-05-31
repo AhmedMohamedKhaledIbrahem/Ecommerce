@@ -14,14 +14,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.ecommerce.core.database.data.entities.cart.ItemCartEntity
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.manager.address.AddressManager
 import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.databinding.FragmentCartBinding
+import com.example.ecommerce.features.address.presentation.event.AddressEvent
+import com.example.ecommerce.features.address.presentation.viewmodel.address.AddressViewModel
 import com.example.ecommerce.features.cart.data.data_soruce.local.calculateTotalPrice
 import com.example.ecommerce.features.cart.presentation.event.CartEvent
 import com.example.ecommerce.features.cart.presentation.event.CheckOutEvent
@@ -49,12 +51,11 @@ class CartFragment : Fragment() {
     lateinit var addressManager: AddressManager
     private val cartViewModel: CartViewModel by viewModels<CartViewModel>()
     private val checkOutViewModel by viewModels<CheckOutViewModel>()
+    private val addressViewModel by viewModels<AddressViewModel>()
 
     private var itemHashKeys: MutableList<ItemCartEntity> = mutableListOf()
     private var itemCart: ItemCartEntity? = null
 
-
-    private lateinit var loadingDialog: LoadingDialogFragment
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,7 +70,7 @@ class CartFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
+        fetchAddress()
         getCartWithItems()
         cartEvent()
         cartState()
@@ -77,6 +78,8 @@ class CartFragment : Fragment() {
         setAddressId()
         checkOutState()
         checkOutEvent()
+        addressState()
+        addressEvent()
         detectScrollEnd(binding.cartRecyclerView)
 
     }
@@ -164,11 +167,7 @@ class CartFragment : Fragment() {
                 cartViewModel.cartEvent.collectLatest { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
-                            Log.d("TAG", "cartEvent: ${event.message}")
-                            SnackBarCustom.showSnackbar(
-                                view = root,
-                                message = event.message
-                            )
+                            checkIsMessageOrResourceId(event, requireContext(), root)
                         }
 
 
@@ -186,11 +185,7 @@ class CartFragment : Fragment() {
                 checkOutViewModel.checkOutEvent.collectLatest { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
-                            Log.d("TAG", "cartEvent: ${event.message}")
-                            SnackBarCustom.showSnackbar(
-                                view = root,
-                                message = event.message
-                            )
+                            checkIsMessageOrResourceId(event, requireContext(), root)
 
                         }
 
@@ -198,11 +193,14 @@ class CartFragment : Fragment() {
 
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = { message, _  ->
-                                    SnackBarCustom.showSnackbar(
-                                        view = root,
-                                        message = message
+                                onShowSnackBar = { message, resId ->
+                                    checkIsMessageOrResourceId(
+                                        message,
+                                        resId,
+                                        requireContext(),
+                                        root
                                     )
+
                                 },
                                 onNavigate = { destinationId, _ ->
                                     findNavController().navigate(destinationId)
@@ -258,7 +256,6 @@ class CartFragment : Fragment() {
                 checkOutViewModel.checkOutState.collect { state ->
 
                     if (::cartAdapter.isInitialized && ::checkAdapter.isInitialized) {
-                        Log.d("TAG", "checkOutState: ${state.isCheckingOut}")
                         checkAdapter.setLoadingState(state.isCheckingOut)
                     }
 
@@ -266,6 +263,43 @@ class CartFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun addressState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                addressViewModel.addressState.collect { state ->
+                    if (state.isGetAllAddressLoading) {
+                        addressManager.enableFetchAddress(enable = true)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addressEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                addressViewModel.addressEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            checkIsMessageOrResourceId(event, requireContext(), root)
+                        }
+
+                        else -> Unit
+                    }
+                }
+
+            }
+        }
+    }
+
+
+    private fun fetchAddress() {
+        if (!addressManager.getFetchAddress()) {
+            addressViewModel.onEvent(AddressEvent.LoadAllAddress)
+        }
+
     }
 
     private fun deleteItem() {

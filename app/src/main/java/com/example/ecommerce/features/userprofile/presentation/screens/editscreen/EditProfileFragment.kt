@@ -42,7 +42,7 @@ class EditProfileFragment : DialogFragment() {
     private var _binding: FragmentEditProfileBinding? = null
     private val binding get() = _binding!!
     private var idUser by Delegates.notNull<Int>()
-    private lateinit var loadingDialog: LoadingDialogFragment
+   // private lateinit var loadingDialog: LoadingDialogFragment
 
     @Inject
     lateinit var customerId: CustomerManager
@@ -75,7 +75,7 @@ class EditProfileFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
+        //loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         radioOnCheckedChangeListener()
         buttonCancelOnClickListener()
         getUserProfile()

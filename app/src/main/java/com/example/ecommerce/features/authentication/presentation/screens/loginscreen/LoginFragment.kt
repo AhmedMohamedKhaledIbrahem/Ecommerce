@@ -11,13 +11,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
 import com.example.ecommerce.core.manager.customer.CustomerManager
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.navigationOption
 import com.example.ecommerce.databinding.FragmentLoginBinding
 import com.example.ecommerce.features.authentication.presentation.event.LoginEvent
 import com.example.ecommerce.features.authentication.presentation.viewmodel.login.LoginViewModel
@@ -35,7 +36,8 @@ class LoginFragment : Fragment() {
 
     @Inject
     lateinit var customerManager: CustomerManager
-    private lateinit var loadingDialog: LoadingDialogFragment
+
+    //private lateinit var loadingDialog: LoadingDialogFragment
     private lateinit var rootView: View
 
     override fun onCreateView(
@@ -50,7 +52,7 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
+        //loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         textWatchers()
         loginWithUserNameOrEmailAndPassword()
         signUpNavigation()
@@ -107,13 +109,14 @@ class LoginFragment : Fragment() {
                         }
 
                         is UiEvent.Navigation.Home -> {
-                            findNavController().navigate(event.destinationId)
+                            val navOptions = navigationOption(R.id.loginFragment)
+                            findNavController().navigate(event.destinationId,null,navOptions)
                         }
 
                         is UiEvent.CombinedEvents -> {
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = {message, _ ->
+                                onShowSnackBar = { message, _ ->
                                     SnackBarCustom.showSnackbar(view = rootView, message = message)
                                 },
                                 onNavigate = { destinationId, args ->

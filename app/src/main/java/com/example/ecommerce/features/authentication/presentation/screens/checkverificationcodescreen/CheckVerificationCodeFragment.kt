@@ -36,7 +36,7 @@ class CheckVerificationCodeFragment : Fragment() {
     private val emailArgs: CheckVerificationCodeFragmentArgs by navArgs()
     private val  email = emailArgs.emailArg
     private val resendCodeTimerViewModel: IResendCodeTimerViewModel by viewModels<ResendCodeTimerViewModel>()
-    private lateinit var loadingDialog: LoadingDialogFragment
+    //private lateinit var loadingDialog: LoadingDialogFragment
     private var _binding: FragmentCheckVerificationCodeBinding? = null
     private val binding get() = _binding!!
     private lateinit var rootView: View
@@ -54,7 +54,7 @@ class CheckVerificationCodeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
+        //loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         resendCodeTimer()
         setupOtpEditTexts()
         verificationByCodeAndEmail()
@@ -132,7 +132,7 @@ class CheckVerificationCodeFragment : Fragment() {
                                 onShowSnackBar = { message, _ ->
                                     SnackBarCustom.showSnackbar(view = rootView, message = message)
                                 },
-                                onNavigate = { destinationId, args ->
+                                onNavigate = { destinationId, _ ->
                                     findNavController().navigate(destinationId)
 
                                 }

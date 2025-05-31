@@ -35,4 +35,15 @@ class CustomerManagerImp @Inject constructor(
 
     }
 
+    override suspend fun clearCustomerId() {
+        withContext(Dispatchers.IO) {
+            try {
+                sharedPreferences.edit { remove(CUSTOMER_KEY) }
+            } catch (e: Exception) {
+                throw Failures.CacheFailure("${e.message}")
+            }
+
+        }
+    }
+
 }

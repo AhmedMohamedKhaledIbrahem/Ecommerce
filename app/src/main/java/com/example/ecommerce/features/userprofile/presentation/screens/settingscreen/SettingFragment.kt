@@ -31,10 +31,17 @@ import coil.transform.CircleCropTransformation
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.Edit_profile_result
 import com.example.ecommerce.core.constants.Message
+import com.example.ecommerce.core.fragment.LoadingDialogFragment
+import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
+import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
+import com.example.ecommerce.core.utils.navigationOption
 import com.example.ecommerce.databinding.FragmentSettingBinding
+import com.example.ecommerce.features.logout.presentation.event.LogoutEvent
+import com.example.ecommerce.features.logout.presentation.viewmodel.LogoutViewModel
 import com.example.ecommerce.features.preferences.presentation.event.PreferencesEvent
 import com.example.ecommerce.features.preferences.presentation.viewmodel.PreferencesViewModel
 import com.example.ecommerce.features.userprofile.presentation.event.ImageProfileEvent
@@ -48,6 +55,7 @@ import com.example.ecommerce.features.userprofile.presentation.viewmodel.userpro
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SettingFragment : Fragment() {
@@ -60,10 +68,17 @@ class SettingFragment : Fragment() {
     private val userProfileViewModel by viewModels<UserProfileViewModel>()
     private val userDetailsViewModel by viewModels<UserDetailsViewModel>()
     private val updateImageProfileViewModel by viewModels<ImageProfileViewModel>()
+    private val preferencesViewModel by viewModels<PreferencesViewModel>()
+    private val logoutViewModel by viewModels<LogoutViewModel>()
     private lateinit var updateDisplayNameViewModel: UpdateDisplayNameViewModel
     private var isAdapterInitialized = false
-    private val preferencesViewModel by viewModels<PreferencesViewModel>()
 
+
+    @Inject
+    lateinit var tokenManager: TokenManager
+
+    @Inject
+    lateinit var fcmDeviceToken: FcmDeviceToken
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +106,7 @@ class SettingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // loadingDialog = LoadingDialogFragment.Companion.getInstance(childFragmentManager)
         fetchUpdateUserDetails()
         getUserProfile()
         getUserProfileState()
@@ -107,6 +123,8 @@ class SettingFragment : Fragment() {
             ViewModelProvider(requireActivity())[UpdateDisplayNameViewModel::class.java]
         updateUserDisplayName()
         showMessageFromEditProfile()
+        logoutState()
+        logoutEvent()
 
     }
 
@@ -286,6 +304,57 @@ class SettingFragment : Fragment() {
         }
     }
 
+    private fun logoutState() {
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                logoutViewModel.logoutState.collect { state ->
+                    if (state.isLoading) {
+                        LoadingDialogFragment.show(parentFragmentManager)
+                    } else {
+                        LoadingDialogFragment.dismiss(parentFragmentManager)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun logoutEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                logoutViewModel.logoutEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.Navigation.SignIn -> {
+                            val navOptions = navigationOption(fragmentId = R.id.settingFragment)
+                            findNavController().navigate(event.destinationId, null, navOptions)
+                        }
+
+                        is UiEvent.ShowSnackBar -> {
+                            checkIsMessageOrResourceId(event, requireContext(), rootView)
+                        }
+
+                        else -> Unit
+                    }
+
+                }
+            }
+        }
+    }
+
+    private fun logout() {
+        val (jwtToken, fcmToken) = getTokens()
+        logoutViewModel.onEvent(LogoutEvent.JwtTokenInput(jwtToken))
+        logoutViewModel.onEvent(LogoutEvent.FcmTokenInput(fcmToken))
+        logoutViewModel.onEvent(LogoutEvent.LogoutButton)
+    }
+
+    private fun getTokens(): Pair<String, String> {
+        var (jwtToken, fcmToken) = Pair("", "")
+        jwtToken = tokenManager.getToken() ?: ""
+        fcmToken = fcmDeviceToken.getFcmTokenDevice() ?: ""
+        return Pair(jwtToken, fcmToken)
+    }
+
 
     private fun updateUserDisplayName() {
         updateDisplayNameViewModel.displayName.observe(viewLifecycleOwner) { value ->
@@ -300,7 +369,15 @@ class SettingFragment : Fragment() {
         settingAdapter = SettingAdapter(
             data,
             onItemClickListener = { settingItem ->
-                navigateToDestination(settingItem.destinationId)
+                when (settingItem.title) {
+                    getString(R.string.logout) -> {
+                        logout()
+                    }
+
+                    else -> {
+                        navigateToDestination(settingItem.destinationId)
+                    }
+                }
             },
             onSwitchChangeListener = { settingItem, isChecked ->
                 if (settingItem.title == getString(R.string.darkMode)) {
@@ -318,6 +395,7 @@ class SettingFragment : Fragment() {
         }
 
     }
+
 
     private fun toggleDarkMode(isChecked: Boolean) {
         preferencesViewModel.onEvent(PreferencesEvent.Input.SetDarkMode(isChecked))
@@ -450,7 +528,10 @@ class SettingFragment : Fragment() {
     }
 
     private fun showMessageFromEditProfile() {
-        parentFragmentManager.setFragmentResultListener(Edit_profile_result, this) { _, bundle ->
+        parentFragmentManager.setFragmentResultListener(
+            Edit_profile_result,
+            this
+        ) { _, bundle ->
             val message = bundle.getString(Message)
             Log.e("message", "showMessageFromEditProfile: $message")
             if (message == null) return@setFragmentResultListener

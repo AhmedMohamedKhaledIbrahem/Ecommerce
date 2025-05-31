@@ -177,5 +177,9 @@
     <string name="unknown_message">Unknown message</string>
     <string name="unsupported_event">Unsupported event</string>
     <string name="not_work">not work</string>
+    <string name="logout_successfully">Logout Successfully</string>
+    <string name="customer_or_address_not_found">Customer or Address Id not found</string>
+    <string name="address_not_found">Addresss Not Found</string>
+    <string name="order_created_successfully">Order Created successfully</string>
 
 </resources>

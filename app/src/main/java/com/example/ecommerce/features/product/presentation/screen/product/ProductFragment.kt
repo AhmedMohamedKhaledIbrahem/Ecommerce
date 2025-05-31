@@ -2,7 +2,6 @@ package com.example.ecommerce.features.product.presentation.screen.product
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,12 +41,14 @@ import com.example.ecommerce.features.product.presentation.viewmodel.ProductView
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProductFragment : Fragment() {
     private var _binding: FragmentProductBinding? = null
+    private var bottomSheetJob: Job? = null
     private val binding get() = _binding!!
     var category: List<CategoryEntity> = emptyList()
     var selectedCategoryIds = mutableSetOf<Int>()
@@ -116,8 +117,8 @@ class ProductFragment : Fragment() {
     }
 
     private fun expandBottomSheetFilter() {
-
-        lifecycleScope.launch {
+        bottomSheetJob?.cancel()
+        bottomSheetJob = lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 expandedBottomSheetFilterViewModel.expandedFilter.collectLatest { expanded ->
                     if (expanded) {
@@ -224,7 +225,7 @@ class ProductFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 productViewModel.productPagedState.collectLatest { state ->
                     if (state.isLoading) {
-                        Log.d("TAG", "fetchProductPagingState: loading")
+
                     } else {
                         productAdapter.submitData(state.products)
                         selectedCategoryIds = state.category.toMutableSet()
@@ -242,6 +243,7 @@ class ProductFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 productSearchViewModel.searchEvent.collectLatest { event ->
                     when (event) {
+
                         is UiEvent.ShowSnackBar -> {
                             SnackBarCustom.showSnackbar(
                                 view = binding.root,
@@ -258,13 +260,17 @@ class ProductFragment : Fragment() {
     }
 
     private fun searchState() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 productSearchViewModel.searchState.collectLatest { state ->
                     if (state.isSearching) {
-                        Log.d("TAG", "fetchProductPagingState: loading")
+
                     } else {
-                        removeItemDecoration(binding.productRecyclerView)
+                        binding.productRecyclerView.post {
+                            if (view != null && _binding != null) {
+                                removeItemDecoration(binding.productRecyclerView)
+                            }
+                        }
                         binding.productRecyclerView.clipToPadding = true
                         productAdapter.submitData(state.products)
 

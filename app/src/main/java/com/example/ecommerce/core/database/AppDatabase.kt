@@ -8,6 +8,7 @@ import com.example.ecommerce.core.database.data.dao.cart.ItemCartDao
 import com.example.ecommerce.core.database.data.dao.category.CategoryDao
 import com.example.ecommerce.core.database.data.dao.category.ProductCategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
+import com.example.ecommerce.core.database.data.dao.logout.LogoutDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderItemDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
@@ -55,6 +56,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun orderTagDao(): OrderTagDao
     abstract fun orderItemDao(): OrderItemDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun logoutDao(): LogoutDao
 
 
 }

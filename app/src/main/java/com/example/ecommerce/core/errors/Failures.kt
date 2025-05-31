@@ -3,7 +3,7 @@ package com.example.ecommerce.core.errors
 sealed class Failures : Throwable() {
     data class ServerFailure(
         override val message: String = "ServerFailure",
-        val resourceId: Int? = null
+         val resourceId: Int? = null
     ) : Failures()
 
     data class ConnectionFailure(

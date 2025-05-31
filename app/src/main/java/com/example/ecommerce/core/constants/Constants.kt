@@ -28,5 +28,6 @@ const val quantity = "1"
 const val Unknown_Error = "Unknown error"
 const val Edit_profile_result= "edit_profile_result"
 const val Message = "message"
+const val status = "status"
 
 

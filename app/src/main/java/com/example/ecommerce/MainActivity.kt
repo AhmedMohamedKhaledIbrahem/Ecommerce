@@ -50,7 +50,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var detectViewModel: DetectScrollEndViewModel
-    internal lateinit var loadingDialog: LoadingDialogFragment
+    //internal lateinit var loadingDialog: LoadingDialogFragment
     private val mainNavigationViewModel: MainNavigationViewModel by viewModels()
     private val networkStatusViewModel: NetworkHelperViewModel by viewModels()
     private lateinit var expandedBottomSheetFilterViewModel: ExpandedBottomSheetFilterViewModel
@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        loadingDialog = LoadingDialogFragment.Companion.getInstance(supportFragmentManager)
+        //loadingDialog = LoadingDialogFragment.Companion.getInstance(supportFragmentManager)
         detectViewModel = ViewModelProvider(this)[DetectScrollEndViewModel::class.java]
         expandedBottomSheetFilterViewModel =
             ViewModelProvider(this)[ExpandedBottomSheetFilterViewModel::class.java]

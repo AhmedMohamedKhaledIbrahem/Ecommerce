@@ -14,15 +14,15 @@ fun checkInternetConnection(
     activity: MainActivity
 ):Boolean {
     val rootView = activity.binding.root
-    val loadingDialog = activity.loadingDialog
+    //val loadingDialog = activity.loadingDialog
     val context = activity.applicationContext
-    val fragmentManager = activity.supportFragmentManager
+    //val fragmentManager = activity.supportFragmentManager
     var isDisconnected = false
     networkStatus.observe(lifecycleOwner) { connectivityStatus ->
         when (connectivityStatus) {
             ConnectivityStatus.CONNECTED -> {
                 if (isDisconnected) {
-                    loadingDialog.dismissLoading()
+                    //loadingDialog.dismissLoading()
                     SnackBarCustom.showSnackbar(
                         rootView,
                         context.getString(R.string.your_internet_has_been_restored),
@@ -32,7 +32,7 @@ fun checkInternetConnection(
                 }
             }
             ConnectivityStatus.DISCONNECTED -> {
-                loadingDialog.showLoading(fragmentManager)
+                //loadingDialog.showLoading(fragmentManager)
                 SnackBarCustom.showSnackbar(
                     rootView,
                     context.getString(R.string.you_are_currently_offline),

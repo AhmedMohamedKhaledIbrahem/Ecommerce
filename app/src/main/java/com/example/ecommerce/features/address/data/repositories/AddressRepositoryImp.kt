@@ -42,7 +42,6 @@ class AddressRepositoryImp @Inject constructor(
             val updateAddressParams = AddressMapper.mapToModel(customerAddressParams)
             try {
                 localDataSource.updateAddress(id = id, updateAddressParams)
-
                 addressManager.setAddressId(id)
                 localDataSource.unSelectAddress(id)
             } catch (e: FailureException) {

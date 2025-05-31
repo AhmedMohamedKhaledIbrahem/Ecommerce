@@ -10,6 +10,7 @@ import com.example.ecommerce.core.database.data.dao.cart.ItemCartDao
 import com.example.ecommerce.core.database.data.dao.category.CategoryDao
 import com.example.ecommerce.core.database.data.dao.category.ProductCategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
+import com.example.ecommerce.core.database.data.dao.logout.LogoutDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderItemDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
@@ -118,6 +119,12 @@ object DataCoreModule {
     @Singleton
     fun provideCategoryDao(appDatabase: AppDatabase): CategoryDao {
         return appDatabase.categoryDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideLogoutDao(appDatabase: AppDatabase): LogoutDao {
+        return appDatabase.logoutDao()
     }
 
     @Provides

@@ -3,8 +3,6 @@ package com.example.ecommerce.features.cart.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.R
-import com.example.ecommerce.core.constants.CustomerOrAddressNotFound
-import com.example.ecommerce.core.constants.OrderCreatedSuccessfully
 import com.example.ecommerce.core.constants.PaymentMethod
 import com.example.ecommerce.core.constants.PaymentMethodTitle
 import com.example.ecommerce.core.constants.Unknown_Error
@@ -76,11 +74,17 @@ class CheckOutViewModel @Inject constructor(
                 val addressId = checkOutState.value.addressId
                 _checkOutState.update { it.copy(isCheckingOut = true) }
                 if (customerId == -1 && addressId == -1) {
-                    _checkOutEvent.send(UiEvent.ShowSnackBar(CustomerOrAddressNotFound))
+                    _checkOutEvent.send(UiEvent.ShowSnackBar(resId = R.string.customer_or_address_not_found))
                     _checkOutState.update { it.copy(isCheckingOut = false) }
                     return@launch
                 }
+
                 val (billingAddress, items) = parallelFetch(addressId)
+                if (billingAddress == null) {
+                    _checkOutEvent.send(UiEvent.ShowSnackBar(resId = R.string.address_not_found))
+                    _checkOutState.update { it.copy(isCheckingOut = false) }
+                    return@launch
+                }
                 val orderResponseEntity = createOrderUseCase(
                     orderRequestEntity = OrderRequestEntity(
                         customerId = customerId,
@@ -99,7 +103,7 @@ class CheckOutViewModel @Inject constructor(
                 _checkOutEvent.send(
                     UiEvent.CombinedEvents(
                         listOf(
-                            UiEvent.ShowSnackBar(OrderCreatedSuccessfully),
+                            UiEvent.ShowSnackBar(resId = R.string.order_created_successfully),
                             UiEvent.Navigation.Orders(destinationId = R.id.ordersFragment)
                         )
                     )
@@ -117,7 +121,7 @@ class CheckOutViewModel @Inject constructor(
 
     }
 
-    private suspend fun parallelFetch(addressId: Int): Pair<BillingInfoRequestEntity, List<LineItemRequestEntity>> =
+    private suspend fun parallelFetch(addressId: Int): Pair<BillingInfoRequestEntity?, List<LineItemRequestEntity>> =
         coroutineScope {
             val addressDeferred = async { getSelectAddressUseCase(addressId) }
             val cartDeferred = async { getCartUseCase() }

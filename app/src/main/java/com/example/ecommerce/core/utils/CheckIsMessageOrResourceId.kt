@@ -26,6 +26,21 @@ fun checkIsMessageOrResourceId(event: UiEvent, context: Context, root: View) {
     }
 }
 
+fun checkIsMessageOrResourceId(message: String, resId: Int, context: Context, root: View) {
+    if (message != "" && resId == -1) {
+        SnackBarCustom.showSnackbar(
+            view = root,
+            message = message
+        )
+    } else {
+        SnackBarCustom.showSnackbar(
+            view = root,
+            message = context.getString(resId)
+        )
+    }
+
+}
+
 fun checkIsMessageOrResourceId(event: UiEvent, context: Context): String {
     return when (event) {
         is UiEvent.ShowSnackBar -> {
@@ -35,6 +50,7 @@ fun checkIsMessageOrResourceId(event: UiEvent, context: Context): String {
                 else -> context.getString(R.string.unknown_message)
             }
         }
+
         else -> context.getString(R.string.unsupported_event)
     }
 }

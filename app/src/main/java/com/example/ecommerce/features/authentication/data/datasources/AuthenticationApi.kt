@@ -15,8 +15,7 @@ import retrofit2.http.POST
 interface AuthenticationApi {
     @POST("wp-json/jwt-auth/v1/token")
     suspend fun loginRequest(@Body request: AuthenticationRequestModel): Response<AuthenticationResponseModel>
-
-
+    
     @POST("wp-json/custom/v1/register")
     suspend fun signUpRequest(@Body request: SignUpRequestModel): Response<MessageResponseModel>
 

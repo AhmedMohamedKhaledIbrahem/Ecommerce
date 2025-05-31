@@ -6,15 +6,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorBackgroundFloating"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    tools:context=".features.authentication.presentation.screens.signupscreen.SignUpFragment">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        tools:context=".features.authentication.presentation.screens.signupscreen.SignUpFragment">
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/signUpHeadTextView"
@@ -30,10 +30,10 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/signUpCardView"
+            style="@style/customCardStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
-            style="@style/customCardStyle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -48,10 +48,10 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/userNameTextFieldInputLayout"
+                    style="@style/customColorTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/username"
-                    style="@style/customColorTextStyle"
 
                     app:errorEnabled="true"
                     app:hintTextAppearance="@style/CustomHintTextAppearance">
@@ -73,13 +73,13 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/firstNameTextFieldInputLayout"
+                        style="@style/customColorTextStyle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="@string/first_name"
                         android:paddingStart="0dp"
                         android:paddingEnd="10dp"
-                        style="@style/customColorTextStyle"
                         app:errorEnabled="true"
                         app:hintTextAppearance="@style/CustomHintTextAppearance">
 
@@ -94,13 +94,13 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/lastNameTextFieldInputLayout"
+                        style="@style/customColorTextStyle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="@string/last_name"
                         android:paddingStart="10dp"
                         android:paddingEnd="0dp"
-                        style="@style/customColorTextStyle"
                         app:errorEnabled="true"
                         app:hintTextAppearance="@style/CustomHintTextAppearance">
 
@@ -118,10 +118,10 @@
                 <!-- Third TextField -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/emailTextFieldInputLayout"
+                    style="@style/customColorTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/email"
-                    style="@style/customColorTextStyle"
                     app:errorEnabled="true"
                     app:hintTextAppearance="@style/CustomHintTextAppearance">
 
@@ -137,10 +137,10 @@
                 <!-- Fourth TextField -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/passwordTextFieldInputLayout"
+                    style="@style/customColorTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/password"
-                    style="@style/customColorTextStyle"
                     app:endIconMode="password_toggle"
                     app:errorEnabled="true"
                     app:hintTextAppearance="@style/CustomHintTextAppearance"
@@ -163,10 +163,10 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/ConfirmPasswordTextFieldInputLayout"
+                    style="@style/customColorTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/confirm_password"
-                    style="@style/customColorTextStyle"
                     app:endIconMode="password_toggle"
                     app:errorEnabled="true"
                     app:passwordToggleDrawable="@drawable/round_visibility_off_24"
@@ -195,8 +195,8 @@
                         android:layout_gravity="center"
                         android:layout_marginVertical="4dp"
                         android:backgroundTint="?attr/colorPrimary"
-                        android:text="@string/signupButton"
                         android:enabled="true"
+                        android:text="@string/signupButton"
                         android:textColor="?attr/colorOnPrimary" />
 
                     <FrameLayout

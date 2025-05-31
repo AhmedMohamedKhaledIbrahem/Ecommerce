@@ -1,5 +1,6 @@
 package com.example.ecommerce.core.service
 
+import android.util.Log
 import com.example.ecommerce.core.constants.Page
 import com.example.ecommerce.core.constants.PerPage
 import com.example.ecommerce.core.manager.prdouct.ProductHandler
@@ -49,6 +50,7 @@ class FCMHandler : FirebaseMessagingService(), IFCMHandler {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         scope.launch {
+            Log.d("TAG", "onNewToken: $token")
             notificationManagerRepository.addFcmTokenDevice(token = token)
         }
     }
