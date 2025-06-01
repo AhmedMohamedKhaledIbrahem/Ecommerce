@@ -12,9 +12,7 @@ interface OrderApi {
     @POST("wp-json/custom/v1/orders")
     suspend fun createOrder(@Body orderRequestModel: OrderRequestModel): Response<OrderResponseModel>
 
-    @GET("wp-json/wc/v3/orders")
-    suspend fun getOrders(
-        @Query("customerId") customerId: Int
-    ): Response<List<OrderResponseModel>>
+    @GET("wp-json/custom/v1/user-orders")
+    suspend fun getOrders(): Response<List<OrderResponseModel>>
 
 }

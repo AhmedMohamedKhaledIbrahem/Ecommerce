@@ -12,12 +12,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkManager
 import com.example.ecommerce.core.database.data.entities.category.CategoryEntity
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
+import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.navigationWithArgs
 import com.example.ecommerce.core.utils.SnackBarCustom
@@ -29,6 +31,8 @@ import com.example.ecommerce.databinding.FragmentProductBinding
 import com.example.ecommerce.features.category.presentation.event.CategoryEvent
 import com.example.ecommerce.features.category.presentation.screen.adapter.CategoryAdapter
 import com.example.ecommerce.features.category.presentation.viewmodel.CategoryViewModel
+import com.example.ecommerce.features.notification.presentation.event.NotificationEvent
+import com.example.ecommerce.features.notification.presentation.viewmodel.notification.NotificationViewModel
 import com.example.ecommerce.features.product.presentation.event.ProductEvent
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductShimmerAdapter
@@ -44,6 +48,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProductFragment : Fragment() {
@@ -62,6 +67,11 @@ class ProductFragment : Fragment() {
     private val productViewModel: ProductViewModel by viewModels()
     private val productSearchViewModel: ProductSearchViewModel by viewModels()
     private val categoryViewModel: CategoryViewModel by viewModels()
+    private val notificationViewModel by viewModels<NotificationViewModel>()
+
+    @Inject
+    lateinit var fcmTokenManager: FcmDeviceToken
+
     private lateinit var expandedBottomSheetFilterViewModel: ExpandedBottomSheetFilterViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +102,8 @@ class ProductFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        saveFcmToken()
+        notificationEvent()
         initShimmerRecycleView()
         initProductRecycleView()
         fetchCategory()
@@ -107,7 +119,6 @@ class ProductFragment : Fragment() {
         searchState()
         detectScrollEnd(recyclerView, 3)
         expandBottomSheetFilter()
-
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -372,6 +383,36 @@ class ProductFragment : Fragment() {
             stock = product.product.statusStock,
             rating = product.product.ratingCount.toDouble()
         )
+    }
+
+    private fun saveFcmToken() {
+        notificationViewModel.onEvent(
+            NotificationEvent.AddFcmTokenDevice(
+                fcmTokenManager.getFcmTokenDevice() ?: ""
+            )
+        )
+        notificationViewModel.onEvent(NotificationEvent.OnAddFcmTokenDevice)
+    }
+
+    private fun notificationEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                notificationViewModel.notificationEvent.collect { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            checkIsMessageOrResourceId(
+                                event = event,
+                                context = requireContext(),
+                                root = binding.root
+                            )
+                        }
+
+                        else -> Unit
+                    }
+                }
+
+            }
+        }
     }
 
 

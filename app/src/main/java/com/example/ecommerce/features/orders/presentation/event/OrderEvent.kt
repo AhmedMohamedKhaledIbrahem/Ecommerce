@@ -20,4 +20,6 @@ sealed class OrderEvent {
     data object OnOrderCardClick : OrderEvent()
 
     data object LoadOrders : OrderEvent()
+
+    data object FetchOrders : OrderEvent()
 }

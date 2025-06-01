@@ -24,6 +24,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
@@ -38,7 +39,6 @@ import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
-import com.example.ecommerce.core.utils.navigationOption
 import com.example.ecommerce.databinding.FragmentSettingBinding
 import com.example.ecommerce.features.logout.presentation.event.LogoutEvent
 import com.example.ecommerce.features.logout.presentation.viewmodel.LogoutViewModel
@@ -325,8 +325,16 @@ class SettingFragment : Fragment() {
                 logoutViewModel.logoutEvent.collect { event ->
                     when (event) {
                         is UiEvent.Navigation.SignIn -> {
-                            val navOptions = navigationOption(fragmentId = R.id.settingFragment)
-                            findNavController().navigate(event.destinationId, null, navOptions)
+                            //val navOptions = navigationOption(fragmentId = R.id.settingFragment)
+
+                            findNavController().navigate(
+                                event.destinationId, null,
+                                NavOptions.Builder()
+                                    .setPopUpTo(
+                                        R.id.navigation_bottom_bar,
+                                        true
+                                    ).build()
+                            )
                         }
 
                         is UiEvent.ShowSnackBar -> {

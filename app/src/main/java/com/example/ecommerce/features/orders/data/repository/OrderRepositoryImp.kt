@@ -1,5 +1,6 @@
 package com.example.ecommerce.features.orders.data.repository
 
+import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.orders.OrderWithItems
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.errors.Failures
@@ -10,8 +11,6 @@ import com.example.ecommerce.features.orders.data.mapper.OrderMapper
 import com.example.ecommerce.features.orders.domain.entities.OrderRequestEntity
 import com.example.ecommerce.features.orders.domain.entities.OrderResponseEntity
 import com.example.ecommerce.features.orders.domain.repository.OrderRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class OrderRepositoryImp @Inject constructor(
@@ -63,6 +62,28 @@ class OrderRepositoryImp @Inject constructor(
             throw Failures.CacheFailure("${failure.message}")
         }
 
+    }
+
+    override suspend fun fetchOrders() {
+        try {
+            if (!internetConnectionChecker.hasConnection()) {
+                throw Failures.ConnectionFailure(resourceId = R.string.no_internet_connection)
+            }
+            val orders = remoteDataSource.getOrders()
+            orders.map { order ->
+                val imagesId = mutableListOf<Int>()
+                order.lineItems.map { lineItem ->
+                    imagesId.add(lineItem.productId)
+                }
+                val images = localDataSource.getImagesByProductId(imagesId)
+                localDataSource.insertOrderWithItem(
+                    orderResponseModel = order,
+                    image = images
+                )
+            }
+        } catch (failure: FailureException) {
+            throw Failures.CacheFailure("${failure.message}")
+        }
     }
 
     override suspend fun clearOrders() {

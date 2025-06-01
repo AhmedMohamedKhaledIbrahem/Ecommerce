@@ -118,9 +118,9 @@ class LoginViewModel @Inject constructor(
 
     private fun performTaskParallel(userId: Int) = viewModelScope.launch {
         val setCustomerAsync = async { customerManager.setCustomerId(userId) }
-        val getFcmTokenAsync = async { getFcmTokenDeviceUseCase.invoke() }
+        //val getFcmTokenAsync = async { getFcmTokenDeviceUseCase.invoke() }
         setCustomerAsync.await()
-        getFcmTokenAsync.await()?.let { addFcmTokenDeviceUseCase.invoke(it) }
+      //  getFcmTokenAsync.await()?.let { addFcmTokenDeviceUseCase.invoke(it) }
 
     }
 

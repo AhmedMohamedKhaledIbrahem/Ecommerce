@@ -15,13 +15,16 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
 import com.example.ecommerce.core.manager.customer.CustomerManager
+import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
-import com.example.ecommerce.core.utils.navigationOption
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.databinding.FragmentLoginBinding
 import com.example.ecommerce.features.authentication.presentation.event.LoginEvent
 import com.example.ecommerce.features.authentication.presentation.viewmodel.login.LoginViewModel
+import com.example.ecommerce.features.notification.presentation.event.NotificationEvent
+import com.example.ecommerce.features.notification.presentation.viewmodel.notification.NotificationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,7 +40,8 @@ class LoginFragment : Fragment() {
     @Inject
     lateinit var customerManager: CustomerManager
 
-    //private lateinit var loadingDialog: LoadingDialogFragment
+
+
     private lateinit var rootView: View
 
     override fun onCreateView(
@@ -52,13 +56,13 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         textWatchers()
         loginWithUserNameOrEmailAndPassword()
         signUpNavigation()
         forgetPasswordNavigation()
         loginState()
         loginEvent()
+
     }
 
     override fun onDestroyView() {
@@ -109,8 +113,15 @@ class LoginFragment : Fragment() {
                         }
 
                         is UiEvent.Navigation.Home -> {
-                            val navOptions = navigationOption(R.id.loginFragment)
-                            findNavController().navigate(event.destinationId,null,navOptions)
+                            findNavController().navigate(
+                                event.destinationId,
+                                null,
+                                NavOptions.Builder()
+                                    .setPopUpTo(
+                                        R.id.navigation_bottom_bar,
+                                        true
+                                    ).build()
+                            )
                         }
 
                         is UiEvent.CombinedEvents -> {
@@ -159,6 +170,8 @@ class LoginFragment : Fragment() {
             }
         }
     }
+
+
 
 
     private fun validateInputs(): Boolean {

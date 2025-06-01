@@ -25,11 +25,11 @@ class OrderLocalDataSourceImp @Inject constructor(
                 OrderTagMapper.mapToEntity(orderTagResponseModel = orderResponseModel)
             val orderItemEntity = orderResponseModel.lineItems.map { lineItem ->
                 val imageUrl = image.find { it.productId == lineItem.productId }?.imageUrl
-                if (imageUrl == null) throw FailureException("image is Null")
+                //if (imageUrl == null) throw FailureException("image is Null")
                 OrderItemMapper.mapToEntity(
                     lineItemResponseModel = lineItem,
                     orderId = orderResponseModel.id,
-                    imageUrl = imageUrl
+                    imageUrl = imageUrl?:""
                 )
             }
             orderTagDao.insertOrderTag(orderTag = orderTagEntity)

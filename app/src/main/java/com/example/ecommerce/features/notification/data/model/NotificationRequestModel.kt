@@ -2,7 +2,10 @@ package com.example.ecommerce.features.notification.data.model
 
 import com.google.gson.annotations.SerializedName
 
+data class NotificationRequestModel(
+    @SerializedName("token") val token: String,
+)
+
 data class NotificationResponseModel(
-    @SerializedName("order_id") val userId: String,
-    @SerializedName("status") val status: String,
+    @SerializedName("status") val message: String,
 )

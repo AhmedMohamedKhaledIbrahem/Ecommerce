@@ -45,6 +45,7 @@ class OrdersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         detectScrollEnd(binding.ordersRecyclerView)
+        orderViewModel.onEvent(OrderEvent.FetchOrders)
         orderViewModel.onEvent(OrderEvent.LoadOrders)
         orderState()
         orderEvent()

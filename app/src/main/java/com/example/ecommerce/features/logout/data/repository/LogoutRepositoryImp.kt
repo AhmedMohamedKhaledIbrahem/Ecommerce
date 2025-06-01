@@ -24,13 +24,13 @@ class LogoutRepositoryImp @Inject constructor(
                 if (!internetConnectionChecker.hasConnection()) throw Failures.ConnectionFailure(
                     resourceId = R.string.no_internet_connection
                 )
-                awaitAll(
-                   // async { remoteDataSource.removeJwtToken(tokenParams = sessionTokenParams) },
-                    async { remoteDataSource.removeFcmToken(tokenParams = fcmTokenParams) },
-                    async { localDataSource.logout() }
-                )
-                Unit
-
+//                awaitAll(
+//                   // async { remoteDataSource.removeJwtToken(tokenParams = sessionTokenParams) },
+//                    async { remoteDataSource.removeFcmToken(tokenParams = fcmTokenParams) },
+//
+//                )
+                remoteDataSource.removeFcmToken(tokenParams = fcmTokenParams)
+                localDataSource.logout()
             } catch (e: FailureException) {
                 throw Failures.ServerFailure(e.message ?: Unknown_Error)
             }

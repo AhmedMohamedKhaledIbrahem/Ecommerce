@@ -9,7 +9,6 @@ import com.example.ecommerce.core.ui.state.UiState
 import com.example.ecommerce.features.await
 import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.notification.domain.usecase.addfcmtokendevice.IAddFcmTokenDeviceUseCase
-import com.example.ecommerce.features.notification.presentation.viewmodel.notification.INotificationViewModel
 import com.example.ecommerce.features.notification.presentation.viewmodel.notification.NotificationViewModel
 import com.example.ecommerce.features.notification.tToken
 import com.example.ecommerce.features.observerViewModelErrorState
@@ -38,7 +37,7 @@ class NotificationViewModelTest {
 
     @Mock
     private lateinit var addFcmTokenDeviceUseCase: IAddFcmTokenDeviceUseCase
-    private lateinit var viewModel: INotificationViewModel
+    private lateinit var viewModel: NotificationViewModel
     private val dispatcher = UnconfinedTestDispatcher()
     private val latch = CountDownLatch(1)
 
