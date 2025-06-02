@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -25,29 +26,18 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import com.example.ecommerce.core.manager.expiry.Expiry
-import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.navigation.MainNavigationViewModel
 import com.example.ecommerce.core.network.NetworkHelperViewModel
-import com.example.ecommerce.core.service.work.TokenExpiryWorker
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.checkInternetConnection
-import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.databinding.ActivityMainNavigationBinding
-import com.example.ecommerce.features.logout.presentation.event.LogoutEvent
-import com.example.ecommerce.features.logout.presentation.viewmodel.EnableLogoutViewModel
-import com.example.ecommerce.features.logout.presentation.viewmodel.LogoutViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.ExpandedBottomSheetFilterViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -55,7 +45,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -75,7 +64,6 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var shardPreferences: SharedPreferences
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -295,7 +283,8 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun isLogin(): Boolean {
-        return !tokenManager.getToken().isNullOrEmpty()
+        Log.d("TAG", "isLogin: ${tokenManager.getToken()}")
+        return !tokenManager.getToken().isNullOrEmpty() && tokenManager.getVerificationStatus()
     }
 
 
@@ -346,7 +335,6 @@ class MainActivity : AppCompatActivity() {
 
 
     }
-
 
 
     private fun internetMonitor() {

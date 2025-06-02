@@ -31,12 +31,11 @@ interface UserProfileApi {
     @GET("wp-json/custom/v1/profile-updated")
     suspend fun checkUserNameDetailsUpdate(): Response<CheckUserNameDetailsResponseModel>
 
-    @GET("wp-json/wp/v2/users/me")
+    @GET("wp-json/custom/v1/user")
     suspend fun getUserNameDetails(
-        @Query("context") context: String = "edit"
     ): Response<UpdateUserNameDetailsResponseModel>
 
-    @PUT("wp-json/wp/v2/users/me")
+    @PUT("wp-json/custom/v1/user-update")
     suspend fun updateUserNameDetails(
         @Body updateUserNameDetailsParams: UpdateUserNameDetailsRequestModel
     ): Response<UpdateUserNameDetailsResponseModel>

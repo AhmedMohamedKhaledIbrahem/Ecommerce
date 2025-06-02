@@ -1,6 +1,7 @@
 package com.example.ecommerce.core.service.work
 
 import android.content.Context
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -34,8 +35,10 @@ class TokenExpiryWorker @AssistedInject constructor(
         val user = userDao.getUser()
         val expiryTime = user.expiredToken.toLong()
         expiry.setExpiryTime(expiryTime)
-        val currentTime = System.currentTimeMillis()
+
+        val currentTime = System.currentTimeMillis() / 1000
         if (currentTime >= expiryTime) {
+            Log.d("TAG", "doWork: $expiryTime")
             expiry.setEnableLogout(true)
         }
         return Result.success()

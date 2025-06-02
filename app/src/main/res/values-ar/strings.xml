@@ -39,7 +39,7 @@
     <string name="didnt_get_the_code">لم تحصل على الرمز؟</string>
     <string name="please_check_your_email_to_see_n_nthe_verification_code">يرجى التحقق من بريدك الإلكتروني لرؤية\n\nرمز التحقق</string>
     <string name="helloAgain">مرحباً مجدداً</string>
-    <string name="loginParagraph">املأ التفاصيل الخاصة بك أو تابع\n\nباستخدام وسائل التواصل الاجتماعي</string>
+    <string name="loginParagraph">املأ التفاصيل الخاصة بك</string>
     <string name="RegisterAccount">تسجيل حساب</string>
     <string name="title_home">الرئيسية</string>
     <string name="account">الحساب</string>

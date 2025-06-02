@@ -14,7 +14,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.Edit_profile_result
 import com.example.ecommerce.core.constants.Message
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.utils.SnackBarCustom
@@ -42,7 +41,7 @@ class EditProfileFragment : DialogFragment() {
     private var _binding: FragmentEditProfileBinding? = null
     private val binding get() = _binding!!
     private var idUser by Delegates.notNull<Int>()
-   // private lateinit var loadingDialog: LoadingDialogFragment
+    // private lateinit var loadingDialog: LoadingDialogFragment
 
     @Inject
     lateinit var customerId: CustomerManager
@@ -226,7 +225,10 @@ class EditProfileFragment : DialogFragment() {
                         is UiEvent.ShowSnackBar -> {
                             parentFragmentManager.setFragmentResult(
                                 Edit_profile_result, bundleOf(
-                                    Message to event.message
+                                    Message to checkIsMessageOrResourceId(
+                                        event = event,
+                                        context = requireContext()
+                                    )
                                 )
                             )
                         }

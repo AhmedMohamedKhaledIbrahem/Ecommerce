@@ -120,8 +120,8 @@ class ProductFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         saveFcmToken()
-        startExpiryWorkManager()
         enableLogout()
+        startExpiryWorkManager()
         notificationEvent()
         initShimmerRecycleView()
         initProductRecycleView()
@@ -570,7 +570,7 @@ class ProductFragment : Fragment() {
 
     private fun startExpiryWorkManager() {
         val expireTime = expiry.getExpiryTime()
-        val delay = expireTime - System.currentTimeMillis()
+        val delay = expireTime
         val workRequest = OneTimeWorkRequestBuilder<TokenExpiryWorker>()
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .build()

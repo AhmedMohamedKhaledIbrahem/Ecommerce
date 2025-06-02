@@ -3,6 +3,7 @@ package com.example.ecommerce.features.authentication.presentation.screens.login
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -136,6 +137,7 @@ class LoginFragment : Fragment() {
                                         LoginFragmentDirections.actionLoginFragmentToCheckVerificationCodeFragment(
                                             emailArg = args ?: ""
                                         )
+                                    Log.d("SignUpFragment", "onNavigate: $action")
 
                                     findNavController().navigate(action)
 

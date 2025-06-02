@@ -17,8 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.ecommerce.R
-import com.example.ecommerce.core.constants.UserEmailSaveState
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
+import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
@@ -29,17 +28,19 @@ import com.example.ecommerce.features.authentication.presentation.viewmodel.rese
 import com.example.ecommerce.features.authentication.presentation.viewmodel.resendcodetimerviewmodel.ResendCodeTimerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CheckVerificationCodeFragment : Fragment() {
-    private val checkVerificationCodeViewModel: CheckVerificationCodeViewModel by viewModels<CheckVerificationCodeViewModel>()
-    private val emailArgs: CheckVerificationCodeFragmentArgs by navArgs()
-    private val  email = emailArgs.emailArg
-    private val resendCodeTimerViewModel: IResendCodeTimerViewModel by viewModels<ResendCodeTimerViewModel>()
-    //private lateinit var loadingDialog: LoadingDialogFragment
     private var _binding: FragmentCheckVerificationCodeBinding? = null
     private val binding get() = _binding!!
     private lateinit var rootView: View
+    private val checkVerificationCodeViewModel: CheckVerificationCodeViewModel by viewModels<CheckVerificationCodeViewModel>()
+    private val emailArgs: CheckVerificationCodeFragmentArgs by navArgs()
+    private val resendCodeTimerViewModel: IResendCodeTimerViewModel by viewModels<ResendCodeTimerViewModel>()
+
+    @Inject
+    lateinit var tokenManager: TokenManager
 
 
     override fun onCreateView(
@@ -54,16 +55,16 @@ class CheckVerificationCodeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         resendCodeTimer()
         setupOtpEditTexts()
-        verificationByCodeAndEmail()
+        val email = emailArgs.emailArg
+        verificationByCodeAndEmail(email)
         verificationState()
         verificationEvent()
     }
 
 
-    private fun verificationByCodeAndEmail() {
+    private fun verificationByCodeAndEmail(email: String) {
 
 
         binding.verifyCodeButton.setOnClickListener {
@@ -133,6 +134,7 @@ class CheckVerificationCodeFragment : Fragment() {
                                     SnackBarCustom.showSnackbar(view = rootView, message = message)
                                 },
                                 onNavigate = { destinationId, _ ->
+                                    tokenManager.saveVerificationStatus(true)
                                     findNavController().navigate(destinationId)
 
                                 }

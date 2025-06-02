@@ -11,6 +11,7 @@ class TokenManagerImp @Inject constructor(
 ) : TokenManager {
     companion object {
         private const val TOKEN_KEY = "auth_token"
+        private const val VERIFICATION_STATUS_KEY = "verification_status"
     }
 
     override suspend fun saveToken(token: String) {
@@ -28,5 +29,17 @@ class TokenManagerImp @Inject constructor(
         withContext(Dispatchers.IO) {
             preferences.edit() { remove(TOKEN_KEY) }
         }
+    }
+
+    override fun saveVerificationStatus(status: Boolean) {
+        preferences.edit() { putBoolean(VERIFICATION_STATUS_KEY, status) }
+    }
+
+    override fun getVerificationStatus(): Boolean {
+        return preferences.getBoolean(VERIFICATION_STATUS_KEY, false)
+    }
+
+    override suspend fun clearVerificationStatus() {
+        preferences.edit() { remove(VERIFICATION_STATUS_KEY) }
     }
 }

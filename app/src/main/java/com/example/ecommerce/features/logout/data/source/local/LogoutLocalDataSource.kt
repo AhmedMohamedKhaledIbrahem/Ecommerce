@@ -36,9 +36,11 @@ class LogoutLocalDataSourceImp @Inject constructor(
             dao.deleteProductCategoryCross()
             dao.deleteUser()
             tokenManager.clearToken()
+            tokenManager.clearVerificationStatus()
             productHandler.deleteProductUpdate()
             customerManager.clearCustomerId()
             addressManager.clearAddressId()
+
 
         } catch (e: Exception) {
             throw FailureException(e.message ?: Unknown_Error)

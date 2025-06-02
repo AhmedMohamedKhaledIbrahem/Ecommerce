@@ -537,7 +537,6 @@ class SettingFragment : Fragment() {
             this
         ) { _, bundle ->
             val message = bundle.getString(Message)
-            Log.e("message", "showMessageFromEditProfile: $message")
             if (message == null) return@setFragmentResultListener
             SnackBarCustom.showSnackbar(rootView, message)
         }

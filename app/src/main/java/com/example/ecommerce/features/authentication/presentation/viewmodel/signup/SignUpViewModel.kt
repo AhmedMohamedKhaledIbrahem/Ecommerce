@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.R
 import com.example.ecommerce.core.constants.Unknown_Error
-import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.extension.performUseCaseOperation
 import com.example.ecommerce.core.ui.event.UiEvent
@@ -57,6 +56,10 @@ class SignUpViewModel @Inject constructor(
                 _signUpState.update { it.copy(email = event.value) }
             }
 
+            is SignUpEvent.Input.PhoneNumber -> {
+                _signUpState.update { it.copy(phoneNumber = event.value) }
+            }
+
             is SignUpEvent.Input.Password -> {
                 _signUpState.update { it.copy(password = event.value) }
             }
@@ -78,15 +81,23 @@ class SignUpViewModel @Inject constructor(
             _signUpState.update { it.copy(isLoading = isLoading) }
         },
         useCase = {
+            val userName = signUpState.value.userName
+            val firstName = signUpState.value.firstName
+            val lastName = signUpState.value.lastName
+            val email = signUpState.value.email
+            val phoneNumber = signUpState.value.phoneNumber
+            val password = signUpState.value.password
             val signUpParams = SignUpRequestEntity(
-                username = signUpState.value.userName,
-                firstName = signUpState.value.firstName,
-                lastName = signUpState.value.lastName,
-                email = signUpState.value.email,
-                password = signUpState.value.password
-            )
+                username = userName,
+                firstName = firstName,
+                lastName = lastName,
+                email = email,
+                phone = phoneNumber,
+                password = password,
+
+                )
             signUpUseCase(signUpParams = signUpParams)
-            val sendVerificationParams = EmailRequestEntity(email = signUpState.value.email)
+            val sendVerificationParams = EmailRequestEntity(email = email)
             val messageResponse =
                 sendVerificationCodeUseCase(sendVerificationCodeParams = sendVerificationParams)
             _signUpEvent.send(
@@ -95,7 +106,7 @@ class SignUpViewModel @Inject constructor(
                         UiEvent.ShowSnackBar(message = messageResponse.message),
                         UiEvent.Navigation.CheckVerificationCode(
                             destinationId = R.id.checkVerificationCodeFragment,
-                            args = signUpState.value.email
+                            args = email
                         )
                     )
                 )
@@ -113,9 +124,6 @@ class SignUpViewModel @Inject constructor(
             )
         }
     )
-
-
-
 
 
 }

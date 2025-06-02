@@ -1,6 +1,5 @@
 package com.example.ecommerce.features.userprofile.data.repositories
 
-import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.errors.Failures

@@ -115,7 +115,7 @@
                 </LinearLayout>
 
 
-                <!-- Third TextField -->
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/emailTextFieldInputLayout"
                     style="@style/customColorTextStyle"
@@ -127,6 +127,24 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/emailEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext|flagNoFullscreen"
+                        android:maxLines="1"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/phoneTextFieldInputLayout"
+                    style="@style/customColorTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/phone_number"
+                    app:errorEnabled="true"
+                    app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/phoneEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:imeOptions="actionNext|flagNoFullscreen"
