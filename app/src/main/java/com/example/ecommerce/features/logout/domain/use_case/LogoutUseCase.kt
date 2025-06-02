@@ -4,13 +4,13 @@ import com.example.ecommerce.features.logout.domain.repository.LogoutRepository
 import javax.inject.Inject
 
 interface LogoutUseCase {
-    suspend operator fun invoke(fcmTokenParams: String, sessionTokenParams: String)
+    suspend operator fun invoke(fcmTokenParams: String)
 }
 
 class LogoutUseCaseImp @Inject constructor(private val repository: LogoutRepository) :
     LogoutUseCase {
-    override suspend fun invoke(fcmTokenParams: String, sessionTokenParams: String) {
-        repository.logout(fcmTokenParams = fcmTokenParams, sessionTokenParams = sessionTokenParams)
+    override suspend fun invoke(fcmTokenParams: String) {
+        repository.logout(fcmTokenParams = fcmTokenParams)
     }
 
 }

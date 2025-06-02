@@ -5,11 +5,8 @@ import com.example.ecommerce.core.database.data.dao.logout.LogoutDao
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.manager.address.AddressManager
 import com.example.ecommerce.core.manager.customer.CustomerManager
-import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.manager.prdouct.ProductHandler
 import com.example.ecommerce.core.manager.token.TokenManager
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
@@ -24,28 +21,24 @@ class LogoutLocalDataSourceImp @Inject constructor(
     private val customerManager: CustomerManager,
     private val addressManager: AddressManager,
 
-) : LogoutLocalDataSource {
+    ) : LogoutLocalDataSource {
     override suspend fun logout() = coroutineScope {
         try {
-            awaitAll(
-                async { dao.deleteImage() },
-                async { dao.deleteCategory() },
-                async { dao.deleteCustomerAddress() },
-                async { dao.deleteOrders() },
-                async { dao.deleteProduct() },
-                async { dao.deleteCart() },
-                async { dao.deleteItemCart() },
-                async { dao.deleteOrderTage() },
-                async { dao.deleteProductCategory() },
-                async { dao.deleteProductCategoryCross() },
-                async { dao.deleteUser() },
-                async { tokenManager.clearToken() },
-                async { productHandler.deleteProductUpdate() },
-                async { customerManager.clearCustomerId() },
-                async { addressManager.clearAddressId() },
-
-            )
-            Unit
+            dao.deleteImage()
+            dao.deleteCategory()
+            dao.deleteCustomerAddress()
+            dao.deleteOrders()
+            dao.deleteProduct()
+            dao.deleteCart()
+            dao.deleteItemCart()
+            dao.deleteOrderTage()
+            dao.deleteProductCategory()
+            dao.deleteProductCategoryCross()
+            dao.deleteUser()
+            tokenManager.clearToken()
+            productHandler.deleteProductUpdate()
+            customerManager.clearCustomerId()
+            addressManager.clearAddressId()
 
         } catch (e: Exception) {
             throw FailureException(e.message ?: Unknown_Error)

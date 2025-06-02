@@ -11,15 +11,19 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import androidx.paging.LoadState
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.category.CategoryEntity
 import com.example.ecommerce.core.database.data.entities.relation.ProductWithAllDetails
+import com.example.ecommerce.core.manager.expiry.Expiry
 import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
+import com.example.ecommerce.core.service.work.TokenExpiryWorker
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.navigationWithArgs
 import com.example.ecommerce.core.utils.SnackBarCustom
@@ -31,8 +35,11 @@ import com.example.ecommerce.databinding.FragmentProductBinding
 import com.example.ecommerce.features.category.presentation.event.CategoryEvent
 import com.example.ecommerce.features.category.presentation.screen.adapter.CategoryAdapter
 import com.example.ecommerce.features.category.presentation.viewmodel.CategoryViewModel
+import com.example.ecommerce.features.logout.presentation.event.LogoutEvent
+import com.example.ecommerce.features.logout.presentation.viewmodel.EnableLogoutViewModel
+import com.example.ecommerce.features.logout.presentation.viewmodel.LogoutViewModel
 import com.example.ecommerce.features.notification.presentation.event.NotificationEvent
-import com.example.ecommerce.features.notification.presentation.viewmodel.notification.NotificationViewModel
+import com.example.ecommerce.features.notification.presentation.viewmodel.NotificationViewModel
 import com.example.ecommerce.features.product.presentation.event.ProductEvent
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductAdapter
 import com.example.ecommerce.features.product.presentation.screen.product.adapter.ProductShimmerAdapter
@@ -48,12 +55,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProductFragment : Fragment() {
     private var _binding: FragmentProductBinding? = null
     private var bottomSheetJob: Job? = null
+
     private val binding get() = _binding!!
     var category: List<CategoryEntity> = emptyList()
     var selectedCategoryIds = mutableSetOf<Int>()
@@ -68,9 +77,15 @@ class ProductFragment : Fragment() {
     private val productSearchViewModel: ProductSearchViewModel by viewModels()
     private val categoryViewModel: CategoryViewModel by viewModels()
     private val notificationViewModel by viewModels<NotificationViewModel>()
+    private val logoutViewModel: LogoutViewModel by viewModels()
+    private lateinit var enableLogoutViewModel: EnableLogoutViewModel
 
     @Inject
     lateinit var fcmTokenManager: FcmDeviceToken
+
+    @Inject
+    lateinit var expiry: Expiry
+
 
     private lateinit var expandedBottomSheetFilterViewModel: ExpandedBottomSheetFilterViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,12 +112,16 @@ class ProductFragment : Fragment() {
         productShimmerRecyclerView = binding.productShimmerInclude.productShimmerRecyclerView
         expandedBottomSheetFilterViewModel =
             ViewModelProvider(requireActivity())[ExpandedBottomSheetFilterViewModel::class.java]
+        enableLogoutViewModel =
+            ViewModelProvider(requireActivity())[EnableLogoutViewModel::class.java]
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         saveFcmToken()
+        startExpiryWorkManager()
+        enableLogout()
         notificationEvent()
         initShimmerRecycleView()
         initProductRecycleView()
@@ -118,7 +137,9 @@ class ProductFragment : Fragment() {
         searchEvent()
         searchState()
         detectScrollEnd(recyclerView, 3)
-        expandBottomSheetFilter()
+        expandBottomSheetState()
+        logoutAfterExpiryToken()
+        logoutEvent()
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -127,53 +148,61 @@ class ProductFragment : Fragment() {
         fetchProductPagingState()
     }
 
-    private fun expandBottomSheetFilter() {
-        bottomSheetJob?.cancel()
-        bottomSheetJob = lifecycleScope.launch {
+    private fun expandBottomSheetState() {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 expandedBottomSheetFilterViewModel.expandedFilter.collectLatest { expanded ->
                     if (expanded) {
-                        val binding = FilterBottomSheetLayoutBinding.inflate(
-                            LayoutInflater.from(requireContext()),
-                            null,
-                            false
-                        )
-                        bottomSheetDialog = BottomSheetDialog(requireContext()).apply {
-                            setContentView(binding.root)
-                            setOnDismissListener {
-                                expandedBottomSheetFilterViewModel.setExpandedFilter(false)
-                            }
-                            show()
-                        }
-
-                        val categoryAdapter = CategoryAdapter(
-                            categories = category,
-                            selectedCategoryIds = selectedCategoryIds,
-                            onFilterCategoryClick = { category ->
-                                if (selectedCategoryIds.contains(category.id)) {
-                                    selectedCategoryIds.remove(category.id)
-                                } else {
-                                    selectedCategoryIds.add(category.id)
-
-                                }
-                                productViewModel.onEvent(
-                                    ProductEvent.Input.FilterByCategory(
-                                        category = selectedCategoryIds.toList()
-                                    )
-                                )
-                                productViewModel.onEvent(ProductEvent.OnFilterCategoryClick)
-                            }
-                        )
-
-                        val recyclerView = binding.categoryRecyclerView
-                        recyclerView.adapter = categoryAdapter
-                        recyclerView.layoutManager =
-                            GridLayoutManager(requireContext(), 2)
+                        expandBottomSheetFilter()
+                    } else {
+                        bottomSheetDialog?.dismiss()
+                        bottomSheetDialog = null
                     }
-
                 }
+
             }
         }
+    }
+
+    private fun expandBottomSheetFilter() {
+        val binding = FilterBottomSheetLayoutBinding.inflate(
+            LayoutInflater.from(requireContext()),
+            null,
+            false
+        )
+        bottomSheetDialog = BottomSheetDialog(requireContext()).apply {
+            setContentView(binding.root)
+            setOnDismissListener {
+                expandedBottomSheetFilterViewModel.setExpandedFilter(false)
+            }
+            show()
+        }
+
+        val categoryAdapter = CategoryAdapter(
+            categories = category,
+            selectedCategoryIds = selectedCategoryIds,
+            onFilterCategoryClick = { category ->
+                if (selectedCategoryIds.contains(category.id)) {
+                    selectedCategoryIds.remove(category.id)
+                } else {
+                    selectedCategoryIds.add(category.id)
+
+                }
+                productViewModel.onEvent(
+                    ProductEvent.Input.FilterByCategory(
+                        category = selectedCategoryIds.toList()
+                    )
+                )
+                productViewModel.onEvent(ProductEvent.OnFilterCategoryClick)
+            }
+        )
+
+        val recyclerView = binding.categoryRecyclerView
+        recyclerView.adapter = categoryAdapter
+        recyclerView.layoutManager =
+            GridLayoutManager(requireContext(), 2)
+
+
     }
 
     private fun productEvent() {
@@ -485,6 +514,70 @@ class ProductFragment : Fragment() {
     }
 
 
+    private fun enableLogout() {
+        val expiry = expiry.getEnableLogout()
+        enableLogoutViewModel.setEnableLogout(expiry)
+    }
+
+    private fun logoutEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                logoutViewModel.logoutEvent.collectLatest { event ->
+                    when (event) {
+                        is UiEvent.ShowSnackBar -> {
+                            checkIsMessageOrResourceId(
+                                event = event,
+                                root = binding.root,
+                                context = requireContext(),
+                            )
+                        }
+
+                        is UiEvent.Navigation.SignIn -> {
+
+                            findNavController().navigate(
+                                event.destinationId, null,
+                                NavOptions.Builder()
+                                    .setPopUpTo(
+                                        R.id.navigation_bottom_bar,
+                                        true
+                                    ).build()
+                            )
+                        }
+
+                        else -> Unit
+                    }
+                }
+            }
+        }
+    }
+
+    private fun logoutAfterExpiryToken() {
+        enableLogoutViewModel.enableLogout.observe(viewLifecycleOwner) { isEnable ->
+            if (isEnable == true) {
+                logoutViewModel.onEvent(
+                    LogoutEvent.FcmTokenInput(
+                        fcmTokenManager.getFcmTokenDevice() ?: ""
+                    )
+                )
+                logoutViewModel.onEvent(LogoutEvent.LogoutButton)
+                expiry.clearExpiryTime()
+                expiry.clearEnableLogout()
+            }
+
+        }
+    }
+
+
+    private fun startExpiryWorkManager() {
+        val expireTime = expiry.getExpiryTime()
+        val delay = expireTime - System.currentTimeMillis()
+        val workRequest = OneTimeWorkRequestBuilder<TokenExpiryWorker>()
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .build()
+        WorkManager.getInstance(requireContext()).enqueue(workRequest)
+    }
+
+
     override fun onDestroy() {
         super.onDestroy()
         WorkManager.getInstance(requireContext()).cancelAllWork()
@@ -493,6 +586,7 @@ class ProductFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        bottomSheetDialog = null
     }
 
 }

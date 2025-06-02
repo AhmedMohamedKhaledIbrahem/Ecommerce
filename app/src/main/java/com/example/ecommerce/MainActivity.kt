@@ -25,19 +25,29 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.example.ecommerce.core.manager.expiry.Expiry
+import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.navigation.MainNavigationViewModel
 import com.example.ecommerce.core.network.NetworkHelperViewModel
+import com.example.ecommerce.core.service.work.TokenExpiryWorker
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.utils.PreferencesUtils
 import com.example.ecommerce.core.utils.SnackBarCustom
 import com.example.ecommerce.core.utils.checkInternetConnection
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.databinding.ActivityMainNavigationBinding
+import com.example.ecommerce.features.logout.presentation.event.LogoutEvent
+import com.example.ecommerce.features.logout.presentation.viewmodel.EnableLogoutViewModel
+import com.example.ecommerce.features.logout.presentation.viewmodel.LogoutViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.DetectScrollEndViewModel
 import com.example.ecommerce.features.product.presentation.viewmodel.ExpandedBottomSheetFilterViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -45,14 +55,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var detectViewModel: DetectScrollEndViewModel
-    //internal lateinit var loadingDialog: LoadingDialogFragment
     private val mainNavigationViewModel: MainNavigationViewModel by viewModels()
     private val networkStatusViewModel: NetworkHelperViewModel by viewModels()
+
+
     private lateinit var expandedBottomSheetFilterViewModel: ExpandedBottomSheetFilterViewModel
     private var isFilterMenuVisible: Boolean = false
     internal lateinit var binding: ActivityMainNavigationBinding
@@ -60,8 +72,11 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var tokenManager: TokenManager
 
+
     @Inject
     lateinit var shardPreferences: SharedPreferences
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,12 +132,14 @@ class MainActivity : AppCompatActivity() {
         filterItem?.isVisible = isFilterMenuVisible
         return true
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.filter_icon -> {
                 expandedBottomSheetFilterViewModel.setExpandedFilter(true)
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
 
         }
@@ -130,10 +147,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        //loadingDialog = LoadingDialogFragment.Companion.getInstance(supportFragmentManager)
         detectViewModel = ViewModelProvider(this)[DetectScrollEndViewModel::class.java]
         expandedBottomSheetFilterViewModel =
             ViewModelProvider(this)[ExpandedBottomSheetFilterViewModel::class.java]
+
     }
 
     private fun toolbar(navController: NavController) {
@@ -166,6 +183,7 @@ class MainActivity : AppCompatActivity() {
             binding.bottomNavigationBar.visibility = View.VISIBLE
         }
     }
+
     private fun checkIsFilterMenuVisible(destination: NavDestination): Boolean {
         isFilterMenuVisible = when (destination.id) {
             R.id.productFragment -> true
@@ -276,7 +294,7 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-    private suspend fun isLogin(): Boolean {
+    private fun isLogin(): Boolean {
         return !tokenManager.getToken().isNullOrEmpty()
     }
 
@@ -291,7 +309,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun defaultNightMode() {
-        //todo don forget update here
+
         PreferencesUtils.isDarkMode = shardPreferences.getBoolean("dark_mode", false)
         AppCompatDelegate.setDefaultNightMode(
             if (PreferencesUtils.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
@@ -328,6 +346,7 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
 
 
     private fun internetMonitor() {

@@ -25,9 +25,9 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/firstNameAddressEditText"
+                style="@style/customEditTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/customEditTextStyle"
                 android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
@@ -46,9 +46,9 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/lastNameAddressEditText"
+                style="@style/customEditTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/customEditTextStyle"
                 android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
@@ -67,9 +67,9 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/emailNameAddressEditText"
+                style="@style/customEditTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/customEditTextStyle"
                 android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
@@ -88,9 +88,9 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/phoneNumberAddressEditText"
+                style="@style/customEditTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/customEditTextStyle"
                 android:imeOptions="actionNext|flagNoFullscreen"
                 android:maxLines="1"
                 android:textSize="14sp" />
@@ -119,52 +119,10 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/streetAddressEditText"
+                style="@style/customEditTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/customEditTextStyle"
                 android:imeOptions="actionNext|flagNoFullscreen"
-                android:maxLines="1"
-                android:textSize="14sp" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/cityAddressTextFieldInputLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginVertical="2dp"
-            android:hint="@string/city"
-            android:textColorHint="?attr/colorOnSecondary"
-            app:errorEnabled="true"
-            app:hintTextAppearance="@style/CustomHintTextAppearance">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/cityAddressEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/customEditTextStyle"
-                android:imeOptions="actionNext|flagNoFullscreen"
-                android:maxLines="1"
-                android:textSize="14sp" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/postCodeAddressTextFieldInputLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginVertical="2dp"
-            android:hint="@string/post_code"
-            android:textColorHint="?attr/colorOnSecondary"
-            app:errorEnabled="true"
-            app:hintTextAppearance="@style/CustomHintTextAppearance">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/postCodeAddressEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:imeOptions="actionDone|flagNoFullscreen"
-                style="@style/customEditTextStyle"
                 android:maxLines="1"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -180,18 +138,42 @@
             android:paddingHorizontal="5dp"
             android:spinnerMode="dropdown" />
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/postCodeAddressTextFieldInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="2dp"
+            android:hint="@string/post_code"
+            android:textColorHint="?attr/colorOnSecondary"
+            app:errorEnabled="true"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/postCodeAddressEditText"
+                style="@style/customEditTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone|flagNoFullscreen"
+                android:maxLines="1"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginHorizontal="5dp"
+            android:baselineAligned="false"
             android:orientation="horizontal">
 
             <FrameLayout
                 android:id="@+id/buttonSaveContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2">
+                android:layout_weight="2"
+                tools:ignore="UselessParent">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonSave"
@@ -215,21 +197,6 @@
                     android:elevation="10dp"
                     android:visibility="gone" />
             </FrameLayout>
-
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonLocation"
-                style="@style/customButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:layout_weight="1.1"
-                android:backgroundTint="?attr/colorPrimary"
-                android:enabled="true"
-                android:text="@string/location"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="13sp"
-                app:icon="@drawable/outline_my_location_24" />
 
         </LinearLayout>
     </LinearLayout>

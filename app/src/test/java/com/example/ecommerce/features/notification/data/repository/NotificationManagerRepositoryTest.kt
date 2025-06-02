@@ -53,50 +53,6 @@ class NotificationManagerRepositoryTest {
             assertEquals(cacheFailureMessage, exception.message)
         }
 
-    @Test
-    fun `getFcmTokenDevice should call localDataSource and return token from Shared Preference`() =
-        runTest {
-            `when`(localDataSource.getFcmTokenDevice()).thenReturn(tToken)
-            val result = repository.getFcmTokenDevice()
-            assertEquals(tToken, result)
-            verify(localDataSource).getFcmTokenDevice()
-        }
-
-    @Test
-    fun `getFcmTokenDevice should throw CacheFailure when localDataSource throws exception`() =
-        runTest {
-            `when`(localDataSource.getFcmTokenDevice()).thenThrow(
-                FailureException(
-                    cacheFailureMessage
-                )
-            )
-            val exception = cacheFailure {
-                repository.getFcmTokenDevice()
-            }
-            assertEquals(cacheFailureMessage, exception.message)
-        }
-
-    @Test
-    fun `deleteFcmTokenDevice should call localDataSource and delete token from Shared Preference`() =
-        runTest {
-            `when`(localDataSource.deleteFcmTokenDevice()).thenReturn(Unit)
-            repository.deleteFcmTokenDevice()
-            verify(localDataSource).deleteFcmTokenDevice()
-        }
-
-    @Test
-    fun `deleteFcmTokenDevice should throw CacheFailure when localDataSource throws exception`() =
-        runTest {
-            `when`(localDataSource.deleteFcmTokenDevice()).thenThrow(
-                FailureException(
-                    cacheFailureMessage
-                )
-            )
-            val exception = cacheFailure {
-                repository.deleteFcmTokenDevice()
-            }
-            assertEquals(cacheFailureMessage, exception.message)
-        }
 
     @Test
     fun `updateOrderStatus should call localDataSource and update order status`() = runTest {

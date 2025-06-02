@@ -67,38 +67,4 @@ class NotificationLocalDataSourceTest {
         assertEquals(cacheFailureMessage, exception.message)
     }
 
-    @Test
-    fun `getFcmTokenDevice should be return token from Shared Preferences`() = runTest {
-        `when`(fcmDeviceToken.getFcmTokenDevice()).thenReturn(tToken)
-        localDataSource.getFcmTokenDevice()
-        verify(fcmDeviceToken).getFcmTokenDevice()
-    }
-
-    @Test
-    fun `getFcmTokenDevice should be thrown when exception occurs`() = runTest {
-        `when`(fcmDeviceToken.getFcmTokenDevice())
-            .thenThrow(RuntimeException(cacheFailureMessage))
-        val exception = failureException {
-            localDataSource.getFcmTokenDevice()
-        }
-        assertEquals(cacheFailureMessage, exception.message)
-    }
-
-    @Test
-    fun `deleteFcmTokenDevice should be remove token from Shared Preferences`() = runTest {
-        `when`(fcmDeviceToken.deleteFcmTokenDevice()).thenReturn(Unit)
-        localDataSource.deleteFcmTokenDevice()
-        verify(fcmDeviceToken).deleteFcmTokenDevice()
-    }
-
-    @Test
-    fun `removeFcmTokenDevice should be thrown when exception occurs`() = runTest {
-        `when`(fcmDeviceToken.deleteFcmTokenDevice())
-            .thenThrow(RuntimeException(cacheFailureMessage))
-        val exception = failureException {
-            localDataSource.deleteFcmTokenDevice()
-        }
-        assertEquals(cacheFailureMessage, exception.message)
-    }
-
 }

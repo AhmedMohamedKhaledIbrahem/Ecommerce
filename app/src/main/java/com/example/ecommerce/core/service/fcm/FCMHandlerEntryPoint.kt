@@ -1,4 +1,4 @@
-package com.example.ecommerce.core.service
+package com.example.ecommerce.core.service.fcm
 
 import com.example.ecommerce.core.manager.prdouct.ProductHandler
 import com.example.ecommerce.core.notification.INotification

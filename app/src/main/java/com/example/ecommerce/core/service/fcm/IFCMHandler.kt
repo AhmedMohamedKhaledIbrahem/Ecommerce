@@ -1,4 +1,4 @@
-package com.example.ecommerce.core.service
+package com.example.ecommerce.core.service.fcm
 
 import com.google.firebase.messaging.RemoteMessage
 

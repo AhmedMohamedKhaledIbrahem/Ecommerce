@@ -1,16 +1,6 @@
 package com.example.ecommerce.features.address.presentation.screen.editaddress
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Address
-import android.location.Geocoder
-import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -21,9 +11,6 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -41,7 +28,7 @@ import com.example.ecommerce.core.database.data.entities.address.CustomerAddress
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.AddressUtil
-import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.databinding.FragmentEditAddressBinding
 import com.example.ecommerce.features.address.domain.entites.AddressRequestEntity
 import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
@@ -52,18 +39,12 @@ import com.example.ecommerce.features.address.presentation.viewmodel.addressacti
 import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.IAddressActionViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.customer.CustomerViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.customer.ICustomerViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.Locale
 
 @AndroidEntryPoint
 class EditAddressFragment : Fragment() {
@@ -73,7 +54,7 @@ class EditAddressFragment : Fragment() {
     private lateinit var lastNameAddressEditText: TextInputEditText
     private lateinit var emailNameAddressEditText: TextInputEditText
     private lateinit var phoneNumberAddressEditText: TextInputEditText
-    private lateinit var cityAddressEditText: TextInputEditText
+
     private lateinit var streetAddressEditText: TextInputEditText
     private lateinit var postCodeAddressEditText: TextInputEditText
     private lateinit var firstNameAddressTextFieldInputLayout: TextInputLayout
@@ -81,16 +62,15 @@ class EditAddressFragment : Fragment() {
     private lateinit var streetAddressTextFieldInputLayout: TextInputLayout
     private lateinit var emailAddressTextFieldInputLayout: TextInputLayout
     private lateinit var phoneNumberAddressTextFieldInputLayout: TextInputLayout
-    private lateinit var cityAddressTextFieldInputLayout: TextInputLayout
+
     private lateinit var postCodeAddressTextFieldInputLayout: TextInputLayout
     private val customerViewModel: ICustomerViewModel by activityViewModels<CustomerViewModel>()
     private val addressActionViewModel: IAddressActionViewModel by activityViewModels<AddressActionViewModel>()
     private lateinit var buttonSave: MaterialButton
-    private lateinit var buttonLocation: MaterialButton
     private lateinit var spinnerCountry: Spinner
     private lateinit var spinnerState: Spinner
-    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+
     private val addressViewModel by viewModels<AddressViewModel>()
 
 
@@ -99,13 +79,8 @@ class EditAddressFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requestPermissionLauncher().launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        } else {
-            requestPermissionLauncher().launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
+
     }
 
 
@@ -128,12 +103,7 @@ class EditAddressFragment : Fragment() {
         addressState()
         addressEvent()
         showInitAddress()
-        if (isLocationPermissionGranted()) {
-            locationButtonOnClickedListener()
-        }
         customerAddressObserver()
-
-
     }
 
     private fun customerAddressObserver() {
@@ -159,7 +129,7 @@ class EditAddressFragment : Fragment() {
         lastNameAddressEditText = binding.lastNameAddressEditText
         emailNameAddressEditText = binding.emailNameAddressEditText
         phoneNumberAddressEditText = binding.phoneNumberAddressEditText
-        cityAddressEditText = binding.cityAddressEditText
+
         postCodeAddressEditText = binding.postCodeAddressEditText
         streetAddressEditText = binding.streetAddressEditText
         firstNameAddressTextFieldInputLayout =
@@ -169,13 +139,12 @@ class EditAddressFragment : Fragment() {
         emailAddressTextFieldInputLayout = binding.emailAddressTextFieldInputLayout
         phoneNumberAddressTextFieldInputLayout =
             binding.phoneNumberAddressTextFieldInputLayout
-        cityAddressTextFieldInputLayout = binding.cityAddressTextFieldInputLayout
+
         postCodeAddressTextFieldInputLayout =
             binding.postCodeAddressTextFieldInputLayout
         streetAddressTextFieldInputLayout =
             binding.streetAddressTextFieldInputLayout
         buttonSave = binding.buttonSave
-        buttonLocation = binding.buttonLocation
         spinnerCountry = binding.spinnerCountry
         spinnerState = binding.spinnerState
 
@@ -197,7 +166,8 @@ class EditAddressFragment : Fragment() {
                 val selectedKey = countryStateMap.keys.firstOrNull {
                     (it is Int && getString(it) == selectedCountry) || (it.toString() == selectedCountry)
                 }
-                val regionsRaw = countryStateMap[selectedKey] ?: listOf(R.string.no_regions_available)
+                val regionsRaw =
+                    countryStateMap[selectedKey] ?: listOf(R.string.no_regions_available)
                 val regions = regionsRaw.map {
                     if (it is Int) getString(it) else it.toString()
                 }
@@ -212,13 +182,13 @@ class EditAddressFragment : Fragment() {
         }
     }
 
+
     private fun populateFields(address: CustomerAddressEntity?) {
         if (address == null) return
         firstNameAddressEditText.setText(address.firstName)
         lastNameAddressEditText.setText(address.lastName)
         emailNameAddressEditText.setText(address.email)
         phoneNumberAddressEditText.setText(address.phone)
-        cityAddressEditText.setText(address.city)
         streetAddressEditText.setText(address.address)
         postCodeAddressEditText.setText(address.zipCode)
         val countryIndex =
@@ -256,7 +226,7 @@ class EditAddressFragment : Fragment() {
                 lastNameValidateInput()
                 emailValidateInput()
                 phoneNumberValidateInput()
-                cityValidateInput()
+
                 postCodeValidateInput()
             }
         }
@@ -264,7 +234,6 @@ class EditAddressFragment : Fragment() {
         lastNameAddressEditText.addTextChangedListener(textWatcher)
         emailNameAddressEditText.addTextChangedListener(textWatcher)
         phoneNumberAddressEditText.addTextChangedListener(textWatcher)
-        cityAddressEditText.addTextChangedListener(textWatcher)
         postCodeAddressEditText.addTextChangedListener(textWatcher)
     }
 
@@ -361,24 +330,6 @@ class EditAddressFragment : Fragment() {
         return isValid
     }
 
-    private fun cityValidateInput(): Boolean {
-        var isValid = true
-        val cityPattern = Regex("^[a-zA-Z][a-zA-Z0-9_ ]*$")
-        val city = cityAddressEditText.text.toString()
-        if (city.isBlank()) {
-            cityAddressTextFieldInputLayout.error = getString(R.string.city_is_required)
-            cityAddressTextFieldInputLayout.errorIconDrawable = null
-            isValid = false
-        } else if (!cityPattern.matches(city)) {
-            cityAddressTextFieldInputLayout.error = getString(R.string.invalid_city_format)
-            cityAddressTextFieldInputLayout.errorIconDrawable = null
-            isValid = false
-        } else {
-            cityAddressTextFieldInputLayout.error = null
-        }
-        return isValid
-    }
-
     private fun streetAddressValidateInput(): Boolean {
         var isValid = true
         val streetAddressPattern = Regex("^[a-zA-Z0-9_\\s]+$")
@@ -404,7 +355,6 @@ class EditAddressFragment : Fragment() {
             val lastName = lastNameAddressEditText.text.toString()
             val email = emailNameAddressEditText.text.toString()
             val phoneNumber = phoneNumberAddressEditText.text.toString()
-            val city = cityAddressEditText.text.toString()
             val address = streetAddressEditText.text.toString()
             val postCode = postCodeAddressEditText.text.toString()
             val country = spinnerCountry.selectedItem.toString()
@@ -416,7 +366,6 @@ class EditAddressFragment : Fragment() {
                 lastNameValidateInput() &&
                 emailValidateInput() &&
                 phoneNumberValidateInput() &&
-                cityValidateInput() &&
                 postCodeValidateInput() &&
                 streetAddressValidateInput() &&
                 spinnerCountry.selectedItem.toString() != getString(R.string.select_country) &&
@@ -427,8 +376,7 @@ class EditAddressFragment : Fragment() {
                     lastName = lastName,
                     email = email,
                     address = address,
-                    city = city,
-
+                    city = state,
                     country = countryCode,
                     postCode = postCode,
                     phone = phoneNumber,
@@ -437,7 +385,7 @@ class EditAddressFragment : Fragment() {
                     firstName = firstName,
                     lastName = lastName,
                     address = address,
-                    city = city,
+                    city = state,
                     state = stateCode,
                     country = countryCode,
                     postCode = postCode,
@@ -448,8 +396,8 @@ class EditAddressFragment : Fragment() {
                 )
                 addressAction(addressRequestEntity)
             } else if (
-                spinnerCountry.selectedItem.toString() == "Select Country" ||
-                spinnerState.selectedItem.toString() == "Select State"
+                spinnerCountry.selectedItem.toString() == getString(R.string.select_country) ||
+                spinnerState.selectedItem.toString() == getString(R.string.select_state)
             ) {
                 Toast.makeText(
                     requireContext(),
@@ -501,10 +449,8 @@ class EditAddressFragment : Fragment() {
 
                     if (state.isInsertLoading || state.isUpdateLoading) {
                         showProgressBar()
-                        disableLocationButton()
                     } else {
                         hideProgressBar()
-                        enableLocationButton()
                     }
 
                 }
@@ -525,13 +471,6 @@ class EditAddressFragment : Fragment() {
         binding.buttonSaveProgress.visibility = View.GONE
     }
 
-    private fun enableLocationButton() {
-        buttonLocation.isEnabled = true
-    }
-
-    private fun disableLocationButton() {
-        buttonLocation.isEnabled = false
-    }
 
     private fun addressEvent() {
         lifecycleScope.launch {
@@ -539,26 +478,23 @@ class EditAddressFragment : Fragment() {
                 addressViewModel.addressEvent.collect { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
-                            if (event.message != "" && event.resId == -1) {
-                                SnackBarCustom.showSnackbar(
-                                    view = binding.root,
-                                    message = event.message
-                                )
-                            }
+                            checkIsMessageOrResourceId(
+                                event = event,
+                                context = requireContext(),
+                                root = binding.root,
+                            )
                         }
 
                         is UiEvent.CombinedEvents -> {
                             combinedEvents(
                                 events = event.events,
                                 onShowSnackBar = { message, resId ->
-                                    if (message == "" && resId != -1) {
-                                        val message = getString(resId)
-                                        SnackBarCustom.showSnackbar(
-                                            view = binding.root,
-                                            message = message,
-
-                                            )
-                                    }
+                                    checkIsMessageOrResourceId(
+                                        message = message,
+                                        resId = resId,
+                                        context = requireContext(),
+                                        root = binding.root,
+                                    )
                                 },
                                 onNavigate = { destinationId, _ ->
                                     findNavController().navigate(destinationId)
@@ -574,87 +510,6 @@ class EditAddressFragment : Fragment() {
         }
     }
 
-
-    @SuppressLint("MissingPermission")
-    private fun getLastLocation() {
-        if (isLocationPermissionGranted()) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    val latitude = location.latitude
-                    val longitude = location.longitude
-                    getAddressFromLatLng(latitude, longitude)
-                } else {
-                    Toast.makeText(requireContext(), "Unable to get location", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            }.addOnFailureListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to get location: ${it.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        } else {
-
-            requestPermissionLauncher().launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-    }
-
-
-    private fun getAddressFromLatLngLegacy(latitude: Double, longitude: Double) {
-        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-        try {
-            val addresses: List<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
-            if (!addresses.isNullOrEmpty()) {
-                val address = addresses[0]
-                getAddress(address)
-
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-
-        }
-    }
-
-    private fun getAddress(address: Address) {
-
-        val street = extractStreetAddress(address.getAddressLine(0))
-        val city = address.locality
-        val state = address.adminArea.replace("Governorate", "").trim()
-        val country = address.countryName
-        val postalCode = address.postalCode
-        lifecycleScope.launch {
-            withContext(Dispatchers.Main) {
-                streetAddressEditText.setText(street)
-                cityAddressEditText.setText(city)
-                postCodeAddressEditText.setText(postalCode)
-                spinnerState.setSelection(countryStateMap[country]?.indexOf(state) ?: 0)
-                spinnerCountry.setSelection(countryStateMap.keys.indexOf(country))
-            }
-        }
-    }
-
-
-    private fun getAddressFromLatLng(lat: Double, lng: Double) {
-        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            geocoder.getFromLocation(
-                lat, lng, 1
-            ) { addresses ->
-                if (addresses.isNotEmpty()) {
-                    val address = addresses[0]
-                    getAddress(address)
-
-                } else {
-                    Toast.makeText(requireContext(), "No address found", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } else {
-            getAddressFromLatLngLegacy(lat, lng)
-
-        }
-    }
-
     private fun showInitAddress() {
         val address = AddressUtil.addressEntity
         address?.let {
@@ -662,7 +517,6 @@ class EditAddressFragment : Fragment() {
             lastNameAddressEditText.setText(it.lastName)
             emailNameAddressEditText.setText(it.email)
             phoneNumberAddressEditText.setText(it.phone)
-            cityAddressEditText.setText(it.city)
             postCodeAddressEditText.setText(it.zipCode)
             streetAddressEditText.setText(it.address)
             spinnerCountry.setSelection(countryStateMap.keys.indexOf(it.country))
@@ -672,76 +526,6 @@ class EditAddressFragment : Fragment() {
 
     }
 
-
-    private fun extractStreetAddress(fullAddress: String): String {
-        val addressParts = fullAddress.split("،", ",")
-        val streetKeyword = "شارع"
-        val numberRegex = Regex("\\d+")
-        val matchResult = numberRegex.find(fullAddress)
-        for (part in addressParts) {
-            if (part.contains(streetKeyword) && matchResult != null) {
-                val streetWithNumber = "${matchResult.value.trim()} ${part.trim()}"
-                Log.e(streetWithNumber, "$streetWithNumber: ")
-                return streetWithNumber
-            }
-        }
-        return "Street name not found"
-    }
-
-    private fun locationButtonOnClickedListener() {
-        buttonLocation.setOnClickListener {
-            if (isLocationEnabled(requireContext())) {
-                //loadingDialog.showLoading(parentFragmentManager)
-                lifecycleScope.launch {
-                    delay(500L)
-                    getLastLocation()
-                    // loadingDialog.dismissLoading()
-                }
-            } else {
-                openLocationSettings()
-            }
-        }
-    }
-
-    private fun requestPermissionLauncher(): ActivityResultLauncher<String> {
-        requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (!isGranted) {
-                Toast.makeText(requireContext(), "Permission Denied", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        return requestPermissionLauncher
-    }
-
-    private fun isLocationPermissionGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-    }
-
-    private fun isLocationEnabled(context: Context): Boolean {
-        val locationManger = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val isLocationEnable = locationManger.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManger.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-        return isLocationEnable
-    }
-
-
-    private fun openLocationSettings() {
-        Toast.makeText(
-            requireContext(),
-            getString(R.string.please_turn_on_your_location), Toast.LENGTH_SHORT
-        ).show()
-        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-        lifecycleScope.launch {
-            delay(500L)
-            startActivity(intent)
-        }
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()

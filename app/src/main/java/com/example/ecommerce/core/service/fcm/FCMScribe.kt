@@ -1,4 +1,4 @@
-package com.example.ecommerce.core.service
+package com.example.ecommerce.core.service.fcm
 
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessaging

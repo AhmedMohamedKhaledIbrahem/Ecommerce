@@ -350,17 +350,13 @@ class SettingFragment : Fragment() {
     }
 
     private fun logout() {
-        val (jwtToken, fcmToken) = getTokens()
-        logoutViewModel.onEvent(LogoutEvent.JwtTokenInput(jwtToken))
+        val fcmToken = getTokens()
         logoutViewModel.onEvent(LogoutEvent.FcmTokenInput(fcmToken))
         logoutViewModel.onEvent(LogoutEvent.LogoutButton)
     }
 
-    private fun getTokens(): Pair<String, String> {
-        var (jwtToken, fcmToken) = Pair("", "")
-        jwtToken = tokenManager.getToken() ?: ""
-        fcmToken = fcmDeviceToken.getFcmTokenDevice() ?: ""
-        return Pair(jwtToken, fcmToken)
+    private fun getTokens(): String {
+        return fcmDeviceToken.getFcmTokenDevice() ?: ""
     }
 
 

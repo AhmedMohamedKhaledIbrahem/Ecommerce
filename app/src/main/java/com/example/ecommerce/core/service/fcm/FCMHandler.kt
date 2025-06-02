@@ -1,4 +1,4 @@
-package com.example.ecommerce.core.service
+package com.example.ecommerce.core.service.fcm
 
 import android.util.Log
 import com.example.ecommerce.core.constants.Page

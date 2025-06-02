@@ -28,7 +28,7 @@ class OrderRepositoryImp @Inject constructor(
                 OrderMapper.mapModelToEntity(orderResponseModel)
 
             } else {
-                throw Failures.ConnectionFailure("No Internet Connection")
+                throw Failures.ConnectionFailure(resourceId = R.string.no_internet_connection)
             }
         } catch (failure: FailureException) {
             throw Failures.ServerFailure("${failure.message}")

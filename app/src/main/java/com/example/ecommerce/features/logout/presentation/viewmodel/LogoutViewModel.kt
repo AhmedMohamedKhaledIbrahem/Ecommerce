@@ -31,10 +31,6 @@ class LogoutViewModel @Inject constructor(
     fun onEvent(event: LogoutEvent) {
         eventHandler(event = event) { evt ->
             when (evt) {
-                is LogoutEvent.JwtTokenInput -> {
-                    _logoutState.update { it.copy(jwtToken = evt.jwtToken) }
-                }
-
                 is LogoutEvent.FcmTokenInput -> {
                     _logoutState.update { it.copy(fcmToken = evt.fcmToken) }
                 }
@@ -51,14 +47,13 @@ class LogoutViewModel @Inject constructor(
             _logoutState.update { it.copy(isLoading = isLoading) }
         },
         useCase = {
-            val jwtTokenParams = _logoutState.value.jwtToken
+
             val fcmTokenParams = _logoutState.value.fcmToken
-            if (jwtTokenParams.isEmpty() && fcmTokenParams.isEmpty()) {
+            if (fcmTokenParams.isEmpty()) {
                 return@performUseCaseOperation
             }
             logoutUseCase(
                 fcmTokenParams = fcmTokenParams,
-                sessionTokenParams = jwtTokenParams
             )
             _logoutEvent.send(
                 UiEvent.Navigation.SignIn(R.id.loginFragment)

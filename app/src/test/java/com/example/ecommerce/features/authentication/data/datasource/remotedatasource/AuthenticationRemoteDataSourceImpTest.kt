@@ -65,10 +65,9 @@ class AuthenticationRemoteDataSourceImpTest {
     @Test
     fun `login should throw serverFailure when the call remote data source is code 400 or higher`(): Unit =
         runTest {
-
             val response = Response.error<AuthenticationResponseModel>(
                 400,
-                errorBody
+                errorJsonBody
             )
             coEvery { authenticationApi.loginRequest(tLoginParams) } returns response
             val result = failureException {
@@ -92,7 +91,7 @@ class AuthenticationRemoteDataSourceImpTest {
         runTest {
             val response = Response.error<MessageResponseModel>(
                 400,
-                errorBody
+                errorJsonBody
             )
             coEvery { authenticationApi.signUpRequest(tSignUpParams) } returns response
             val result = failureException {

@@ -1,4 +1,4 @@
-package com.example.ecommerce.features.notification.presentation.viewmodel.notification
+package com.example.ecommerce.features.notification.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.ecommerce.core.errors.mapFailureMessage

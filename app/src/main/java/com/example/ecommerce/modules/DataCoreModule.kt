@@ -20,6 +20,8 @@ import com.example.ecommerce.core.manager.address.AddressManager
 import com.example.ecommerce.core.manager.address.AddressManagerImp
 import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.core.manager.customer.CustomerManagerImp
+import com.example.ecommerce.core.manager.expiry.Expiry
+import com.example.ecommerce.core.manager.expiry.ExpiryImp
 import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.manager.fcm.FcmDeviceTokenImp
 import com.example.ecommerce.core.manager.prdouct.ProductHandler
@@ -150,6 +152,12 @@ object DataCoreModule {
     @Singleton
     fun provideProductHandler(preferences: SharedPreferences): ProductHandler {
         return ProductHandlerImp(sharedPreferences = preferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideExpiry(preferences: SharedPreferences): Expiry {
+        return ExpiryImp(preferences = preferences)
     }
 
     @Provides

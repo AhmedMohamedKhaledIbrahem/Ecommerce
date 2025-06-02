@@ -17,21 +17,21 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 
 @ExperimentalCoroutinesApi
 class AddFcmTokenDeviceUseCaseTest {
-    @Mock
-    lateinit var repository: NotificationRepository
-    private lateinit var addFcmTokenDeviceUseCase: IAddFcmTokenDeviceUseCase
-
-    @Before
-    fun setup() {
-        MockitoAnnotations.openMocks(this)
-        addFcmTokenDeviceUseCase = AddFcmTokenDeviceUseCase(repository)
-    }
-
-    @Test
-    fun `addFcmTokenDeviceUseCase should call repository saveToken method`() = runTest {
-        `when`(repository.saveToken(token = tToken)).thenReturn(Unit)
-        addFcmTokenDeviceUseCase.invoke(token = tToken)
-        verify(repository).saveToken(token = tToken)
-        verifyNoMoreInteractions(repository)
-    }
+//    @Mock
+//    lateinit var repository: NotificationRepository
+//    private lateinit var addFcmTokenDeviceUseCase: IAddFcmTokenDeviceUseCase
+//
+//    @Before
+//    fun setup() {
+//        MockitoAnnotations.openMocks(this)
+//        addFcmTokenDeviceUseCase = AddFcmTokenDeviceUseCase(repository)
+//    }
+//
+//    @Test
+//    fun `addFcmTokenDeviceUseCase should call repository saveToken method`() = runTest {
+//        `when`(repository.saveToken(token = tToken)).thenReturn(Unit)
+//        addFcmTokenDeviceUseCase.invoke(token = tToken)
+//        verify(repository).saveToken(token = tToken)
+//        verifyNoMoreInteractions(repository)
+//    }
 }

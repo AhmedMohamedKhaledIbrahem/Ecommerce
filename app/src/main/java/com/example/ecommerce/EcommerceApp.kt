@@ -7,11 +7,6 @@ import android.os.Build
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import androidx.core.content.ContextCompat
-import androidx.hilt.work.HiltWorkerFactory
-import com.example.ecommerce.core.constants.Topic
-import com.example.ecommerce.core.service.FCMScribe
-import com.example.ecommerce.core.service.IFCMScribe
 import com.example.ecommerce.core.utils.PreferencesUtils
 import dagger.hilt.android.HiltAndroidApp
 import java.util.Locale
@@ -24,14 +19,12 @@ class EcommerceApp() : Application() {
     @Inject
     lateinit var shardPreferences: SharedPreferences
 
-    @Inject
-    lateinit var workerFactory: HiltWorkerFactory
-    private val fcmSubscribe: IFCMScribe = FCMScribe
+
     override fun onCreate() {
         super.onCreate()
         preloadLanguage()
         preloadDarkMode()
-        fcmSubscribe.subscribeToTopic(topic = Topic)
+
     }
 
 

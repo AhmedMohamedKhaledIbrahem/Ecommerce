@@ -16,7 +16,7 @@ import com.example.ecommerce.features.authentication.presentation.event.LoginEve
 import com.example.ecommerce.features.authentication.presentation.viewmodel.login.LoginViewModel
 import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.notification.domain.usecase.addfcmtokendevice.IAddFcmTokenDeviceUseCase
-import com.example.ecommerce.features.notification.domain.usecase.getfcmtokendevice.IGetFcmTokenDeviceUseCase
+
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -45,17 +45,14 @@ class LoginViewModelTest {
     private lateinit var loginViewModel: LoginViewModel
     private val loginUseCase = mockk<ILoginUseCase>()
     private val sendVerificationCodeUseCase = mockk<ISendVerificationCodeUseCase>()
-    private val addFcmTokenDeviceUseCase = mockk<IAddFcmTokenDeviceUseCase>()
-    private val getFcmTokenDeviceUseCase = mockk<IGetFcmTokenDeviceUseCase>()
     private val customerManager = mockk<CustomerManager>()
+
 
     @Before
     fun setup() {
         loginViewModel = LoginViewModel(
             loginUseCase = loginUseCase,
             sendVerificationCodeUseCase = sendVerificationCodeUseCase,
-            addFcmTokenDeviceUseCase = addFcmTokenDeviceUseCase,
-            getFcmTokenDeviceUseCase = getFcmTokenDeviceUseCase,
             customerManager = customerManager
         )
     }
@@ -154,15 +151,11 @@ class LoginViewModelTest {
 
         coEvery { loginUseCase.invoke(expectedLoginParams) } returns tAuthResponse()
         coEvery { customerManager.setCustomerId(testUserId) } just Runs
-        coEvery { getFcmTokenDeviceUseCase.invoke() } returns testFcmToken
-        coEvery { addFcmTokenDeviceUseCase.invoke(testFcmToken) } just Runs
         val eventDeferred = async { loginViewModel.loginEvent.first() }
         loginViewModel.onEvent(LoginEvent.Button.SignIn)
         advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase.invoke(expectedLoginParams) }
         coVerify(exactly = 1) { customerManager.setCustomerId(testUserId) }
-        coVerify(exactly = 1) { getFcmTokenDeviceUseCase.invoke() }
-        coVerify(exactly = 1) { addFcmTokenDeviceUseCase.invoke(testFcmToken) }
         val channelEvent = eventDeferred.await()
         assertIs<UiEvent.Navigation.Home>(channelEvent)
         assertEquals(R.id.productFragment, channelEvent.destinationId)

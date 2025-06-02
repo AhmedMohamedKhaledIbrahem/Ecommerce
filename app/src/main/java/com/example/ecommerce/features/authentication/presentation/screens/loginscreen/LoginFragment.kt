@@ -24,7 +24,7 @@ import com.example.ecommerce.databinding.FragmentLoginBinding
 import com.example.ecommerce.features.authentication.presentation.event.LoginEvent
 import com.example.ecommerce.features.authentication.presentation.viewmodel.login.LoginViewModel
 import com.example.ecommerce.features.notification.presentation.event.NotificationEvent
-import com.example.ecommerce.features.notification.presentation.viewmodel.notification.NotificationViewModel
+import com.example.ecommerce.features.notification.presentation.viewmodel.NotificationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
