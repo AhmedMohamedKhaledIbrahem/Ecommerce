@@ -1,7 +1,6 @@
 package com.example.ecommerce.features.address.data.repositories
 
 import android.content.Context
-import android.util.Log
 import com.example.ecommerce.R
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
 import com.example.ecommerce.core.errors.FailureException
@@ -33,6 +32,7 @@ class AddressRepositoryImp @Inject constructor(
                 throw Failures.ConnectionFailure(context.getString(R.string.no_internet_connection))
             }
             val email = customerAddressParams.billing.email
+            if (email == null) throw Failures.CacheFailure(context.getString(R.string.address_not_found))
             val exists =
                 localDataSource.isEmailExist(email) == 1 || localDataSource.isEmailExist(email) == 0
 
@@ -68,13 +68,23 @@ class AddressRepositoryImp @Inject constructor(
                 localDataSource.getAddress()
             } else {
                 return try {
+
                     val addressDataResponseModel = remoteDataSource.getAddress()
+                    if (addressDataResponseModel.billing.address.isBlank()) {
+                        throw Failures.CacheFailure(context.getString(R.string.no_address_found))
+                    }
                     val addressRequestModel = AddressMapper
                         .mapAddressResponseModelToAddressRequestModel(
                             addressDataResponseModel
                         )
+                    if (addressRequestModel.billing == null) throw Failures.CacheFailure(
+                        context.getString(
+                            R.string.no_address_found
+                        )
+                    )
                     localDataSource.insertAddress(addressRequestModel)
-                    val id = localDataSource.getCustomerId(addressRequestModel.billing.email)
+                    val id =
+                        localDataSource.getCustomerId(addressRequestModel.billing.email.toString())
                     addressManager.setAddressId(id)
                     localDataSource.unSelectAddress(id)
                     localDataSource.getAddress()
@@ -96,6 +106,9 @@ class AddressRepositoryImp @Inject constructor(
         try {
             if (!internetConnectionChecker.hasConnection()) {
                 throw Failures.ConnectionFailure(context.getString(R.string.no_internet_connection))
+            }
+            if (customerAddressParams.billing.email == null) {
+                throw Failures.CacheFailure(context.getString(R.string.address_not_found))
             }
             val exists = localDataSource.isEmailExist(customerAddressParams.billing.email) > 0
 

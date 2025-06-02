@@ -32,7 +32,7 @@ object AddressMapper {
 
     }
 
-    fun mapCustomerAddressEntityToBillingInfoRequest(addressEntity: CustomerAddressEntity): BillingInfoRequestEntity {
+    fun mapCustomerAddressEntityToBillingInfoRequest(addressEntity: CustomerAddressEntity): BillingInfoRequestEntity? {
         return BillingInfoRequestEntity(
             firstName = addressEntity.firstName,
             lastName = addressEntity.lastName,

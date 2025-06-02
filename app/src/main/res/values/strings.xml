@@ -50,7 +50,7 @@
     <string name="setting_item_image">Setting Item Image</string>
     <string name="changePassword">Change Password</string>
     <string name="my_orders">My Orders</string>
-    <string name="address">Addresses</string>
+    <string name="address">Address</string>
     <string name="accountDetails">Account Details</string>
     <string name="darkMode">Dark Mode</string>
     <string name="language">Language</string>
@@ -154,7 +154,7 @@
     <string name="title_product">Home</string>
     <string name="title_setting">Setting</string>
     <string name="title_edit_profile">Edit Profile</string>
-    <string name="title_address">Address</string>
+    <string name="title_address">Addresses</string>
     <string name="title_language">Language</string>
     <string name="title_edit_address">Edit Address</string>
     <string name="title_product_details">Product Details</string>

@@ -25,6 +25,7 @@ import com.example.ecommerce.core.constants.countryCode
 import com.example.ecommerce.core.constants.countryStateMap
 import com.example.ecommerce.core.constants.regionCodeMap
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
+import com.example.ecommerce.core.database.data.entities.user.UserEntity
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.AddressUtil
@@ -39,6 +40,8 @@ import com.example.ecommerce.features.address.presentation.viewmodel.addressacti
 import com.example.ecommerce.features.address.presentation.viewmodel.addressaction.IAddressActionViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.customer.CustomerViewModel
 import com.example.ecommerce.features.address.presentation.viewmodel.customer.ICustomerViewModel
+import com.example.ecommerce.features.userprofile.presentation.event.UserProfileEvent
+import com.example.ecommerce.features.userprofile.presentation.viewmodel.userprofile.UserProfileViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -50,22 +53,18 @@ import kotlinx.coroutines.launch
 class EditAddressFragment : Fragment() {
     private var _binding: FragmentEditAddressBinding? = null
     private val binding get() = _binding!!
-    private lateinit var firstNameAddressEditText: TextInputEditText
-    private lateinit var lastNameAddressEditText: TextInputEditText
-    private lateinit var emailNameAddressEditText: TextInputEditText
-    private lateinit var phoneNumberAddressEditText: TextInputEditText
 
     private lateinit var streetAddressEditText: TextInputEditText
     private lateinit var postCodeAddressEditText: TextInputEditText
-    private lateinit var firstNameAddressTextFieldInputLayout: TextInputLayout
-    private lateinit var lastNameAddressTextFieldInputLayout: TextInputLayout
+
     private lateinit var streetAddressTextFieldInputLayout: TextInputLayout
-    private lateinit var emailAddressTextFieldInputLayout: TextInputLayout
-    private lateinit var phoneNumberAddressTextFieldInputLayout: TextInputLayout
+
 
     private lateinit var postCodeAddressTextFieldInputLayout: TextInputLayout
     private val customerViewModel: ICustomerViewModel by activityViewModels<CustomerViewModel>()
     private val addressActionViewModel: IAddressActionViewModel by activityViewModels<AddressActionViewModel>()
+    private val userViewModel by viewModels<UserProfileViewModel>()
+    private var user: UserEntity? = null
     private lateinit var buttonSave: MaterialButton
     private lateinit var spinnerCountry: Spinner
     private lateinit var spinnerState: Spinner
@@ -97,6 +96,7 @@ class EditAddressFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
+        userViewModel.onEvent(UserProfileEvent.UserProfileLoad)
         spinnerCountryOnItemSelected()
         textWatchers()
         saveButtonOnClickedListener()
@@ -104,6 +104,7 @@ class EditAddressFragment : Fragment() {
         addressEvent()
         showInitAddress()
         customerAddressObserver()
+        userState()
     }
 
     private fun customerAddressObserver() {
@@ -125,21 +126,10 @@ class EditAddressFragment : Fragment() {
     }
 
     private fun initView() {
-        firstNameAddressEditText = binding.firstNameAddressEditText
-        lastNameAddressEditText = binding.lastNameAddressEditText
-        emailNameAddressEditText = binding.emailNameAddressEditText
-        phoneNumberAddressEditText = binding.phoneNumberAddressEditText
+
 
         postCodeAddressEditText = binding.postCodeAddressEditText
         streetAddressEditText = binding.streetAddressEditText
-        firstNameAddressTextFieldInputLayout =
-            binding.firstNameAddressTextFieldInputLayout
-        lastNameAddressTextFieldInputLayout =
-            binding.lastNameAddressTextFieldInputLayout
-        emailAddressTextFieldInputLayout = binding.emailAddressTextFieldInputLayout
-        phoneNumberAddressTextFieldInputLayout =
-            binding.phoneNumberAddressTextFieldInputLayout
-
         postCodeAddressTextFieldInputLayout =
             binding.postCodeAddressTextFieldInputLayout
         streetAddressTextFieldInputLayout =
@@ -185,10 +175,6 @@ class EditAddressFragment : Fragment() {
 
     private fun populateFields(address: CustomerAddressEntity?) {
         if (address == null) return
-        firstNameAddressEditText.setText(address.firstName)
-        lastNameAddressEditText.setText(address.lastName)
-        emailNameAddressEditText.setText(address.email)
-        phoneNumberAddressEditText.setText(address.phone)
         streetAddressEditText.setText(address.address)
         postCodeAddressEditText.setText(address.zipCode)
         val countryIndex =
@@ -222,93 +208,12 @@ class EditAddressFragment : Fragment() {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun afterTextChanged(p0: Editable?) {
-                firstNameValidateInput()
-                lastNameValidateInput()
-                emailValidateInput()
-                phoneNumberValidateInput()
-
                 postCodeValidateInput()
             }
         }
-        firstNameAddressEditText.addTextChangedListener(textWatcher)
-        lastNameAddressEditText.addTextChangedListener(textWatcher)
-        emailNameAddressEditText.addTextChangedListener(textWatcher)
-        phoneNumberAddressEditText.addTextChangedListener(textWatcher)
         postCodeAddressEditText.addTextChangedListener(textWatcher)
     }
 
-    fun firstNameValidateInput(): Boolean {
-        var isValid = true
-        val firstNamePattern = Regex("^[a-zA-Z][a-zA-Z0-9_]*$")
-        val firstName = firstNameAddressEditText.text.toString()
-
-        if (firstName.isBlank()) {
-
-            firstNameAddressTextFieldInputLayout.error = getString(R.string.first_name_is_required)
-            firstNameAddressTextFieldInputLayout.errorIconDrawable = null
-            isValid = false
-        } else if (!firstNamePattern.matches(firstName)) {
-            firstNameAddressTextFieldInputLayout.error =
-                getString(R.string.username_must_start_with_a_letter_and_contain_only_letters_numbers_or_underscores)
-            firstNameAddressTextFieldInputLayout.errorIconDrawable = null
-            isValid = false
-        } else {
-            firstNameAddressTextFieldInputLayout.error = null
-        }
-        return isValid
-    }
-
-    fun lastNameValidateInput(): Boolean {
-        var isValid = true
-        if (lastNameAddressEditText.text.toString().isBlank()) {
-            lastNameAddressTextFieldInputLayout.error = getString(R.string.last_name_is_required)
-            lastNameAddressTextFieldInputLayout.errorIconDrawable = null
-            isValid = false
-        } else {
-            lastNameAddressTextFieldInputLayout.error = null
-        }
-        return isValid
-    }
-
-    fun emailValidateInput(): Boolean {
-        var isValid = true
-        val emailPattern = android.util.Patterns.EMAIL_ADDRESS
-        val email = emailNameAddressEditText.text.toString()
-
-
-        if (email.isBlank()) {
-            emailAddressTextFieldInputLayout.error = getString(R.string.email_is_required)
-            emailAddressTextFieldInputLayout.errorIconDrawable = null
-            isValid = false
-        } else if (!emailPattern.matcher(email).matches()) {
-            emailAddressTextFieldInputLayout.error = getString(R.string.invalid_email_format)
-            emailAddressTextFieldInputLayout.errorIconDrawable = null
-            isValid = false
-        } else {
-            emailAddressTextFieldInputLayout.error = null
-        }
-        return isValid
-    }
-
-    private fun phoneNumberValidateInput(): Boolean {
-        var isValid = true
-        val phoneNumberPattern = Regex("^(010|011|012|015)\\d{8}$")
-        val phoneNumber = phoneNumberAddressEditText.text.toString()
-        if (phoneNumber.isBlank()) {
-            phoneNumberAddressTextFieldInputLayout.error =
-                getString(R.string.phone_number_is_required)
-            phoneNumberAddressTextFieldInputLayout.errorIconDrawable = null
-        } else if (!phoneNumberPattern.matches(phoneNumber)) {
-            phoneNumberAddressTextFieldInputLayout.error =
-                getString(R.string.invalid_phone_number_format)
-            phoneNumberAddressTextFieldInputLayout.errorIconDrawable = null
-            isValid = false
-        } else {
-            phoneNumberAddressTextFieldInputLayout.error = null
-
-        }
-        return isValid
-    }
 
     private fun postCodeValidateInput(): Boolean {
         var isValid = true
@@ -351,10 +256,7 @@ class EditAddressFragment : Fragment() {
 
     private fun saveButtonOnClickedListener() {
         buttonSave.setOnClickListener {
-            val firstName = firstNameAddressEditText.text.toString()
-            val lastName = lastNameAddressEditText.text.toString()
-            val email = emailNameAddressEditText.text.toString()
-            val phoneNumber = phoneNumberAddressEditText.text.toString()
+
             val address = streetAddressEditText.text.toString()
             val postCode = postCodeAddressEditText.text.toString()
             val country = spinnerCountry.selectedItem.toString()
@@ -362,28 +264,25 @@ class EditAddressFragment : Fragment() {
             val stateCode = regionCodeMap[state] ?: getString(R.string.unknown)
             val countryCode = countryCode[country] ?: getString(R.string.unknown)
             if (
-                firstNameValidateInput() &&
-                lastNameValidateInput() &&
-                emailValidateInput() &&
-                phoneNumberValidateInput() &&
                 postCodeValidateInput() &&
                 streetAddressValidateInput() &&
                 spinnerCountry.selectedItem.toString() != getString(R.string.select_country) &&
-                spinnerState.selectedItem.toString() != getString(R.string.select_state)
+                spinnerState.selectedItem.toString() != getString(R.string.select_state)&&
+                user != null
             ) {
                 val billingInfoAddressRequest = BillingInfoRequestEntity(
-                    firstName = firstName,
-                    lastName = lastName,
-                    email = email,
+                    firstName = user?.firstName,
+                    lastName = user?.lastName,
+                    email = user?.userEmail,
                     address = address,
                     city = state,
                     country = countryCode,
                     postCode = postCode,
-                    phone = phoneNumber,
+                    phone = user?.phone,
                 )
                 val shippingInfoAddressRequest = ShippingInfoRequestEntity(
-                    firstName = firstName,
-                    lastName = lastName,
+                    firstName = user?.firstName.toString(),
+                    lastName = user?.lastName.toString(),
                     address = address,
                     city = state,
                     state = stateCode,
@@ -409,6 +308,7 @@ class EditAddressFragment : Fragment() {
 
 
     }
+
 
     private fun addressAction(addressRequestEntity: AddressRequestEntity) {
         when (addressActionObserver()) {
@@ -457,6 +357,18 @@ class EditAddressFragment : Fragment() {
             }
         }
 
+    }
+
+    private fun userState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                userViewModel.userProfileState.collectLatest { state ->
+                    if (state.userEntity != null) {
+                        user = state.userEntity
+                    }
+                }
+            }
+        }
     }
 
     private fun showProgressBar() {
@@ -513,10 +425,6 @@ class EditAddressFragment : Fragment() {
     private fun showInitAddress() {
         val address = AddressUtil.addressEntity
         address?.let {
-            firstNameAddressEditText.setText(it.firstName)
-            lastNameAddressEditText.setText(it.lastName)
-            emailNameAddressEditText.setText(it.email)
-            phoneNumberAddressEditText.setText(it.phone)
             postCodeAddressEditText.setText(it.zipCode)
             streetAddressEditText.setText(it.address)
             spinnerCountry.setSelection(countryStateMap.keys.indexOf(it.country))

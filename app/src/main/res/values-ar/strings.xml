@@ -51,7 +51,7 @@
     <string name="changePassword">تغيير كلمة المرور</string>
     <string name="permissionDenied">تم رفض الإذن</string>
     <string name="my_orders">طلباتي</string>
-    <string name="address">العناوين</string>
+    <string name="address">العنوان</string>
     <string name="accountDetails">تفاصيل الحساب</string>
     <string name="darkMode">الوضع الداكن</string>
     <string name="language">اللغة</string>
@@ -154,7 +154,7 @@
     <string name="title_product">الرئيسية</string>
     <string name="title_setting">الإعدادات</string>
     <string name="title_edit_profile">تعديل الملف الشخصي</string>
-    <string name="title_address">العنوان</string>
+    <string name="title_address">العناوين</string>
     <string name="title_language">اللغة</string>
     <string name="title_edit_address">تعديل العنوان</string>
     <string name="title_product_details">تفاصيل المنتج</string>

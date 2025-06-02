@@ -30,13 +30,13 @@ class AddressViewHolder(
         fullNameAddressTextView.text =
             context.getString(R.string.full_name).plus(addressItem.firstName).plus(" ")
                 .plus(addressItem.lastName)
-        emailAddressTextView.text = context.getString(R.string.email).plus(addressItem.email)
+        emailAddressTextView.text = context.getString(R.string.email).plus(": ${addressItem.email}")
         phoneNumberTextView.text =
-            context.getString(R.string.phone_number).plus(addressItem.phone)
-        streetAddressTextView.text = context.getString(R.string.address).plus(addressItem.address)
+            context.getString(R.string.phone_number).plus(": ${addressItem.phone}")
+        streetAddressTextView.text = context.getString(R.string.address).plus(": ${addressItem.address}")
         countryTextView.text = context.getString(R.string.country).plus(addressItem.country)
         cityTextView.text = context.getString(R.string.city).plus(addressItem.city)
-        postCodeTextView.text = context.getString(R.string.post_code).plus(addressItem.zipCode)
+        postCodeTextView.text = context.getString(R.string.post_code).plus(": ${addressItem.zipCode}")
 
         if (addressItem.isSelect == 1) {
             selectAddressIcon.visibility = RecyclerView.VISIBLE
