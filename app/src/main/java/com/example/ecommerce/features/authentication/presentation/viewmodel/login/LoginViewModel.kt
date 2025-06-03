@@ -8,6 +8,7 @@ import com.example.ecommerce.core.constants.Unknown_Error
 import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.extension.performUseCaseOperation
 import com.example.ecommerce.core.manager.customer.CustomerManager
+import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
@@ -15,8 +16,6 @@ import com.example.ecommerce.features.authentication.domain.usecases.login.ILogi
 import com.example.ecommerce.features.authentication.domain.usecases.sendverificationcode.ISendVerificationCodeUseCase
 import com.example.ecommerce.features.authentication.presentation.event.LoginEvent
 import com.example.ecommerce.features.authentication.presentation.state.LoginState
-import com.example.ecommerce.features.notification.domain.usecase.addfcmtokendevice.IAddFcmTokenDeviceUseCase
-import com.example.ecommerce.features.notification.domain.usecase.getfcmtokendevice.IGetFcmTokenDeviceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -33,9 +32,8 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginUseCase: ILoginUseCase,
     private val sendVerificationCodeUseCase: ISendVerificationCodeUseCase,
-    private val addFcmTokenDeviceUseCase: IAddFcmTokenDeviceUseCase,
-    private val getFcmTokenDeviceUseCase: IGetFcmTokenDeviceUseCase,
     private val customerManager: CustomerManager,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
     private val _loginEvent: Channel<UiEvent> = Channel()
     val loginEvent = _loginEvent.receiveAsFlow()
@@ -88,6 +86,7 @@ class LoginViewModel @Inject constructor(
             )
             val response = loginUseCase.invoke(loginParams = loginParams)
             if (response.verificationStatues) {
+                tokenManager.saveVerificationStatus(true)
                 performTaskParallel(userId = response.userId)
                 _loginEvent.send(UiEvent.Navigation.Home(R.id.productFragment))
             } else {
@@ -118,10 +117,7 @@ class LoginViewModel @Inject constructor(
 
     private fun performTaskParallel(userId: Int) = viewModelScope.launch {
         val setCustomerAsync = async { customerManager.setCustomerId(userId) }
-        val getFcmTokenAsync = async { getFcmTokenDeviceUseCase.invoke() }
         setCustomerAsync.await()
-        getFcmTokenAsync.await()?.let { addFcmTokenDeviceUseCase.invoke(it) }
-
     }
 
 

@@ -24,7 +24,7 @@ class InternetConnectionCheckerImp @Inject constructor(
     private val checkOptions: List<AddressCheckOption> = defaultCheckOptions
     companion object {
         private val defaultCheckOptions = listOf(
-            AddressCheckOption("https://1.1.1.1"),
+            AddressCheckOption("https://8.8.8.8"),
         )
     }
     private  val _statusFlow = MutableStateFlow<ConnectivityStatus?>(ConnectivityStatus.CONNECTED)

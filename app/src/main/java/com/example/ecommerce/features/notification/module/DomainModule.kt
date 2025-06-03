@@ -9,10 +9,6 @@ import com.example.ecommerce.features.notification.domain.repository.Notificatio
 import com.example.ecommerce.features.notification.domain.repository.NotificationRepository
 import com.example.ecommerce.features.notification.domain.usecase.addfcmtokendevice.AddFcmTokenDeviceUseCase
 import com.example.ecommerce.features.notification.domain.usecase.addfcmtokendevice.IAddFcmTokenDeviceUseCase
-import com.example.ecommerce.features.notification.domain.usecase.deletefcmtokendevice.DeleteFcmTokenDeviceUseCase
-import com.example.ecommerce.features.notification.domain.usecase.deletefcmtokendevice.IDeleteFcmTokenDeviceUseCase
-import com.example.ecommerce.features.notification.domain.usecase.getfcmtokendevice.GetFcmTokenDeviceUseCase
-import com.example.ecommerce.features.notification.domain.usecase.getfcmtokendevice.IGetFcmTokenDeviceUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,21 +26,6 @@ object DomainModule {
         return AddFcmTokenDeviceUseCase(repository = repository)
     }
 
-    @Provides
-    @Singleton
-    fun provideGetFcmTokenDeviceUseCase(
-        repository: NotificationManagerRepository
-    ): IGetFcmTokenDeviceUseCase {
-        return GetFcmTokenDeviceUseCase(repository = repository)
-    }
-
-    @Provides
-    @Singleton
-    fun provideDeleteFcmTokenDeviceUseCase(
-        repository: NotificationManagerRepository
-    ): IDeleteFcmTokenDeviceUseCase {
-        return DeleteFcmTokenDeviceUseCase(repository = repository)
-    }
 
     @Provides
     @Singleton

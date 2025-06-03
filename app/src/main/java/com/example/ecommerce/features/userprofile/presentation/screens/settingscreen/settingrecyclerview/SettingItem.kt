@@ -5,7 +5,8 @@ data class SettingItem(
     val title:String,
     val enableSwitch:Boolean ,
     var isChecked:Boolean,
-    val destinationId:Int
+    val destinationId:Int,
+
 ){
     companion object {
         const val NO_DESTINATION = -1

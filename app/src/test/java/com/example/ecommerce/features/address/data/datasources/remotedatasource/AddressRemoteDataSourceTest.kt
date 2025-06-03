@@ -9,6 +9,7 @@ import com.example.ecommerce.features.address.tAddressRequestModel
 import com.example.ecommerce.features.address.tErrorResponseAddressTokenBody
 import com.example.ecommerce.features.address.tUpdateAddressResponseModel
 import com.example.ecommerce.features.errorBody
+import com.example.ecommerce.features.errorJsonBody
 import com.example.ecommerce.features.errorMessage
 import com.example.ecommerce.features.errorResponseBody
 import com.example.ecommerce.features.failureException
@@ -126,7 +127,7 @@ class AddressRemoteDataSourceTest {
         runTest {
             val errorResponse = Response.error<AddressDataResponseModel>(
                 400,
-                errorBody
+                errorJsonBody
             )
             whenever(api.getAddress()).thenReturn(
                 errorResponse

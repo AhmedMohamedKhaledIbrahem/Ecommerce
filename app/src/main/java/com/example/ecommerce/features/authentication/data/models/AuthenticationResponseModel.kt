@@ -4,23 +4,25 @@ import com.google.gson.annotations.SerializedName
 
 data class AuthenticationResponseModel(
     @SerializedName("token")
-    val token :String,
+    val token: String,
     @SerializedName("user_id")
-    val userId :Int,
+    val userId: Int,
     @SerializedName("user_email")
-    val email:String,
+    val email: String,
+    @SerializedName("phone")
+    val phone: String,
     @SerializedName("user_nicename")
-    val userName:String,
+    val userName: String,
     @SerializedName("user_display_name")
-    val userDisplayName:String,
+    val userDisplayName: String,
     @SerializedName("first_name")
-    val firstName :String,
+    val firstName: String,
     @SerializedName("last_name")
-    val lastName :String,
+    val lastName: String,
     @SerializedName("roles")
-    val roles : List<String>,
+    val roles: List<String>,
     @SerializedName("email_verification_status")
-    val verificationStatues :Boolean,
+    val verificationStatues: Boolean,
     @SerializedName("exp")
-    val expiredToken :Int
+    val expiredToken: Int
 )

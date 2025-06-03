@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,7 +30,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.navigation.MainNavigationViewModel
 import com.example.ecommerce.core.network.NetworkHelperViewModel
@@ -50,9 +50,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var detectViewModel: DetectScrollEndViewModel
-    internal lateinit var loadingDialog: LoadingDialogFragment
     private val mainNavigationViewModel: MainNavigationViewModel by viewModels()
     private val networkStatusViewModel: NetworkHelperViewModel by viewModels()
+
+
     private lateinit var expandedBottomSheetFilterViewModel: ExpandedBottomSheetFilterViewModel
     private var isFilterMenuVisible: Boolean = false
     internal lateinit var binding: ActivityMainNavigationBinding
@@ -60,8 +61,10 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var tokenManager: TokenManager
 
+
     @Inject
     lateinit var shardPreferences: SharedPreferences
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,12 +120,14 @@ class MainActivity : AppCompatActivity() {
         filterItem?.isVisible = isFilterMenuVisible
         return true
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.filter_icon -> {
                 expandedBottomSheetFilterViewModel.setExpandedFilter(true)
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
 
         }
@@ -130,10 +135,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        loadingDialog = LoadingDialogFragment.Companion.getInstance(supportFragmentManager)
         detectViewModel = ViewModelProvider(this)[DetectScrollEndViewModel::class.java]
         expandedBottomSheetFilterViewModel =
             ViewModelProvider(this)[ExpandedBottomSheetFilterViewModel::class.java]
+
     }
 
     private fun toolbar(navController: NavController) {
@@ -166,6 +171,7 @@ class MainActivity : AppCompatActivity() {
             binding.bottomNavigationBar.visibility = View.VISIBLE
         }
     }
+
     private fun checkIsFilterMenuVisible(destination: NavDestination): Boolean {
         isFilterMenuVisible = when (destination.id) {
             R.id.productFragment -> true
@@ -276,8 +282,9 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-    private suspend fun isLogin(): Boolean {
-        return !tokenManager.getToken().isNullOrEmpty()
+    private fun isLogin(): Boolean {
+
+        return !tokenManager.getToken().isNullOrEmpty() && tokenManager.getVerificationStatus()
     }
 
 
@@ -291,7 +298,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun defaultNightMode() {
-        //todo don forget update here
+
         PreferencesUtils.isDarkMode = shardPreferences.getBoolean("dark_mode", false)
         AppCompatDelegate.setDefaultNightMode(
             if (PreferencesUtils.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES

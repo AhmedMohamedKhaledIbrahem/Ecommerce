@@ -14,9 +14,20 @@ class LoadingDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     companion object {
-        fun getInstance(fragmentManager: FragmentManager): LoadingDialogFragment {
-            return fragmentManager.findFragmentByTag(TAG) as? LoadingDialogFragment
-                ?: LoadingDialogFragment()
+        //        fun getInstance(fragmentManager: FragmentManager): LoadingDialogFragment {
+//            return fragmentManager.findFragmentByTag(TAG) as? LoadingDialogFragment
+//                ?: LoadingDialogFragment()
+//        }
+        fun show(fragmentManager: FragmentManager): LoadingDialogFragment {
+            val dialog = LoadingDialogFragment()
+            if (!fragmentManager.isStateSaved) {
+                dialog.show(fragmentManager, TAG)
+            }
+            return dialog
+        }
+
+        fun dismiss(fragmentManager: FragmentManager) {
+            (fragmentManager.findFragmentByTag(TAG) as? LoadingDialogFragment)?.dismissAllowingStateLoss()
         }
 
         private const val TAG = "loadingDialog"

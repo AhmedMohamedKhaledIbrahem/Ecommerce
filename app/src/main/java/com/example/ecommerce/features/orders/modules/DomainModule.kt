@@ -5,6 +5,8 @@ import com.example.ecommerce.features.orders.domain.use_case.clear_orders.ClearO
 import com.example.ecommerce.features.orders.domain.use_case.clear_orders.IClearOrderUseCase
 import com.example.ecommerce.features.orders.domain.use_case.create_order.CreateOrderUseCase
 import com.example.ecommerce.features.orders.domain.use_case.create_order.ICreateOrderUseCase
+import com.example.ecommerce.features.orders.domain.use_case.fetch_orders.FetchOrderUseCase
+import com.example.ecommerce.features.orders.domain.use_case.fetch_orders.FetchOrderUseCaseImp
 import com.example.ecommerce.features.orders.domain.use_case.get_orders.GetOrdersUseCase
 import com.example.ecommerce.features.orders.domain.use_case.get_orders.IGetOrdersUseCase
 import com.example.ecommerce.features.orders.domain.use_case.save_order_locally.ISaveOrderLocallyUseCase
@@ -40,5 +42,11 @@ object DomainModule {
     @Singleton
     fun provideSaveOrderLocallyUseCase(orderRepository: OrderRepository): ISaveOrderLocallyUseCase {
         return SaveOrderLocallyUseCase(repository = orderRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFetchOrderUseCase(orderRepository: OrderRepository): FetchOrderUseCase {
+        return FetchOrderUseCaseImp(repository = orderRepository)
     }
 }

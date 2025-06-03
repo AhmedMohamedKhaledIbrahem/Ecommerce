@@ -1,7 +1,6 @@
 package com.example.ecommerce.core.constants
 
 import com.example.ecommerce.R
-
 val countryStateMap = mapOf(
     R.string.select_country to listOf(
         R.string.select_state

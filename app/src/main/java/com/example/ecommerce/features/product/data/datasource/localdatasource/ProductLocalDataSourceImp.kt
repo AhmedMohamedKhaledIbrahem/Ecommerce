@@ -18,7 +18,6 @@ import com.example.ecommerce.core.database.data.entities.relation.ProductWithAll
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.features.product.data.mapper.ProductMapper
 import com.example.ecommerce.features.product.data.model.EcommerceResponseModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -87,15 +86,11 @@ class ProductLocalDataSourceImp @Inject constructor(
                     )
                 }
             }
-            val insertProductsDeferred = async { productDao.insertProducts(productEntity) }
-            val insertImagesDeferred = async { imageDao.insertImages(imageEntity) }
-            val insertCategoriesDeferred = async { categoryDao.insertCategories(productCategoryEntity) }
-            val insertCrossRefDeferred =
-                async { productCategoryDao.insertProductCategoryCrossRef(crossRefEntity) }
-            insertProductsDeferred.await()
-            insertImagesDeferred.await()
-            insertCategoriesDeferred.await()
-            insertCrossRefDeferred.await()
+            productDao.insertProducts(productEntity)
+            imageDao.insertImages(imageEntity)
+            categoryDao.insertCategories(productCategoryEntity)
+            productCategoryDao.insertProductCategoryCrossRef(crossRefEntity)
+
         } catch (e: Exception) {
             throw FailureException("${e.message}")
         }

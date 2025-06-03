@@ -12,6 +12,7 @@ object AuthenticationMapper {
             userName = model.userName,
             displayName = model.userDisplayName,
             userEmail = model.email,
+            phone = model.phone,
             roles = model.roles,
             firstName = model.firstName,
             lastName = model.lastName,

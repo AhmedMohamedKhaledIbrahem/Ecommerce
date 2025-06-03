@@ -9,8 +9,6 @@ import com.example.ecommerce.features.authentication.domain.usecases.confirm_pas
 import com.example.ecommerce.features.authentication.domain.usecases.confirm_password_reset.ConfirmPasswordChangeUseCaseImp
 import com.example.ecommerce.features.authentication.domain.usecases.login.ILoginUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.login.LoginUseCase
-import com.example.ecommerce.features.authentication.domain.usecases.logout.ILogoutUseCase
-import com.example.ecommerce.features.authentication.domain.usecases.logout.LogoutUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.restpassword.IResetPasswordUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.restpassword.ResetPasswordUseCase
 import com.example.ecommerce.features.authentication.domain.usecases.sendverificationcode.ISendVerificationCodeUseCase
@@ -46,11 +44,6 @@ object DomainModule {
         return ResetPasswordUseCase(repository = authenticationRepository)
     }
 
-    @Provides
-    @Singleton
-    fun provideLogoutUseCase(authenticationRepository: AuthenticationRepository): ILogoutUseCase {
-        return LogoutUseCase(repository = authenticationRepository)
-    }
 
     @Provides
     @Singleton

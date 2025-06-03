@@ -28,22 +28,7 @@ class NotificationLocalDataSourceImp @Inject constructor(
 
     }
 
-    override suspend fun getFcmTokenDevice(): String? {
-        return try {
-            fcmDeviceToken.getFcmTokenDevice()
-        } catch (e: Exception) {
-            throw FailureException("${e.message}")
-        }
 
-    }
-
-    override suspend fun deleteFcmTokenDevice() {
-        try {
-            fcmDeviceToken.deleteFcmTokenDevice()
-        } catch (e: Exception) {
-            throw FailureException("${e.message}")
-        }
-    }
 
 
 }

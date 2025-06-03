@@ -78,7 +78,6 @@ class AddressViewModel @Inject constructor(
                 return@performUseCaseOperation
             }
             updateAddressUseCase(id, addressRequestEntity)
-            //val message = context.getString(R.string.address_updated_successfully)
             _addressEvent.send(
                 UiEvent.CombinedEvents(
                     listOf(

@@ -16,6 +16,7 @@ import com.example.ecommerce.R
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.databinding.FragmentSignUpBinding
 import com.example.ecommerce.features.authentication.presentation.event.SignUpEvent
 import com.example.ecommerce.features.authentication.presentation.viewmodel.signup.SignUpViewModel
@@ -65,14 +66,20 @@ class SignUpFragment : Fragment() {
                         is UiEvent.CombinedEvents -> {
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = {message, _ ->
-                                    SnackBarCustom.showSnackbar(view = rootView, message = message)
+                                onShowSnackBar = { message, resId ->
+                                    checkIsMessageOrResourceId(
+                                        message = message,
+                                        resId = resId,
+                                        root = rootView,
+                                        context = requireContext()
+                                    )
                                 },
                                 onNavigate = { destinationId, args ->
                                     val action =
                                         SignUpFragmentDirections.actionSignUpFragmentToCheckVerificationCodeFragment(
                                             emailArg = args ?: ""
                                         )
+
                                     findNavController().navigate(action)
                                 }
                             )
@@ -100,12 +107,14 @@ class SignUpFragment : Fragment() {
             val firsName = binding.firstNameEditText.text.toString()
             val lastName = binding.lastNameEditText.text.toString()
             val email = binding.emailEditText.text.toString()
+            val phone = binding.phoneEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
             if (validateInputs()) {
                 signUpViewModel.onEvent(SignUpEvent.Input.UserName(username))
                 signUpViewModel.onEvent(SignUpEvent.Input.FirstName(firsName))
                 signUpViewModel.onEvent(SignUpEvent.Input.LastName(lastName))
                 signUpViewModel.onEvent(SignUpEvent.Input.Email(email))
+                signUpViewModel.onEvent(SignUpEvent.Input.PhoneNumber(phone))
                 signUpViewModel.onEvent(SignUpEvent.Input.Password(password))
                 signUpViewModel.onEvent(SignUpEvent.Button.SignUp)
             }
@@ -205,8 +214,25 @@ class SignUpFragment : Fragment() {
             binding.ConfirmPasswordTextFieldInputLayout.error = null
         }
 
+        val phoneNumberPattern = Regex("^(010|011|012|015)\\d{8}$")
+        val phoneNumber = binding.phoneEditText.text.toString()
+        if (phoneNumber.isBlank()) {
+            binding.phoneTextFieldInputLayout.error =
+                getString(R.string.phone_number_is_required)
+            binding.phoneTextFieldInputLayout.errorIconDrawable = null
+        } else if (!phoneNumberPattern.matches(phoneNumber)) {
+            binding.phoneTextFieldInputLayout.error =
+                getString(R.string.invalid_phone_number_format)
+            binding.phoneTextFieldInputLayout.errorIconDrawable = null
+            isValid = false
+        } else {
+            binding.phoneTextFieldInputLayout.error = null
+
+        }
+
         return isValid
     }
+
 
     private fun textWatchers() {
         val textWatcher = object : TextWatcher {

@@ -8,5 +8,6 @@ interface OrderRepository {
     suspend fun createOrder(orderRequestEntity: OrderRequestEntity): OrderResponseEntity
     suspend fun getOrders(): List<OrderWithItems>
     suspend fun saveOrderLocally(orderResponseEntity: OrderResponseEntity)
+    suspend fun fetchOrders()
     suspend fun clearOrders()
 }

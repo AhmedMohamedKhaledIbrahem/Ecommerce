@@ -1,5 +1,12 @@
 package com.example.ecommerce.features.authentication.data.datasources
 
+import com.example.ecommerce.core.constants.CHANGE_PASSWORD_END_POINT
+import com.example.ecommerce.core.constants.CHECK_VERIFICATION_STATUS_END_POINT
+import com.example.ecommerce.core.constants.CONFIRM_PASSWORD_RESET_END_POINT
+import com.example.ecommerce.core.constants.RESET_PASSWORD_END_POINT
+import com.example.ecommerce.core.constants.SEND_VERIFICATION_CODE_END_POINT
+import com.example.ecommerce.core.constants.SIGN_UP_END_POINT
+import com.example.ecommerce.core.constants.TOKEN_END_POINT
 import com.example.ecommerce.features.authentication.data.models.AuthenticationRequestModel
 import com.example.ecommerce.features.authentication.data.models.AuthenticationResponseModel
 import com.example.ecommerce.features.authentication.data.models.ChangePasswordRequestModel
@@ -13,26 +20,25 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface AuthenticationApi {
-    @POST("wp-json/jwt-auth/v1/token")
+    @POST(TOKEN_END_POINT)
     suspend fun loginRequest(@Body request: AuthenticationRequestModel): Response<AuthenticationResponseModel>
 
-
-    @POST("wp-json/custom/v1/register")
+    @POST(SIGN_UP_END_POINT)
     suspend fun signUpRequest(@Body request: SignUpRequestModel): Response<MessageResponseModel>
 
-    @POST("wp-json/custom/v1/reset-password")
+    @POST(RESET_PASSWORD_END_POINT)
     suspend fun resetPasswordRequest(@Body request: EmailRequestModel): Response<MessageResponseModel>
 
-    @POST("wp-json/custom/v1/verify-email")
+    @POST(SEND_VERIFICATION_CODE_END_POINT)
     suspend fun sendVerificationCodeRequest(@Body request: EmailRequestModel): Response<MessageResponseModel>
 
-    @POST("wp-json/custom/v1/check-verification-status")
+    @POST(CHECK_VERIFICATION_STATUS_END_POINT)
     suspend fun checkVerificationCodeRequest(@Body request: CheckVerificationRequestModel): Response<MessageResponseModel>
 
-    @POST("wp-json/custom/v1/password-reset")
+    @POST(CHANGE_PASSWORD_END_POINT)
     suspend fun changePasswordRequest(@Body request: ChangePasswordRequestModel): Response<MessageResponseModel>
 
-    @POST("wp-json/custom/v1/confirm-password-reset")
+    @POST(CONFIRM_PASSWORD_RESET_END_POINT)
     suspend fun confirmPasswordReset(@Body request: ConfirmPasswordResetRequestModel): Response<MessageResponseModel>
 
 }

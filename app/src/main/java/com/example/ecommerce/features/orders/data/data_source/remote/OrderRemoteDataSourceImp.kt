@@ -1,7 +1,7 @@
 package com.example.ecommerce.features.orders.data.data_source.remote
 
-import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.core.errors.FailureException
+import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.features.orders.data.data_source.OrderApi
 import com.example.ecommerce.features.orders.data.models.OrderRequestModel
 import com.example.ecommerce.features.orders.data.models.OrderResponseModel
@@ -32,7 +32,7 @@ class OrderRemoteDataSourceImp @Inject constructor(
 
     override suspend fun getOrders(): List<OrderResponseModel> {
         return try {
-            val response = orderApi.getOrders(customerId = customerManager.getCustomerId())
+            val response = orderApi.getOrders()
             if (response.isSuccessful) {
                 response.body() ?: throw FailureException("Empty Response Body")
             } else {

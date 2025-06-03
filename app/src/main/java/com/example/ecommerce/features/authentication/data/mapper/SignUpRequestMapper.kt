@@ -10,7 +10,8 @@ object SignUpRequestMapper {
             lastName = entity.lastName,
             email = entity.email,
             username = entity.username,
-            password = entity.password
+            password = entity.password,
+            phone = entity.phone
         )
     }
 }

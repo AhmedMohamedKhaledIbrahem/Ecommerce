@@ -3,13 +3,10 @@ package com.example.ecommerce.features.cart.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommerce.R
-import com.example.ecommerce.core.constants.CustomerOrAddressNotFound
-import com.example.ecommerce.core.constants.OrderCreatedSuccessfully
 import com.example.ecommerce.core.constants.PaymentMethod
 import com.example.ecommerce.core.constants.PaymentMethodTitle
-import com.example.ecommerce.core.constants.Unknown_Error
-import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.errors.mapFailureMessage
+import com.example.ecommerce.core.extension.performUseCaseOperation
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.address.data.mapper.AddressMapper
 import com.example.ecommerce.features.address.domain.entites.BillingInfoRequestEntity
@@ -32,7 +29,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -68,56 +64,59 @@ class CheckOutViewModel @Inject constructor(
         }
     }
 
-    private fun checkOut() {
-
-        viewModelScope.launch {
-            try {
-                val customerId = checkOutState.value.customerId
-                val addressId = checkOutState.value.addressId
-                _checkOutState.update { it.copy(isCheckingOut = true) }
-                if (customerId == -1 && addressId == -1) {
-                    _checkOutEvent.send(UiEvent.ShowSnackBar(CustomerOrAddressNotFound))
-                    _checkOutState.update { it.copy(isCheckingOut = false) }
-                    return@launch
-                }
-                val (billingAddress, items) = parallelFetch(addressId)
-                val orderResponseEntity = createOrderUseCase(
-                    orderRequestEntity = OrderRequestEntity(
-                        customerId = customerId,
-                        billing = billingAddress,
-                        lineItems = items,
-                        paymentMethod = PaymentMethod,
-                        paymentMethodTitle = PaymentMethodTitle,
-                        setPaid = false,
-                    )
-
-                )
-                saveOrderLocallyUseCase(
-                    orderResponseEntity = orderResponseEntity
-                )
-                clearCartUseCase.invoke()
-                _checkOutEvent.send(
-                    UiEvent.CombinedEvents(
-                        listOf(
-                            UiEvent.ShowSnackBar(OrderCreatedSuccessfully),
-                            UiEvent.Navigation.Orders(destinationId = R.id.ordersFragment)
-                        )
-                    )
-                )
-            } catch (failure: Failures) {
-                val mapFailureMessage = mapFailureMessage(failure)
-                _checkOutEvent.send(UiEvent.ShowSnackBar(mapFailureMessage))
-            } catch (e: Exception) {
-                _checkOutEvent.send(UiEvent.ShowSnackBar(e.message ?: Unknown_Error))
-            } finally {
+    private fun checkOut() = performUseCaseOperation(
+        loadingUpdater = { isLoading ->
+            _checkOutState.update { it.copy(isCheckingOut = isLoading) }
+        },
+        useCase = {
+            val customerId = checkOutState.value.customerId
+            val addressId = checkOutState.value.addressId
+            if (customerId == -1 && addressId == -1) {
+                _checkOutEvent.send(UiEvent.ShowSnackBar(resId = R.string.customer_or_address_not_found))
                 _checkOutState.update { it.copy(isCheckingOut = false) }
+                return@performUseCaseOperation
             }
-        }
 
+            val (billingAddress, items) = parallelFetch(addressId)
+            if (billingAddress == null) {
+                _checkOutEvent.send(UiEvent.ShowSnackBar(resId = R.string.address_not_found))
+                _checkOutState.update { it.copy(isCheckingOut = false) }
+                return@performUseCaseOperation
+            }
+            val orderResponseEntity = createOrderUseCase(
+                orderRequestEntity = OrderRequestEntity(
+                    customerId = customerId,
+                    billing = billingAddress,
+                    lineItems = items,
+                    paymentMethod = PaymentMethod,
+                    paymentMethodTitle = PaymentMethodTitle,
+                    setPaid = false,
+                )
 
-    }
+            )
+            saveOrderLocallyUseCase(
+                orderResponseEntity = orderResponseEntity
+            )
+            clearCartUseCase.invoke()
+            _checkOutEvent.send(
+                UiEvent.CombinedEvents(
+                    listOf(
+                        UiEvent.ShowSnackBar(resId = R.string.order_created_successfully),
+                        UiEvent.Navigation.Orders(destinationId = R.id.ordersFragment)
+                    )
+                )
+            )
+        },
+        onFailure = { failure ->
+            val mapFailureMessage = mapFailureMessage(failure)
+            _checkOutEvent.send(UiEvent.ShowSnackBar(mapFailureMessage))
+        },
+        onException = {
+            _checkOutEvent.send(UiEvent.ShowSnackBar(resId = R.string.address_not_found))
+        },
+    )
 
-    private suspend fun parallelFetch(addressId: Int): Pair<BillingInfoRequestEntity, List<LineItemRequestEntity>> =
+    private suspend fun parallelFetch(addressId: Int): Pair<BillingInfoRequestEntity?, List<LineItemRequestEntity>> =
         coroutineScope {
             val addressDeferred = async { getSelectAddressUseCase(addressId) }
             val cartDeferred = async { getCartUseCase() }

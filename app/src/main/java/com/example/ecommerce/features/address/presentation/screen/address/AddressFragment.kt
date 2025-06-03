@@ -21,7 +21,7 @@ import com.example.ecommerce.core.database.data.entities.address.CustomerAddress
 import com.example.ecommerce.core.extension.isTablet
 import com.example.ecommerce.core.manager.address.AddressManager
 import com.example.ecommerce.core.ui.event.UiEvent
-import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.core.utils.detectScrollEnd
 import com.example.ecommerce.databinding.FragmentAddressBinding
 import com.example.ecommerce.features.address.presentation.event.AddressEvent
@@ -130,9 +130,11 @@ class AddressFragment : Fragment() {
                 addressViewModel.addressEvent.collect { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
-                            SnackBarCustom.showSnackbar(
-                                view = rootView,
-                                message = event.message
+                            checkIsMessageOrResourceId(
+                                message = event.message,
+                                resId = event.resId,
+                                root = rootView,
+                                context = requireContext()
                             )
                         }
 
@@ -150,19 +152,12 @@ class AddressFragment : Fragment() {
                 deleteAddressViewModel.deleteAddressEvent.collect { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
-                            if (event.message != "" && event.resId == -1) {
-                                SnackBarCustom.showSnackbar(
-                                    view = rootView,
-                                    message = event.message
-                                )
-                            } else if (event.message == "" && event.resId != -1) {
-                                val message = getString(event.resId)
-                                SnackBarCustom.showSnackbar(
-                                    view = rootView,
-                                    message = message,
-
-                                    )
-                            }
+                            checkIsMessageOrResourceId(
+                                message = event.message,
+                                resId = event.resId,
+                                root = rootView,
+                                context = requireContext()
+                            )
 
                         }
 
@@ -179,19 +174,12 @@ class AddressFragment : Fragment() {
                 selectAddressViewModel.selectAddressEvent.collect { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
-                            if (event.message != "" && event.resId == -1) {
-                                SnackBarCustom.showSnackbar(
-                                    view = rootView,
-                                    message = event.message
-                                )
-                            } else if (event.message == "" && event.resId != -1) {
-                                val message = getString(event.resId)
-                                SnackBarCustom.showSnackbar(
-                                    view = rootView,
-                                    message = message,
-
-                                    )
-                            }
+                            checkIsMessageOrResourceId(
+                                message = event.message,
+                                resId = event.resId,
+                                root = rootView,
+                                context = requireContext()
+                            )
                         }
 
                         else -> Unit

@@ -3,7 +3,7 @@
     <string name="username">UserName</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
-    <string name="email">Email:</string>
+    <string name="email">Email</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="password">Password</string>
     <string name="signupButton">Sign Up</string>
@@ -39,7 +39,7 @@
     <string name="forgetPasswordHead">Forget password</string>
     <string name="enterYourEmailParagraph">Enter Your Email Account To Reset\n\nYour Password</string>
     <string name="helloAgain">Hello Again</string>
-    <string name="loginParagraph">Fill Your Details or Continue\n\nWith Social Media</string>
+    <string name="loginParagraph">Fill Your Details</string>
     <string name="RegisterAccount">Register Account</string>
     <string name="title_home">Home</string>
     <string name="account">Account</string>
@@ -50,7 +50,7 @@
     <string name="setting_item_image">Setting Item Image</string>
     <string name="changePassword">Change Password</string>
     <string name="my_orders">My Orders</string>
-    <string name="address">Addresses</string>
+    <string name="address">Address</string>
     <string name="accountDetails">Account Details</string>
     <string name="darkMode">Dark Mode</string>
     <string name="language">Language</string>
@@ -64,9 +64,9 @@
     <string name="change_password">Change Password</string>
     <string name="new_password">New Password</string>
     <string name="change">Change</string>
-    <string name="phone_number">Phone Number:</string>
+    <string name="phone_number">Phone Number</string>
     <string name="city">City:</string>
-    <string name="post_code">Post Code:</string>
+    <string name="post_code">Post Code</string>
     <string name="save">Save</string>
     <string name="location">Location</string>
     <string name="select_the_country">select the country</string>
@@ -154,7 +154,7 @@
     <string name="title_product">Home</string>
     <string name="title_setting">Setting</string>
     <string name="title_edit_profile">Edit Profile</string>
-    <string name="title_address">Address</string>
+    <string name="title_address">Addresses</string>
     <string name="title_language">Language</string>
     <string name="title_edit_address">Edit Address</string>
     <string name="title_product_details">Product Details</string>
@@ -177,6 +177,41 @@
     <string name="unknown_message">Unknown message</string>
     <string name="unsupported_event">Unsupported event</string>
     <string name="not_work">not work</string>
+    <string name="logout_successfully">Logout Successfully</string>
+    <string name="customer_or_address_not_found">Customer or Address Id not found</string>
+    <string name="address_not_found">Addresss Not Found</string>
+    <string name="order_created_successfully">Order Created successfully</string>
+    <string name="egypt">Egypt</string>
+    <string name="cairo">Cairo</string>
+    <string name="aswan">Aswan</string>
+    <string name="asyut">Asyut</string>
+    <string name="beheira">Beheira</string>
+    <string name="alexandria">Alexandria</string>
+    <string name="dakahlia">Dakahlia</string>
+    <string name="damietta">Damietta</string>
+    <string name="faiyum">Faiyum</string>
+    <string name="gharbia">Gharbia</string>
+    <string name="giza">Giza</string>
+    <string name="kafr_el_sheikh">Kafr El Sheikh</string>
+    <string name="ismailia">Ismailia</string>
+    <string name="luxor">Luxor</string>
+    <string name="matrouh">Matrouh</string>
+    <string name="minya">Minya</string>
+    <string name="monufia">Monufia</string>
+    <string name="new_valley">New Valley</string>
+    <string name="north_sinai">North Sinai</string>
+    <string name="port_said">Port Said</string>
+    <string name="qalyubia">Qalyubia</string>
+    <string name="qena">Qena</string>
+    <string name="red_sea">Red Sea</string>
+    <string name="sharqia">Sharqia</string>
+    <string name="sohag">Sohag</string>
+    <string name="south_sinai">South Sinai</string>
+    <string name="suez">Suez</string>
+    <string name="signup_success">Sign Up Successful</string>
+    <string name="verification_code_verified">Verification code Verified</string>
+    <string name="invalid_verification_code">Invalid Verification Code</string>
+    <string name="checkYourEmail">check your email</string>
 
 
 </resources>

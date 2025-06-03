@@ -1,5 +1,6 @@
 package com.example.ecommerce.features.cart.presentation.viewmodel
 
+import com.example.ecommerce.R
 import com.example.ecommerce.activateTestFlow
 import com.example.ecommerce.core.constants.CustomerOrAddressNotFound
 import com.example.ecommerce.core.database.data.entities.address.CustomerAddressEntity
@@ -155,7 +156,7 @@ class CheckOutViewModelTest {
 
             val event = eventDeferred.await()
             assertTrue(event is UiEvent.ShowSnackBar)
-            assertEquals(CustomerOrAddressNotFound, event.message)
+            assertEquals(R.string.customer_or_address_not_found, event.resId)
             assertFalse(viewModel.checkOutState.value.isCheckingOut)
 
             eventDeferred.cancel()

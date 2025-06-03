@@ -3,6 +3,7 @@ package com.example.ecommerce.features.authentication.presentation.screens.login
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,10 +12,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
 import com.example.ecommerce.core.manager.customer.CustomerManager
-import com.example.ecommerce.core.fragment.LoadingDialogFragment
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
@@ -35,7 +36,8 @@ class LoginFragment : Fragment() {
 
     @Inject
     lateinit var customerManager: CustomerManager
-    private lateinit var loadingDialog: LoadingDialogFragment
+
+
     private lateinit var rootView: View
 
     override fun onCreateView(
@@ -50,13 +52,13 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         textWatchers()
         loginWithUserNameOrEmailAndPassword()
         signUpNavigation()
         forgetPasswordNavigation()
         loginState()
         loginEvent()
+
     }
 
     override fun onDestroyView() {
@@ -69,10 +71,13 @@ class LoginFragment : Fragment() {
             val username = binding.userNameOrEmailEditText.text.toString()
             val password = binding.passwordLoginEditText.text.toString()
             if (validateInputs()) {
+                Log.d("LoginFragment", "loginWithUserNameOrEmailAndPassword: $username")
                 loginViewModel.onEvent(LoginEvent.UserNameInput(username))
                 loginViewModel.onEvent(LoginEvent.PasswordInput(password))
                 loginViewModel.onEvent(LoginEvent.Button.SignIn)
 
+            } else {
+                Log.d("LoginFragment", "loginWithUserNameOrEmailAndPassword: else")
             }
         }
     }
@@ -107,13 +112,21 @@ class LoginFragment : Fragment() {
                         }
 
                         is UiEvent.Navigation.Home -> {
-                            findNavController().navigate(event.destinationId)
+                            findNavController().navigate(
+                                event.destinationId,
+                                null,
+                                NavOptions.Builder()
+                                    .setPopUpTo(
+                                        R.id.navigation_bottom_bar,
+                                        true
+                                    ).build()
+                            )
                         }
 
                         is UiEvent.CombinedEvents -> {
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = {message, _ ->
+                                onShowSnackBar = { message, _ ->
                                     SnackBarCustom.showSnackbar(view = rootView, message = message)
                                 },
                                 onNavigate = { destinationId, args ->
@@ -122,6 +135,7 @@ class LoginFragment : Fragment() {
                                         LoginFragmentDirections.actionLoginFragmentToCheckVerificationCodeFragment(
                                             emailArg = args ?: ""
                                         )
+                                    Log.d("SignUpFragment", "onNavigate: $action")
 
                                     findNavController().navigate(action)
 

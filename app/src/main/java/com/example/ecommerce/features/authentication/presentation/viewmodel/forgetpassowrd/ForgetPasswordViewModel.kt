@@ -61,7 +61,7 @@ class ForgetPasswordViewModel @Inject constructor(
             _forgetPasswordEvent.send(
                 UiEvent.CombinedEvents(
                     listOf(
-                        UiEvent.ShowSnackBar(message = CheckYourEmail),
+                        UiEvent.ShowSnackBar(resId = R.string.checkYourEmail),
                         UiEvent.Navigation.SignIn(R.id.loginFragment)
                     )
                 )

@@ -8,6 +8,7 @@ import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.extension.eventHandler
 import com.example.ecommerce.core.extension.performUseCaseOperation
 import com.example.ecommerce.core.ui.event.UiEvent
+import com.example.ecommerce.features.orders.domain.use_case.fetch_orders.FetchOrderUseCase
 import com.example.ecommerce.features.orders.domain.use_case.get_orders.IGetOrdersUseCase
 import com.example.ecommerce.features.orders.presentation.event.OrderEvent
 import com.example.ecommerce.features.orders.presentation.state.OrderState
@@ -24,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OrderViewModel @Inject constructor(
     private val getOrdersUseCase: IGetOrdersUseCase,
+    private val fetchOrderUseCase: FetchOrderUseCase
 ) : ViewModel() {
     private val _orderEvent: Channel<UiEvent> = Channel()
     val orderEvent = _orderEvent.receiveAsFlow()
@@ -42,8 +44,13 @@ class OrderViewModel @Inject constructor(
                     is OrderEvent.OnOrderItemCardClick -> {
                         _orderState.update { it.copy(orderItem = evt.value) }
                     }
+
                     is OrderEvent.OnOrderCardClick -> {
                         orderItemCard()
+                    }
+
+                    is OrderEvent.FetchOrders -> {
+                        fetchOrders()
                     }
                 }
 
@@ -57,6 +64,19 @@ class OrderViewModel @Inject constructor(
         useCase = {
             val orderItems = getOrdersUseCase.invoke()
             _orderState.update { it.copy(orders = orderItems) }
+        },
+        onFailure = {
+            val mapFailureToMessage = mapFailureMessage(it)
+            _orderEvent.send(UiEvent.ShowSnackBar(mapFailureToMessage))
+        },
+        onException = {
+            _orderEvent.send(UiEvent.ShowSnackBar(it.message ?: Unknown_Error))
+        },
+    )
+
+    private fun fetchOrders() = performUseCaseOperation(
+        useCase = {
+            fetchOrderUseCase.invoke()
         },
         onFailure = {
             val mapFailureToMessage = mapFailureMessage(it)

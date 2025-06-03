@@ -1,111 +1,122 @@
 package com.example.ecommerce.features.notification.presentation.viewmodel
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
+import com.example.ecommerce.activateTestFlow
 import com.example.ecommerce.core.errors.Failures
-import com.example.ecommerce.core.errors.mapFailureMessage
-import com.example.ecommerce.core.ui.state.UiState
-import com.example.ecommerce.features.await
+import com.example.ecommerce.core.ui.event.UiEvent
+import com.example.ecommerce.features.MainDispatcherRule
 import com.example.ecommerce.features.errorMessage
+import com.example.ecommerce.features.notification.domain.entity.NotificationRequestEntity
+import com.example.ecommerce.features.notification.domain.entity.NotificationResponseEntity
 import com.example.ecommerce.features.notification.domain.usecase.addfcmtokendevice.IAddFcmTokenDeviceUseCase
-import com.example.ecommerce.features.notification.presentation.viewmodel.notification.INotificationViewModel
-import com.example.ecommerce.features.notification.presentation.viewmodel.notification.NotificationViewModel
-import com.example.ecommerce.features.notification.tToken
-import com.example.ecommerce.features.observerViewModelErrorState
-import com.example.ecommerce.features.observerViewModelSuccessState
-import com.example.ecommerce.features.removeObserverFromLiveData
-import kotlinx.coroutines.Dispatchers
+import com.example.ecommerce.features.notification.presentation.event.NotificationEvent
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import io.mockk.spyk
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
-import java.util.concurrent.CountDownLatch
+import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class NotificationViewModelTest {
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val mainDispatcherRule = MainDispatcherRule()
+    private val addFcmTokenDeviceUseCase = mockk<IAddFcmTokenDeviceUseCase>()
+    private lateinit var viewModel: NotificationViewModel
+    private val tToken = "ad32:a"
 
-    @Mock
-    private lateinit var addFcmTokenDeviceUseCase: IAddFcmTokenDeviceUseCase
-    private lateinit var viewModel: INotificationViewModel
-    private val dispatcher = UnconfinedTestDispatcher()
-    private val latch = CountDownLatch(1)
+    private val notificationResponseEntity = mockk<NotificationResponseEntity>()
 
     @Before
     fun setup() {
-        MockitoAnnotations.openMocks(this)
-        Dispatchers.setMain(dispatcher)
-        viewModel = NotificationViewModel(addFcmTokenDeviceUseCase = addFcmTokenDeviceUseCase)
-
-    }
-
-    private fun notificationStateUiAsLiveData(): LiveData<UiState<Any>> {
-        return viewModel.notificationState.asLiveData()
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
+        viewModel = NotificationViewModel(addFcmTokenDeviceUseCase)
     }
 
     @Test
-    fun `addFcmTokenDevice should emit notificationState with success state when use case succeeds`() =
-        runTest {
-            `when`(addFcmTokenDeviceUseCase(token = tToken)).thenReturn(Unit)
-            viewModel.addFcmTokenDevice(token = tToken)
-            val observer = observerViewModelSuccessState(
-                latch = latch,
-                Unit,
-                notificationStateUiAsLiveData()
-            )
-            await(latch = latch)
-            verify(addFcmTokenDeviceUseCase).invoke(token = tToken)
-            removeObserverFromLiveData(notificationStateUiAsLiveData(), observer)
+    fun `onEvent AddFcmTokenDevice should update the Input Value`() = runTest {
+        val job = activateTestFlow(viewModel.notificationState)
+        viewModel.onEvent(NotificationEvent.AddFcmTokenDevice(tToken))
+        val state = viewModel.notificationState.value.token
+        assertEquals(tToken, state)
+        job.cancel()
+    }
 
+    @Test
+    fun `onEvent OnAddFcmTokenDevice button should trigger the addFcmTokenDeviceUseCase`() =
+        runTest {
+            val logoutSpy = spyk(viewModel, recordPrivateCalls = true)
+            logoutSpy.onEvent(NotificationEvent.OnAddFcmTokenDevice)
+            coVerify(exactly = 1) { logoutSpy[ADD_FCM_TOKEN_DEVICE]() }
         }
 
     @Test
-    fun `addFcmTokenDevice should emit notificationState with error state when use case throw exception`() =
-        runTest {
-            `when`(addFcmTokenDeviceUseCase(token = tToken)).thenThrow(RuntimeException(errorMessage))
-            viewModel.addFcmTokenDevice(token = tToken)
-            val observer = observerViewModelErrorState(
-                latch = latch,
-                errorMessage,
-                notificationStateUiAsLiveData()
-            )
-            await(latch = latch)
-            verify(addFcmTokenDeviceUseCase).invoke(token = tToken)
-            removeObserverFromLiveData(notificationStateUiAsLiveData(), observer)
-        }
+    fun `addFcmTokenDevice should call addFcmTokenDeviceUseCase`() = runTest {
+        viewModel.onEvent(NotificationEvent.AddFcmTokenDevice(tToken))
+        advanceUntilIdle()
+
+        val state = viewModel.notificationState.value.token
+        val notificationRequestEntity = NotificationRequestEntity(state)
+        coEvery { addFcmTokenDeviceUseCase.invoke(notificationRequestEntity) } returns notificationResponseEntity
+
+        viewModel.onEvent(NotificationEvent.OnAddFcmTokenDevice)
+        advanceUntilIdle()
+        coVerify(exactly = 1) { addFcmTokenDeviceUseCase.invoke(notificationRequestEntity) }
+
+    }
 
     @Test
-    fun `addFcmTokenDevice should emit notificationState with error state when use case throw Failure type`() =
-        runTest {
-            val failure = Failures.ServerFailure(errorMessage)
-            `when`(addFcmTokenDeviceUseCase(token = tToken)).thenAnswer { throw failure }
-            viewModel.addFcmTokenDevice(token = tToken)
-            val expectedErrorState = mapFailureMessage(failure)
-            val observer = observerViewModelErrorState(
-                latch = latch,
-                expectedErrorState,
-                notificationStateUiAsLiveData()
-            )
-            await(latch = latch)
-            verify(addFcmTokenDeviceUseCase).invoke(token = tToken)
-            removeObserverFromLiveData(notificationStateUiAsLiveData(), observer)
-        }
+    fun `addFcmTokenDevice throw Failure Exception should send ShowSnackBar event`() = runTest {
+        viewModel.onEvent(NotificationEvent.AddFcmTokenDevice(tToken))
+        advanceUntilIdle()
 
+        val state = viewModel.notificationState.value.token
+        val notificationRequestEntity = NotificationRequestEntity(state)
+        coEvery { addFcmTokenDeviceUseCase.invoke(notificationRequestEntity) } throws Failures.ServerFailure(
+            errorMessage
+        )
+
+        val eventDeferred = async { viewModel.notificationEvent.first() }
+        viewModel.onEvent(NotificationEvent.OnAddFcmTokenDevice)
+        advanceUntilIdle()
+
+
+        val event = eventDeferred.await()
+        assertTrue(event is UiEvent.ShowSnackBar)
+        assertEquals(errorMessage, (event as UiEvent.ShowSnackBar).message)
+
+    }
+
+    @Test
+    fun `addFcmTokenDevice throw  Exception should send ShowSnackBar event`() = runTest {
+        viewModel.onEvent(NotificationEvent.AddFcmTokenDevice(tToken))
+        advanceUntilIdle()
+
+        val state = viewModel.notificationState.value.token
+        val notificationRequestEntity = NotificationRequestEntity(state)
+        coEvery { addFcmTokenDeviceUseCase.invoke(notificationRequestEntity) } throws Exception(
+            errorMessage
+        )
+
+        val eventDeferred = async { viewModel.notificationEvent.first() }
+        viewModel.onEvent(NotificationEvent.OnAddFcmTokenDevice)
+        advanceUntilIdle()
+
+
+        val event = eventDeferred.await()
+        assertTrue(event is UiEvent.ShowSnackBar)
+        assertEquals(errorMessage, (event as UiEvent.ShowSnackBar).message)
+
+    }
+
+    companion object {
+        private const val ADD_FCM_TOKEN_DEVICE = "addFcmTokenDevice"
+    }
 
 }

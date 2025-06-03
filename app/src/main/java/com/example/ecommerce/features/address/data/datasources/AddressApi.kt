@@ -1,5 +1,7 @@
 package com.example.ecommerce.features.address.data.datasources
 
+import com.example.ecommerce.core.constants.CUSTOMER_ADDRESS_END_POINT
+import com.example.ecommerce.core.constants.CUSTOMER_INFO_END_POINT
 import com.example.ecommerce.features.address.data.models.AddressDataResponseModel
 import com.example.ecommerce.features.address.data.models.AddressRequestModel
 import com.example.ecommerce.features.address.data.models.UpdateAddressResponseModel
@@ -10,12 +12,12 @@ import retrofit2.http.GET
 import retrofit2.http.PUT
 
 interface AddressApi {
-    @PUT("wp-json/custom/v1/customer-address")
+    @PUT(CUSTOMER_ADDRESS_END_POINT)
     suspend fun updateAddress(
         @Body updateAddressParams: AddressRequestModel
     ): Response<UpdateAddressResponseModel>
 
-    @GET("wp-json/custom/v1/customer-info")
+    @GET(CUSTOMER_INFO_END_POINT)
     suspend fun getAddress(): Response<AddressDataResponseModel>
 
 

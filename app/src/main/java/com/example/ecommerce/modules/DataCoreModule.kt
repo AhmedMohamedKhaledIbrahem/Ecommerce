@@ -10,6 +10,7 @@ import com.example.ecommerce.core.database.data.dao.cart.ItemCartDao
 import com.example.ecommerce.core.database.data.dao.category.CategoryDao
 import com.example.ecommerce.core.database.data.dao.category.ProductCategoryDao
 import com.example.ecommerce.core.database.data.dao.image.ImageDao
+import com.example.ecommerce.core.database.data.dao.logout.LogoutDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderItemDao
 import com.example.ecommerce.core.database.data.dao.orders.OrderTagDao
 import com.example.ecommerce.core.database.data.dao.product.ProductCategoryCrossRefDao
@@ -19,6 +20,8 @@ import com.example.ecommerce.core.manager.address.AddressManager
 import com.example.ecommerce.core.manager.address.AddressManagerImp
 import com.example.ecommerce.core.manager.customer.CustomerManager
 import com.example.ecommerce.core.manager.customer.CustomerManagerImp
+import com.example.ecommerce.core.manager.expiry.Expiry
+import com.example.ecommerce.core.manager.expiry.ExpiryImp
 import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.manager.fcm.FcmDeviceTokenImp
 import com.example.ecommerce.core.manager.prdouct.ProductHandler
@@ -122,6 +125,12 @@ object DataCoreModule {
 
     @Provides
     @Singleton
+    fun provideLogoutDao(appDatabase: AppDatabase): LogoutDao {
+        return appDatabase.logoutDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideCustomerManager(preferences: SharedPreferences): CustomerManager {
         return CustomerManagerImp(sharedPreferences = preferences)
     }
@@ -143,6 +152,12 @@ object DataCoreModule {
     @Singleton
     fun provideProductHandler(preferences: SharedPreferences): ProductHandler {
         return ProductHandlerImp(sharedPreferences = preferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideExpiry(preferences: SharedPreferences): Expiry {
+        return ExpiryImp(preferences = preferences)
     }
 
     @Provides

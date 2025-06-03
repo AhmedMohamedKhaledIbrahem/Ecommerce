@@ -1,5 +1,6 @@
 package com.example.ecommerce.features.orders.data.repository
 
+import com.example.ecommerce.R
 import com.example.ecommerce.core.errors.FailureException
 import com.example.ecommerce.core.network.checknetwork.InternetConnectionChecker
 import com.example.ecommerce.features.cacheFailure
@@ -69,7 +70,7 @@ class OrderRepositoryTest {
             val result = connectionFailure {
                 repository.createOrder(tCreateOrderRequestEntity)
             }
-            assertEquals(connectionFailureMessage, result.message)
+            assertEquals(com.example.ecommerce.R.string.no_internet_connection, result.resourceId)
         }
 
     @Test

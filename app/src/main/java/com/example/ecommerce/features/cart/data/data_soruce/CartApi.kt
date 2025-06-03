@@ -1,8 +1,11 @@
 package com.example.ecommerce.features.cart.data.data_soruce
 
+import com.example.ecommerce.core.constants.ADD_ITEM_TO_CART_END_POINT
+import com.example.ecommerce.core.constants.CLEAR_CART_END_POINT
+import com.example.ecommerce.core.constants.GET_CART_END_POINT
+import com.example.ecommerce.core.constants.REMOVE_ITEM_END_POINT
 import com.example.ecommerce.features.cart.data.models.AddItemRequestModel
 import com.example.ecommerce.features.cart.data.models.CartResponseModel
-import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -11,17 +14,17 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface CartApi {
-    @GET("wp-json/cocart/v2/cart")
+    @GET(GET_CART_END_POINT)
     suspend fun getCart(): Response<CartResponseModel>
 
-    @POST("wp-json/cocart/v2/cart/add-item")
-    suspend fun addItemToCart(@Body request: AddItemRequestModel):Response<CartResponseModel>
+    @POST(ADD_ITEM_TO_CART_END_POINT)
+    suspend fun addItemToCart(@Body request: AddItemRequestModel): Response<CartResponseModel>
 
-    @DELETE("wp-json/cocart/v2/cart/item/{cart_item_key}")
+    @DELETE(REMOVE_ITEM_END_POINT)
     suspend fun removeItem(@Path("cart_item_key") keyItem: String)
 
-    @POST("wp-json/cocart/v2/cart/clear")
-    suspend fun clearCart() : Response<Unit>
+    @POST(CLEAR_CART_END_POINT)
+    suspend fun clearCart(): Response<Unit>
 
 
 }

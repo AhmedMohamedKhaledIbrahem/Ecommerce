@@ -7,6 +7,7 @@ import com.example.ecommerce.core.errors.Failures
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.MainDispatcherRule
 import com.example.ecommerce.features.errorMessage
+import com.example.ecommerce.features.orders.domain.use_case.fetch_orders.FetchOrderUseCase
 import com.example.ecommerce.features.orders.domain.use_case.get_orders.IGetOrdersUseCase
 import com.example.ecommerce.features.orders.presentation.event.OrderEvent
 import io.mockk.coEvery
@@ -30,7 +31,8 @@ class OrderViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private var getOrderUseCase = mockk<IGetOrdersUseCase>()
+    private val getOrderUseCase = mockk<IGetOrdersUseCase>()
+    private val fetchOrderUseCase = mockk<FetchOrderUseCase>()
     private lateinit var viewModel: OrderViewModel
 
 
@@ -38,6 +40,7 @@ class OrderViewModelTest {
     fun setUp() {
         viewModel = OrderViewModel(
             getOrdersUseCase = getOrderUseCase,
+            fetchOrderUseCase = fetchOrderUseCase
         )
     }
 

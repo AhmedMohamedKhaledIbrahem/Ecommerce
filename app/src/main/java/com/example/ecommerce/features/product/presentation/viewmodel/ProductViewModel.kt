@@ -109,30 +109,18 @@ class ProductViewModel @Inject constructor(
 
     private fun fetchProductPaging() {
         pagingJob?.cancel()
-        pagingJob = viewModelScope.launch {
-            productRepository.getProducts().cachedIn(viewModelScope)
+        pagingJob = productRepository.getProducts().cachedIn(viewModelScope)
                 .onStart {
                     _productPagedState.update { it.copy(isLoading = true) }
                 }.onEach { pagingData ->
-
                     _productPagedState.update { it.copy(products = pagingData, isLoading = false) }
                 }.catch {
-                    when (it) {
-                        is Failures -> _productPagedEvent.send(
-                            UiEvent.ShowSnackBar(
-                                mapFailureMessage(it)
-                            )
-                        )
+                    val message = if (it is Failures) mapFailureMessage(it) else it.message ?: "Unknown Error"
+                    _productPagedEvent.send(UiEvent.ShowSnackBar(message))
+                }.launchIn(viewModelScope)
 
-                        else -> _productPagedEvent.send(
-                            UiEvent.ShowSnackBar(
-                                it.message ?: "Unknown Error"
-                            )
-                        )
-                    }
-                }.launchIn(this)
-        }
     }
+
 
     private fun onProductCardClick() {
         viewModelScope.launch {

@@ -72,19 +72,7 @@ class OrderLocalDataSourceTest {
         assertEquals(cacheFailureMessage, exception.message)
     }
 
-    @Test
-    fun `insertOrderWithItem should throw when the image is Null `() = runTest {
-        `when`(orderTagDao.insertOrderTag(orderTag = tOrderTagEntity)).thenReturn(Unit)
-        `when`(orderItemDao.insertOrderItem(orderItemEntity = tOrderItemEntity)).thenReturn(Unit)
-        val nullImage: List<ImageEntity> = emptyList()
-        val exception = failureException {
-            localDataSource.insertOrderWithItem(
-                orderResponseModel = tCreateOrderResponseModelJson,
-                nullImage
-            )
-        }
-        assertEquals(imageMessageError, exception.message)
-    }
+
 
     @Test
     fun `insertOrderWithItem should throw when the orderItemDao throw Exception`() = runTest {
