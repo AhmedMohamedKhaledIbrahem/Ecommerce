@@ -49,6 +49,7 @@ class CategoryViewModel @Inject constructor(
             if (categories.isEmpty()) {
                 insertCategoryUseCase.invoke()
             }
+            _categoryState.update { it.copy(isFetched = true) }
 
         },
         onFailure = { failure ->

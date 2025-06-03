@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/AddressShimmerCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="10dp"
+        android:backgroundTint="?attr/colorBackgroundFloating"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="10dp">
+
+            <TextView
+                android:id="@+id/fullNameAddressShimmerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shimmer_placeholder"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+
+                android:text=""
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/emailAddressShimmerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shimmer_placeholder"
+                android:ellipsize="end"
+                android:fontFamily="@font/raleway_bold"
+                android:lines="1"
+                android:maxLines="1"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/phoneNumberShimmerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shimmer_placeholder"
+                android:ellipsize="end"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/streetAddressShimmerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shimmer_placeholder"
+                android:ellipsize="end"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/countryShimmerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shimmer_placeholder"
+                android:ellipsize="end"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/cityShimmerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shimmer_placeholder"
+                android:ellipsize="end"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/stateShimmerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shimmer_placeholder"
+                android:ellipsize="end"
+                android:lines="1"
+                android:maxLines="1"
+
+                android:text=""
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/postCodeShimmerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shimmer_placeholder"
+                android:ellipsize="end"
+                android:lines="1"
+                android:maxLines="1"
+                android:text=""
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

@@ -65,6 +65,7 @@ class ConfirmPasswordViewModel @Inject constructor(
             )
             val messageResponse = confirmPasswordUseCase.invoke(confirmPasswordRequestEntity)
             _confirmPasswordEvent.send(UiEvent.ShowSnackBar(message = messageResponse.message))
+            _confirmPasswordState.update { it.copy(isFinished = true) }
         },
         onFailure = { failure ->
             val mapFailureToMessage = mapFailureMessage(failure)

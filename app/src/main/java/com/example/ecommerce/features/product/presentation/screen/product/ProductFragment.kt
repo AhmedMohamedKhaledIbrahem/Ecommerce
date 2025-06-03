@@ -2,6 +2,7 @@ package com.example.ecommerce.features.product.presentation.screen.product
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -127,7 +128,6 @@ class ProductFragment : Fragment() {
         fetchProductRemoteState()
         fetchProductPaging()
         fetchProductPagingState()
-        loadCategory()
         productEvent()
         categoryEvent()
         categoryState()
@@ -149,13 +149,9 @@ class ProductFragment : Fragment() {
     private fun expandBottomSheetState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                expandedBottomSheetFilterViewModel.expandedFilter.collect { expanded ->
-                    if (expanded) {
+                expandedBottomSheetFilterViewModel.expandedFilter.collectLatest { expanded ->
+                    if (expanded && bottomSheetDialog == null) {
                         expandBottomSheetFilter()
-
-                    } else if (bottomSheetDialog?.isShowing == true) {
-                        bottomSheetDialog?.dismiss()
-                        bottomSheetDialog = null
                     }
                 }
 
@@ -164,6 +160,11 @@ class ProductFragment : Fragment() {
     }
 
     private fun expandBottomSheetFilter() {
+        if (category.isEmpty()) {
+            Log.d("tag", "$category")
+        } else {
+            Log.d("tag2", "$category")
+        }
         val binding = FilterBottomSheetLayoutBinding.inflate(
             LayoutInflater.from(requireContext()),
             null,
@@ -173,6 +174,7 @@ class ProductFragment : Fragment() {
             setContentView(binding.root)
             setOnDismissListener {
                 expandedBottomSheetFilterViewModel.setExpandedFilter(false)
+                bottomSheetDialog = null
             }
             show()
         }
@@ -197,9 +199,9 @@ class ProductFragment : Fragment() {
         )
 
         val recyclerView = binding.categoryRecyclerView
+
         recyclerView.adapter = categoryAdapter
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-
 
     }
 
@@ -303,7 +305,7 @@ class ProductFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 productSearchViewModel.searchState.collectLatest { state ->
                     if (state.isSearching) {
-                    //
+                        //
                     } else {
                         binding.productRecyclerView.post {
                             if (view != null && _binding != null) {
@@ -352,12 +354,16 @@ class ProductFragment : Fragment() {
     private fun categoryState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                categoryViewModel.categoryState.collectLatest { state ->
-                    val categories = state.categories
-                    if (categories.isNotEmpty()) {
-                        category = categories
-
+                categoryViewModel.categoryState.collect { state ->
+                    if (state.isFetched) {
+                        loadCategory()
                     }
+                    if (!state.categories.isEmpty()) {
+                        category = state.categories
+                    }
+
+
+
                 }
             }
         }
@@ -584,7 +590,7 @@ class ProductFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        bottomSheetDialog = null
+
     }
 
 }

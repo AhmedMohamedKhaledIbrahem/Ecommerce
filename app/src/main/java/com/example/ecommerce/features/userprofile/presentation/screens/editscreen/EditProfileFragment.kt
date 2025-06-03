@@ -74,7 +74,6 @@ class EditProfileFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //loadingDialog = LoadingDialogFragment.getInstance(childFragmentManager)
         radioOnCheckedChangeListener()
         buttonCancelOnClickListener()
         getUserProfile()
@@ -311,6 +310,9 @@ class EditProfileFragment : DialogFragment() {
                         )
                         changeStateView(true)
                     }
+                    if (state.isFinished) {
+                        dialog?.dismiss()
+                    }
 
                 }
             }
@@ -397,6 +399,7 @@ class EditProfileFragment : DialogFragment() {
 
         binding.ChangePasswordButton.setOnClickListener {
             val password = binding.passwordEditText.text.toString()
+            val newPassword = binding.newPasswordEditText.text.toString()
             val otpText = binding.otpPasswordEditText.text.toString()
 
             if (password.isNotEmpty() && otpText.isNotEmpty()) {
@@ -407,7 +410,7 @@ class EditProfileFragment : DialogFragment() {
                 )
                 confirmPasswordViewModel.onEvent(
                     ConfirmPasswordEvent.NewPasswordInput(
-                        newPassword = password
+                        newPassword = newPassword
                     )
                 )
                 confirmPasswordViewModel.onEvent(
@@ -416,6 +419,7 @@ class EditProfileFragment : DialogFragment() {
                     )
                 )
                 confirmPasswordViewModel.onEvent(ConfirmPasswordEvent.ConfirmPasswordButton)
+
             } else {
                 binding.ChangePasswordButton.isEnabled = false
             }

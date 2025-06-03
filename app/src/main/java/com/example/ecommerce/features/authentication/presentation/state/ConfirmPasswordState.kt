@@ -5,4 +5,5 @@ data class ConfirmPasswordState(
     val otp: Int = -1,
     val newPassword: String = "",
     val isLoading: Boolean = false,
+    val isFinished: Boolean = false
 )
