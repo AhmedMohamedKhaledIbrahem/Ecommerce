@@ -36,6 +36,7 @@ class LogoutLocalDataSourceImp @Inject constructor(
             dao.deleteProductCategoryCross()
             dao.deleteUser()
             tokenManager.clearToken()
+            tokenManager.clearVerificationStatus()
             productHandler.deleteProductUpdate()
             customerManager.clearCustomerId()
             addressManager.clearAddressId()

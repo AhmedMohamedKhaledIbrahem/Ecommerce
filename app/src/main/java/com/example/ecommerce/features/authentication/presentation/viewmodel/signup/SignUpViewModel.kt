@@ -98,12 +98,12 @@ class SignUpViewModel @Inject constructor(
                 )
             signUpUseCase(signUpParams = signUpParams)
             val sendVerificationParams = EmailRequestEntity(email = email)
-            val messageResponse =
+
                 sendVerificationCodeUseCase(sendVerificationCodeParams = sendVerificationParams)
             _signUpEvent.send(
                 UiEvent.CombinedEvents(
                     listOf(
-                        UiEvent.ShowSnackBar(message = messageResponse.message),
+                        UiEvent.ShowSnackBar(resId = R.string.signup_success),
                         UiEvent.Navigation.CheckVerificationCode(
                             destinationId = R.id.checkVerificationCodeFragment,
                             args = email

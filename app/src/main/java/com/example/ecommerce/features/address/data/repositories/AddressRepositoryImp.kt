@@ -33,12 +33,6 @@ class AddressRepositoryImp @Inject constructor(
             }
             val email = customerAddressParams.billing.email
             if (email == null) throw Failures.CacheFailure(context.getString(R.string.address_not_found))
-            val exists =
-                localDataSource.isEmailExist(email) == 1 || localDataSource.isEmailExist(email) == 0
-
-
-            if (!exists) throw Failures.CacheFailure(context.getString(R.string.email_exist))
-
             val updateAddressParams = AddressMapper.mapToModel(customerAddressParams)
             try {
                 localDataSource.updateAddress(id = id, updateAddressParams)
@@ -77,16 +71,13 @@ class AddressRepositoryImp @Inject constructor(
                         .mapAddressResponseModelToAddressRequestModel(
                             addressDataResponseModel
                         )
-                    if (addressRequestModel.billing == null) throw Failures.CacheFailure(
-                        context.getString(
-                            R.string.no_address_found
-                        )
-                    )
-                    localDataSource.insertAddress(addressRequestModel)
-                    val id =
-                        localDataSource.getCustomerId(addressRequestModel.billing.email.toString())
-                    addressManager.setAddressId(id)
-                    localDataSource.unSelectAddress(id)
+                    if (addressRequestModel.billing?.email != null) {
+                        localDataSource.insertAddress(addressRequestModel)
+                        val id =
+                            localDataSource.getCustomerId(addressRequestModel.billing.email.toString())
+                        addressManager.setAddressId(id)
+                        localDataSource.unSelectAddress(id)
+                    }
                     localDataSource.getAddress()
                 } catch (e: FailureException) {
                     throw Failures.ServerFailure(
@@ -109,11 +100,6 @@ class AddressRepositoryImp @Inject constructor(
             }
             if (customerAddressParams.billing.email == null) {
                 throw Failures.CacheFailure(context.getString(R.string.address_not_found))
-            }
-            val exists = localDataSource.isEmailExist(customerAddressParams.billing.email) > 0
-
-            if (exists) {
-                throw Failures.CacheFailure(context.getString(R.string.email_exist))
             }
 
             val addressRequestModel = AddressMapper.mapToModel(customerAddressParams)

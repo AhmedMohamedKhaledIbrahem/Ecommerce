@@ -16,6 +16,7 @@ import com.example.ecommerce.R
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.databinding.FragmentSignUpBinding
 import com.example.ecommerce.features.authentication.presentation.event.SignUpEvent
 import com.example.ecommerce.features.authentication.presentation.viewmodel.signup.SignUpViewModel
@@ -65,8 +66,13 @@ class SignUpFragment : Fragment() {
                         is UiEvent.CombinedEvents -> {
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = { message, _ ->
-                                    SnackBarCustom.showSnackbar(view = rootView, message = message)
+                                onShowSnackBar = { message, resId ->
+                                    checkIsMessageOrResourceId(
+                                        message = message,
+                                        resId = resId,
+                                        root = rootView,
+                                        context = requireContext()
+                                    )
                                 },
                                 onNavigate = { destinationId, args ->
                                     val action =

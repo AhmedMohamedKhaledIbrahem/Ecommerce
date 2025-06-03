@@ -208,6 +208,10 @@
     <string name="sohag">Sohag</string>
     <string name="south_sinai">South Sinai</string>
     <string name="suez">Suez</string>
+    <string name="signup_success">Sign Up Successful</string>
+    <string name="verification_code_verified">Verification code Verified</string>
+    <string name="invalid_verification_code">Invalid Verification Code</string>
+    <string name="checkYourEmail">check your email</string>
 
 
 </resources>

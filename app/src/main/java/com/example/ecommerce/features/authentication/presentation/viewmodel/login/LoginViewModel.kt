@@ -8,6 +8,7 @@ import com.example.ecommerce.core.constants.Unknown_Error
 import com.example.ecommerce.core.errors.mapFailureMessage
 import com.example.ecommerce.core.extension.performUseCaseOperation
 import com.example.ecommerce.core.manager.customer.CustomerManager
+import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.features.authentication.domain.entites.AuthenticationRequestEntity
 import com.example.ecommerce.features.authentication.domain.entites.EmailRequestEntity
@@ -32,6 +33,7 @@ class LoginViewModel @Inject constructor(
     private val loginUseCase: ILoginUseCase,
     private val sendVerificationCodeUseCase: ISendVerificationCodeUseCase,
     private val customerManager: CustomerManager,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
     private val _loginEvent: Channel<UiEvent> = Channel()
     val loginEvent = _loginEvent.receiveAsFlow()
@@ -84,6 +86,7 @@ class LoginViewModel @Inject constructor(
             )
             val response = loginUseCase.invoke(loginParams = loginParams)
             if (response.verificationStatues) {
+                tokenManager.saveVerificationStatus(true)
                 performTaskParallel(userId = response.userId)
                 _loginEvent.send(UiEvent.Navigation.Home(R.id.productFragment))
             } else {

@@ -52,7 +52,6 @@ import com.example.ecommerce.features.product.presentation.viewmodel.ProductView
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -61,8 +60,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ProductFragment : Fragment() {
     private var _binding: FragmentProductBinding? = null
-    private var bottomSheetJob: Job? = null
-
     private val binding get() = _binding!!
     var category: List<CategoryEntity> = emptyList()
     var selectedCategoryIds = mutableSetOf<Int>()
@@ -119,9 +116,9 @@ class ProductFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        startExpiryWorkManager()
         saveFcmToken()
         enableLogout()
-        startExpiryWorkManager()
         notificationEvent()
         initShimmerRecycleView()
         initProductRecycleView()
@@ -140,6 +137,7 @@ class ProductFragment : Fragment() {
         expandBottomSheetState()
         logoutAfterExpiryToken()
         logoutEvent()
+
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -151,10 +149,11 @@ class ProductFragment : Fragment() {
     private fun expandBottomSheetState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                expandedBottomSheetFilterViewModel.expandedFilter.collectLatest { expanded ->
+                expandedBottomSheetFilterViewModel.expandedFilter.collect { expanded ->
                     if (expanded) {
                         expandBottomSheetFilter()
-                    } else {
+
+                    } else if (bottomSheetDialog?.isShowing == true) {
                         bottomSheetDialog?.dismiss()
                         bottomSheetDialog = null
                     }
@@ -199,8 +198,7 @@ class ProductFragment : Fragment() {
 
         val recyclerView = binding.categoryRecyclerView
         recyclerView.adapter = categoryAdapter
-        recyclerView.layoutManager =
-            GridLayoutManager(requireContext(), 2)
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
 
     }
@@ -211,9 +209,10 @@ class ProductFragment : Fragment() {
                 productViewModel.productPagedEvent.collectLatest { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
-                            SnackBarCustom.showSnackbar(
-                                view = binding.root,
-                                message = event.message
+                            checkIsMessageOrResourceId(
+                                event = event,
+                                context = requireContext(),
+                                root = binding.root
                             )
                         }
 
@@ -265,7 +264,7 @@ class ProductFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 productViewModel.productPagedState.collectLatest { state ->
                     if (state.isLoading) {
-
+                        //
                     } else {
                         productAdapter.submitData(state.products)
                         selectedCategoryIds = state.category.toMutableSet()
@@ -304,7 +303,7 @@ class ProductFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 productSearchViewModel.searchState.collectLatest { state ->
                     if (state.isSearching) {
-
+                    //
                     } else {
                         binding.productRecyclerView.post {
                             if (view != null && _binding != null) {
@@ -576,7 +575,6 @@ class ProductFragment : Fragment() {
             .build()
         WorkManager.getInstance(requireContext()).enqueue(workRequest)
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

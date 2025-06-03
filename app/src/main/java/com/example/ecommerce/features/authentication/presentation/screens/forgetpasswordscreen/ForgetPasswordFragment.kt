@@ -15,7 +15,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
-import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.databinding.FragmentForgetPasswordBinding
 import com.example.ecommerce.features.authentication.presentation.event.ForgetPasswordEvent
 import com.example.ecommerce.features.authentication.presentation.viewmodel.forgetpassowrd.ForgetPasswordViewModel
@@ -69,14 +69,23 @@ class ForgetPasswordFragment : Fragment() {
                 forgetPasswordViewModel.forgetPasswordEvent.collect { event ->
                     when (event) {
                         is UiEvent.ShowSnackBar -> {
-                            SnackBarCustom.showSnackbar(view = rootView, message = event.message)
+                            checkIsMessageOrResourceId(
+                                event = event,
+                                root = rootView,
+                                context = requireContext()
+                            )
                         }
 
                         is UiEvent.CombinedEvents -> {
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = { message, _ ->
-                                    SnackBarCustom.showSnackbar(view = rootView, message = message)
+                                onShowSnackBar = { message, resId ->
+                                    checkIsMessageOrResourceId(
+                                        message = message,
+                                        resId = resId,
+                                        root = rootView,
+                                        context = requireContext()
+                                    )
                                 },
                                 onNavigate = { destinationId, args ->
                                     findNavController().navigate(destinationId)

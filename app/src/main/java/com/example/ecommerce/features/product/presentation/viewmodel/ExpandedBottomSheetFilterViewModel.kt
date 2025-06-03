@@ -1,16 +1,18 @@
 package com.example.ecommerce.features.product.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 
 class ExpandedBottomSheetFilterViewModel : ViewModel() {
-    private val _expandedFilter = MutableStateFlow<Boolean>(false)
-    val expandedFilter: StateFlow<Boolean> = _expandedFilter.asStateFlow()
+    private val _expandedFilter: Channel<Boolean> = Channel()
+    val expandedFilter = _expandedFilter.receiveAsFlow()
 
     fun setExpandedFilter(expanded: Boolean) {
-        _expandedFilter.update { expanded }
+        viewModelScope.launch {
+            _expandedFilter.send(expanded)
+        }
     }
 }

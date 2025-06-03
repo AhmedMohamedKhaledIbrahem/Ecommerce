@@ -38,7 +38,6 @@ class TokenExpiryWorker @AssistedInject constructor(
 
         val currentTime = System.currentTimeMillis() / 1000
         if (currentTime >= expiryTime) {
-            Log.d("TAG", "doWork: $expiryTime")
             expiry.setEnableLogout(true)
         }
         return Result.success()

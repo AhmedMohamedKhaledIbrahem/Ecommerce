@@ -208,6 +208,11 @@
     <string name="sohag">سوهاج</string>
     <string name="south_sinai">جنوب سيناء</string>
     <string name="suez">السويس</string>
+    <string name="signup_success">تم التسجيل بنجاح</string>
+    <string name="verification_code_verified">تم التحقق من رمز التحقق</string>
+    <string name="invalid_verification_code">رمز التحقق غير صالح</string>
+    <string name="checkYourEmail">تحقق من بريدك الإلكتروني</string>
+
 
 
 </resources>

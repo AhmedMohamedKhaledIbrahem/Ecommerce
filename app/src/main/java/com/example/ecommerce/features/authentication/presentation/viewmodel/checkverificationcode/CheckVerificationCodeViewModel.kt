@@ -94,14 +94,14 @@ class CheckVerificationCodeViewModel @Inject constructor(
                 _checkVerificationCodeEvent.send(
                     UiEvent.CombinedEvents(
                         listOf(
-                            UiEvent.ShowSnackBar(message = message.message),
-                            UiEvent.Navigation.Home(R.id.productFragment)
+                            UiEvent.ShowSnackBar(resId = R.string.verification_code_verified),
+                            UiEvent.Navigation.SignIn(R.id.loginFragment)
                         )
                     )
                 )
             } else {
                 _checkVerificationCodeEvent.send(
-                    UiEvent.ShowSnackBar(message = message.message)
+                    UiEvent.ShowSnackBar(resId = R.string.invalid_verification_code)
                 )
             }
         },

@@ -283,7 +283,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun isLogin(): Boolean {
-        Log.d("TAG", "isLogin: ${tokenManager.getToken()}")
+
         return !tokenManager.getToken().isNullOrEmpty() && tokenManager.getVerificationStatus()
     }
 

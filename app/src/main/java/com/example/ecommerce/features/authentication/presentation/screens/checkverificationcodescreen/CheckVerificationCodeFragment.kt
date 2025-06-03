@@ -20,7 +20,7 @@ import com.example.ecommerce.R
 import com.example.ecommerce.core.manager.token.TokenManager
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
-import com.example.ecommerce.core.utils.SnackBarCustom
+import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.databinding.FragmentCheckVerificationCodeBinding
 import com.example.ecommerce.features.authentication.presentation.event.CheckVerificationCodeEvent
 import com.example.ecommerce.features.authentication.presentation.viewmodel.checkverificationcode.CheckVerificationCodeViewModel
@@ -124,14 +124,23 @@ class CheckVerificationCodeFragment : Fragment() {
                     when (event) {
 
                         is UiEvent.ShowSnackBar -> {
-                            SnackBarCustom.showSnackbar(view = rootView, message = event.message)
+                            checkIsMessageOrResourceId(
+                                event = event,
+                                root = rootView,
+                                context = requireContext()
+                            )
                         }
 
                         is UiEvent.CombinedEvents -> {
                             combinedEvents(
                                 events = event.events,
-                                onShowSnackBar = { message, _ ->
-                                    SnackBarCustom.showSnackbar(view = rootView, message = message)
+                                onShowSnackBar = { message, resId ->
+                                    checkIsMessageOrResourceId(
+                                        message = message,
+                                        resId = resId,
+                                        root = rootView,
+                                        context = requireContext()
+                                    )
                                 },
                                 onNavigate = { destinationId, _ ->
                                     tokenManager.saveVerificationStatus(true)

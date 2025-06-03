@@ -16,16 +16,12 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.ecommerce.R
 import com.example.ecommerce.core.manager.customer.CustomerManager
-import com.example.ecommerce.core.manager.fcm.FcmDeviceToken
 import com.example.ecommerce.core.ui.event.UiEvent
 import com.example.ecommerce.core.ui.event.combinedEvents
 import com.example.ecommerce.core.utils.SnackBarCustom
-import com.example.ecommerce.core.utils.checkIsMessageOrResourceId
 import com.example.ecommerce.databinding.FragmentLoginBinding
 import com.example.ecommerce.features.authentication.presentation.event.LoginEvent
 import com.example.ecommerce.features.authentication.presentation.viewmodel.login.LoginViewModel
-import com.example.ecommerce.features.notification.presentation.event.NotificationEvent
-import com.example.ecommerce.features.notification.presentation.viewmodel.NotificationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,7 +36,6 @@ class LoginFragment : Fragment() {
 
     @Inject
     lateinit var customerManager: CustomerManager
-
 
 
     private lateinit var rootView: View
@@ -76,10 +71,13 @@ class LoginFragment : Fragment() {
             val username = binding.userNameOrEmailEditText.text.toString()
             val password = binding.passwordLoginEditText.text.toString()
             if (validateInputs()) {
+                Log.d("LoginFragment", "loginWithUserNameOrEmailAndPassword: $username")
                 loginViewModel.onEvent(LoginEvent.UserNameInput(username))
                 loginViewModel.onEvent(LoginEvent.PasswordInput(password))
                 loginViewModel.onEvent(LoginEvent.Button.SignIn)
 
+            } else {
+                Log.d("LoginFragment", "loginWithUserNameOrEmailAndPassword: else")
             }
         }
     }
@@ -172,8 +170,6 @@ class LoginFragment : Fragment() {
             }
         }
     }
-
-
 
 
     private fun validateInputs(): Boolean {
